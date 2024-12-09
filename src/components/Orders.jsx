@@ -1,15 +1,23 @@
-import React, { useState } from 'react';
-import { BASE_URL } from '../config';
+import React, { useState, useEffect } from 'react';
 
 const Orders = () => {
   const [orders, setOrders] = useState([]);
 
-  /**
-   * TODO
-   * 1. Create a `fetchOrders` function that retrieves all orders from the database
-   * 2. Using the `useEffect` hook, update the existing `orders` state object when `fetchOrders` is complete
-   **/ 
+  // 1. Create the fetchOrders function
+  const fetchOrders = async () => {
+    try {
+      const response = await fetch('https://plankton-app-9p6gs.ondigitalocean.app/orders');
+      const data = await response.json();
+      setOrders(data); // Update the orders state with the fetched data
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+    }
+  };
 
+  // 2. Use the useEffect hook to fetch orders on component mount
+  useEffect(() => {
+    fetchOrders();
+  }, []); // Empty dependency array ensures this runs only once when the component mounts
 
   return (
     <div className="center mw7 ba mv4">

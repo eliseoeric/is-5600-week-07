@@ -49,6 +49,20 @@ const cartReducer = (state, action) => {
         ),
       }
       return updatedState
+      case UPDATE_ITEM_QUANTITY:
+        console.log({state});
+        const currentItems= state.itemsById[payload._id]
+        const updateItemsState ={
+          ...state,
+          itemsById: {
+            ...state.itemsById,
+          [payload._id] : {
+            ...currentItems,
+            quantity: currentItems.quantity + payload.quantity,
+          },
+        }
+          }
+          return updatedState;
     
     default:
       return state
@@ -71,12 +85,13 @@ const CartProvider = ({ children }) => {
 
   // todo Update the quantity of an item in the cart
   const updateItemQuantity = (productId, quantity) => {
-    // todo
+    dispatch({type: UPDATE_ITEM_QUANTITY, payload: {_id: productId, quantity}})
   }
 
   // todo Get the total price of all items in the cart
   const getCartTotal = () => {
-    // todo
+    return getCartItems().reduce((acc, item)=> acc +item.price * item.quantity,0);
+
   }
 
   const getCartItems = () => {

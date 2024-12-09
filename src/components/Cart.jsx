@@ -1,12 +1,10 @@
 import React, { useContext } from 'react';
 import PurchaseForm from './PurchaseForm';
+import { CartContext } from '../context/CartContext'; // Assume you have a context setup for the cart
 
 const Cart = () => {
-  // TODO - get cart items from context
-  const cartItems = [];
-  const removeFromCart = () => {};
-  const updateItemQuantity = () => {};
-  const getCartTotal = () => {};
+  // Get cart items and methods from context
+  const { cartItems, removeFromCart, updateItemQuantity, getCartTotal } = useContext(CartContext);
 
   return (
     <div className="center mw7 mv4">
@@ -40,14 +38,14 @@ const Cart = () => {
                     +
                   </a>
                 </td>
-                <td className="tr pv2">${item.price * item.quantity}</td>
+                <td className="tr pv2">${(item.price * item.quantity).toFixed(2)}</td>
                 <td className="tr pv2">
-                  <a
-                    className="pointer ba b--black-10 pv1 ph2"
-                    onClick={() => removeFromCart(item)}
+                  <button
+                    className="pointer ba b--red bg-transparent pv1 ph2"
+                    onClick={() => removeFromCart(item._id)}
                   >
                     Remove
-                  </a>
+                  </button>
                 </td>
               </tr>
             ))}

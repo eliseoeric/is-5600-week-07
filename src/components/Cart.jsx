@@ -1,12 +1,9 @@
-import React, { useContext } from 'react';
+import React from 'react';
+import { useCart } from '../state/CartProvider';
 import PurchaseForm from './PurchaseForm';
 
 const Cart = () => {
-  // TODO - get cart items from context
-  const cartItems = [];
-  const removeFromCart = () => {};
-  const updateItemQuantity = () => {};
-  const getCartTotal = () => {};
+  const { cartItems, removeFromCart, updateItemQuantity, getCartTotal } = useCart();
 
   return (
     <div className="center mw7 mv4">
@@ -44,7 +41,7 @@ const Cart = () => {
                 <td className="tr pv2">
                   <a
                     className="pointer ba b--black-10 pv1 ph2"
-                    onClick={() => removeFromCart(item)}
+                    onClick={() => removeFromCart(item._id)}
                   >
                     Remove
                   </a>

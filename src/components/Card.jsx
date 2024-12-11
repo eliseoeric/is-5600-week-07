@@ -6,7 +6,7 @@ const Card = ({description, alt_description, id, _id, user, urls, likes}) => {
   const style = {
     backgroundImage: `url(${urls.small})`
   }
-  
+
   return (
     <div className="fl w-50 w-25-m w-20-l pa2">
       <Link to={`/product/${_id}`} className="db link dim tc"> 

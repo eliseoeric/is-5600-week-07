@@ -4,7 +4,6 @@ import { BASE_URL } from '../config';
 
 export default function PurchaseForm({filter}) {
   const { cartItems  } = useCart();
-
   const [ buyerEmail, setBuyerEmail ] = React.useState('')
 
   const handleSubmit = (e) => {

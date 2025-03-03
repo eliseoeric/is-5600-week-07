@@ -19,7 +19,7 @@ const cartReducer = (state, action) => {
   const { payload } = action;
 
   console.log({state})
-
+  
   switch (action.type) {
     case ADD_ITEM:
       const newState = {
@@ -115,13 +115,4 @@ const CartProvider = ({ children }) => {
   )
 }
 
-// Custom hook to use the cart context
-const useCart = () => {
-  const context = useContext(CartContext);
-  if (context === undefined) {
-    throw new Error('useCart must be used within a CartProvider');
-  }
-  return context;
-}
-
-export { CartProvider, CartContext, useCart }
+export { CartProvider, CartContext }

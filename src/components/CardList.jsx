@@ -12,7 +12,7 @@ const CardList = () => {
   const [offset, setOffset] = useState(0);
   // Define the products state variable and set it to the default dataset
   const [products, setProducts] = useState();
-
+  
   const fetchProducts = () => {
     fetch(`${BASE_URL}/products?offset=${offset}&limit=${limit}`)
       .then((res) => res.json())

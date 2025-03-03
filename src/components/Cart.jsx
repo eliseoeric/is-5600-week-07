@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import PurchaseForm from './PurchaseForm';
 import { CartContext } from '../state/CartProvider';
 
+
 const Cart = () => {
   // TODO - get cart items from context
   const { cartItems, removeFromCart, updateItemQuantity, getCartTotal } = useContext(CartContext);

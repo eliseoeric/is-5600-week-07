@@ -65,3 +65,66 @@ const Cart = () => {
 };
 
 export default Cart;
+// CartProvider.js
+
+export const CartContext = createContext();
+
+const cartReducer = (state, action) => {
+    switch (action.type) {
+        case "ADD_ITEM":
+            return { ...state, cart: [...state.cart, action.payload] };
+
+        case "UPDATE_ITEM_QUANTITY":
+            return {
+                ...state,
+                cart: state.cart.map(item =>
+                    item.id === action.payload.id
+                        ? { ...item, quantity: action.payload.quantity }
+                        : item
+                ),
+            };
+
+        case "REMOVE_ITEM":
+            return { ...state, cart: state.cart.filter(item => item.id !== action.payload) };
+
+        default:
+            return state;
+    }
+};
+
+export const CartProvider = ({ children }) => {
+    const [state, dispatch] = useReducer(cartReducer, { cart: [] });
+
+    const updateItemQuantity = (id, quantity) => {
+        dispatch({ type: "UPDATE_ITEM_QUANTITY", payload: { id, quantity } });
+    };
+
+    return (
+        <CartContext.Provider value={{ cart: state.cart, updateItemQuantity }}>
+            {children}
+        </CartContext.Provider>
+    );
+};
+const getCartTotal = () => {
+  return state.cart.reduce((total, item) => total + item.price * item.quantity, 0);
+};
+
+// Add getCartTotal to the Context Provider
+return (
+  <CartContext.Provider value={{ cart: state.cart, updateItemQuantity, getCartTotal }}>
+      {children}
+  </CartContext.Provider>
+);
+const { cart, getCartTotal } = useContext(CartContext);
+
+return (
+    <div>
+        <h2>Cart</h2>
+        {cart.map(item => (
+            <div key={item.id}>
+                <p>{item.name} - ${item.price} x {item.quantity}</p>
+            </div>
+        ))}
+        <h3>Total: ${getCartTotal().toFixed(2)}</h3>
+    </div>
+);

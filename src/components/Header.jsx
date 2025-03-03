@@ -1,10 +1,10 @@
-import React, {useContext} from 'react';
+import React, { useContext } from 'react';
 import { Link } from "react-router-dom";
-
+import { CartContext } from '../state/CartProvider';
 const Header = () => {
-  
-  const totalItems = 0;
-
+  // TODO: Update the total items to a value from the cart context
+  const { cartItems } = useContext(CartContext);
+  const totalItems = cartItems.reduce((acc, item) => acc + item.quantity, 0);
   return (
     <nav className="dt w-100 border-box pa3 ph5-ns">
       <a className="dtc v-mid mid-gray link dim w-25" href="/" title="Home">

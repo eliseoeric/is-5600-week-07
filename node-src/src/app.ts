@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Application, Request, Response, NextFunction } from 'express';
 import { promises as fs } from 'fs';
 import * as path from 'path';
 import api from './api';
@@ -7,6 +7,8 @@ import bodyParser from 'body-parser';
 import * as Products from './products';
 import * as Orders from './orders';
 import cuid from 'cuid';
+import cors from 'cors';
+
 
 const productsFile = path.join(__dirname, '../data/full-products.json');
 
@@ -16,9 +18,22 @@ const port: number = process.env.PORT ? parseInt(process.env.PORT) : 3080;
 // Boot the app
 const app: express.Application = express();
 
+// Enable CORS
+app.use(cors());
+
+// ✅ Allow requests only from your React app (recommended for production)
+app.use(cors({
+  origin: 'https://sturdy-fiesta-q7rq794wp6jf4rxr-3000.app.github.dev',  // React frontend URL
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+app.options('*', cors());
+
 // Register the public directory
 app.use(express.static(__dirname + '/public'));
-
+app.get('/test', (req: Request, res: Response) => {
+    res.json({ message: 'CORS is fully open!' });
+  });
 // register the routes
 app.use(bodyParser.json());
 app.use(middleware.cors);

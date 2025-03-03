@@ -19,7 +19,6 @@ const cartReducer = (state, action) => {
   const { payload } = action;
   switch (action.type) {
     case ADD_ITEM:
-      console.log({state, action})
       const newState = {
         ...state,
         itemsById: {
@@ -34,6 +33,7 @@ const cartReducer = (state, action) => {
         // Use `Set` to remove all duplicates
         allItems: Array.from(new Set([...state.allItems, action.payload._id])),
       };
+      console.log({ newState })
       return newState
     case REMOVE_ITEM:
       const updatedState = {
@@ -49,7 +49,41 @@ const cartReducer = (state, action) => {
         ),
       }
       return updatedState
-    
+    case UPDATE_ITEM_QUANTITY: {
+      const { _id, quantity } = payload; // Destructure `_id` and `quantity` from payload
+
+      const currentItem = state.itemsById[_id];
+      if (!currentItem) {
+        console.warn(`Item with id ${_id} not found in cart.`);
+        return state;
+      }
+
+      const newQuantity = quantity;
+
+   
+      if (newQuantity <= 0) {
+        const { [_id]: removed, ...remainingItems } = state.itemsById;
+        return {
+          ...state,
+          itemsById: remainingItems,
+          allItems: state.allItems.filter((id) => id !== _id),
+        };
+      }
+
+      return {
+        ...state,
+        itemsById: {
+          ...state.itemsById,
+          [_id]: {
+            ...currentItem,
+            quantity: newQuantity,
+          },
+        },
+      };
+    }
+
+
+
     default:
       return state
   }
@@ -70,13 +104,16 @@ const CartProvider = ({ children }) => {
   }
 
   // todo Update the quantity of an item in the cart
-  const updateItemQuantity = (productId, quantity) => {
-    // todo
+  const updateItemQuantity = (id, quantity) => {
+    dispatch({ type: UPDATE_ITEM_QUANTITY, payload: { _id: id, quantity }, })
   }
 
   // todo Get the total price of all items in the cart
   const getCartTotal = () => {
-    // todo
+    return Object.values(state.itemsById).reduce(
+      (total, item) => total + item.price * item.quantity,
+      0
+    );
   }
 
   const getCartItems = () => {
@@ -87,6 +124,7 @@ const CartProvider = ({ children }) => {
     <CartContext.Provider
       value={{
         cartItems: getCartItems(),
+        allItems: state.allItems,
         addToCart,
         updateItemQuantity,
         removeFromCart,
@@ -98,6 +136,4 @@ const CartProvider = ({ children }) => {
   )
 }
 
-const useCart = () => useContext(CartContext)
-
-export { CartProvider, useCart }
+export { CartProvider, CartContext }

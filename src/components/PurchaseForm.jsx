@@ -1,23 +1,23 @@
-import React, {useContext} from 'react'
-import { useCart } from '../state/CartProvider'
+import React, { useContext } from 'react'
+import { CartContext } from '../state/CartProvider'
 import { BASE_URL } from '../config';
 
-export default function PurchaseForm({filter}) {
-  const { cartItems  } = useCart();
+export default function PurchaseForm({ filter }) {
+  const { allItems } = useContext(CartContext);
 
-  const [ buyerEmail, setBuyerEmail ] = React.useState('')
+  const [buyerEmail, setBuyerEmail] = React.useState('')
 
   const handleSubmit = (e) => {
     e.preventDefault()
 
-    const products = cartItems.map((item) => item._id);
+    const products = allItems;
 
     const order = {
       buyerEmail,
       products,
       status: "PENDING",
     };
-    
+
     // post cart to orders API
     fetch(`${BASE_URL}/orders`, {
       method: 'POST',
@@ -33,7 +33,7 @@ export default function PurchaseForm({filter}) {
       .catch((error) => {
         console.error('Error creating order:', error);
       });
-    
+
   }
 
   return (
@@ -44,7 +44,7 @@ export default function PurchaseForm({filter}) {
           <input className="f6 f5-l button-reset fl pv3 tc bn bg-animate bg-black-70 hover-bg-black white pointer w-100 w-30-l br2-ns br--right-ns" type="submit" value="Purchase" />
         </div>
         <small id="name-desc" className="f6 black-60 db mb2">Enter your email address to complete purchase</small>
-    </fieldset>
+      </fieldset>
     </form>
   )
 }

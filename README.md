@@ -126,6 +126,7 @@ export default function SingleView() {
 
   // Define the state object for product data
   const [ product, setProduct ] = useState(null)
+export default function SingleView() {
 
   // Fetch the product by id from the server
   const fetchProductById = async (id) => {

@@ -1,8 +1,8 @@
-import React, {useContext} from 'react';
+import React, { useContext } from 'react';
 import { Link } from "react-router-dom";
 
 const Header = () => {
-  
+  // TODO: Update the total items to a value from the cart context
   const totalItems = 0;
 
   return (

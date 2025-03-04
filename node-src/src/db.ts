@@ -14,7 +14,6 @@ mongoose.connect(
   {
     useNewUrlParser: true,
     useUnifiedTopology: true
-  }
 );
 
 export const model = mongoose.model.bind(mongoose);

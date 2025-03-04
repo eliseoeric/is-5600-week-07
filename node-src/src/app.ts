@@ -21,7 +21,7 @@ app.use(express.static(__dirname + '/public'));
 
 // register the routes
 app.use(bodyParser.json());
-app.use(middleware.cors);
+//app.use(middleware.cors);
 
 // Register root route
 app.get('/', api.handleRoot);

@@ -1,7 +1,7 @@
 import React, { useReducer, useContext } from 'react'
 
 // Initialize the context
-const CartContext = React.createContext()
+export const CartContext = React.createContext()
 
 // Definte the default state
 const initialState = {
@@ -19,7 +19,7 @@ const cartReducer = (state, action) => {
   const { payload } = action;
   switch (action.type) {
     case ADD_ITEM:
-      console.log({state, action})
+      console.log({ state, action })
       const newState = {
         ...state,
         itemsById: {
@@ -49,7 +49,20 @@ const cartReducer = (state, action) => {
         ),
       }
       return updatedState
-    
+    case UPDATE_ITEM_QUANTITY:
+      const updatedQuantity = {
+        ...state,
+        itemsById: {
+          ...state.itemsById,
+          [payload.id]: {
+            ...state.itemsById[payload.id],
+            quantity: payload.quantity,
+          },
+        },
+        // Use `Set` to remove all duplicates
+        allItems: Array.from(new Set([...state.allItems, action.payload.id])),
+      }
+      return updatedQuantity
     default:
       return state
   }
@@ -71,12 +84,15 @@ const CartProvider = ({ children }) => {
 
   // todo Update the quantity of an item in the cart
   const updateItemQuantity = (productId, quantity) => {
-    // todo
+    dispatch({ type: UPDATE_ITEM_QUANTITY, payload: { id: productId, quantity } })
   }
 
   // todo Get the total price of all items in the cart
   const getCartTotal = () => {
-    // todo
+    return Object.values(state.itemsById).reduce((total, item) => {
+      return total + item.price * item.quantity;
+    }, 0);
+
   }
 
   const getCartItems = () => {

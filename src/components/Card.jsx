@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 
 const Card = ({description, alt_description, id, _id, user, urls, likes}) => {
 
+  let uuid = id ?? _id;
+
   const style = {
     backgroundImage: `url(${urls.small})`
   }

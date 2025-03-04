@@ -19,7 +19,7 @@ const cartReducer = (state, action) => {
   const { payload } = action;
   switch (action.type) {
     case ADD_ITEM:
-      console.log({state, action})
+      console.log({ state, action })
       const newState = {
         ...state,
         itemsById: {
@@ -49,7 +49,19 @@ const cartReducer = (state, action) => {
         ),
       }
       return updatedState
-    
+    case UPDATE_ITEM_QUANTITY:
+      const currentItem = state.itemsById[payload._id];
+      const updatedItemState = {
+        ...state,
+        itemsById: {
+          ...state.itemsById,
+          [payload._id]: {
+            ...currentItem,
+            quantity: currentItem.quantity + payload.quantity,
+          }
+        }
+      }
+      return updatedItemState
     default:
       return state
   }
@@ -71,12 +83,12 @@ const CartProvider = ({ children }) => {
 
   // todo Update the quantity of an item in the cart
   const updateItemQuantity = (productId, quantity) => {
-    // todo
+    dispatch({type: UPDATE_ITEM_QUANTITY, payload: {_id: productId, quantity}})
   }
 
   // todo Get the total price of all items in the cart
   const getCartTotal = () => {
-    // todo
+    return getCartItems().reduce((acc, item)=> acc + item.price*item.quantity, 0);
   }
 
   const getCartItems = () => {

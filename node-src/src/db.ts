@@ -1,22 +1,18 @@
-import mongoose, { Document as MongooseDocument } from 'mongoose';
+import mongoose from 'mongoose';
 
-// Extend mongoose.Document to include any additional properties
-export interface Document extends MongooseDocument {
-  [key: string]: any;
-}
+const DB_URL = process.env.DATABASE_URL || 'mongodb://localhost:27017/fullstack';
 
-/**
- * In this example we are connecting to a local MongoDB instance. This instance is running via docker-compose in our GitHub Codespaces environment.
- * In a real-world application, you would want to use a cloud-based MongoDB service like MongoDB Atlas.
- */
-mongoose.connect(
-  process.env.MONGODB_URI || 'mongodb://root:example@db:27017/?authSource=admin',
-  {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
+const connectDB = async () => {
+  try {
+    mongoose.connect(DB_URL, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true
+    });
+    console.log("✅ MongoDB Connected!");
+  } catch (error) {
+    console.error("❌ MongoDB Connection Error:", error);
+    process.exit(1);
   }
-);
+};
 
-export const model = mongoose.model.bind(mongoose);
-export const Schema = mongoose.Schema;
-export default mongoose;
+export default connectDB;

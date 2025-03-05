@@ -1,9 +1,10 @@
-import React, {useContext} from 'react';
-import { Link } from "react-router-dom";
+import React from 'react';
+import { useCart } from '../state/CartProvider';
+import { Link } from 'react-router-dom';
 
 const Header = () => {
-  
-  const totalItems = 0;
+  const { state } = useCart();
+  const totalItems = state.cartItems.reduce((acc, item) => acc + item.quantity, 0);
 
   return (
     <nav className="dt w-100 border-box pa3 ph5-ns">

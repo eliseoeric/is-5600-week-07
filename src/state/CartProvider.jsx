@@ -1,3 +1,5 @@
+import { type } from '@testing-library/user-event/dist/type'
+import { STATES } from 'mongoose'
 import React, { useReducer, useContext } from 'react'
 
 // Initialize the context
@@ -8,6 +10,10 @@ const initialState = {
   itemsById: {},
   allItems: [],
 }
+@@ -49,7 +51,22 @@ const cartReducer = (state, action) => {
+        ),
+      }
+      return updatedState
 
 // Define reducer actions
 const ADD_ITEM = 'ADD_ITEM'
@@ -29,6 +35,15 @@ const cartReducer = (state, action) => {
             quantity: state.itemsById[payload._id]
               ? state.itemsById[payload._id].quantity + 1
               : 1,
+      case UPDATE_ITEM_QUANTITY:
+        const currentItem = state,itemsById(payload._id)
+        const updateItemState{
+          ...state,
+          itemsById: {
+            ...state.itemsById,
+          [payload._id]:
+            ...currentItem,
+            quantity: currentItem.quantity + payload.quantity,
           },
         },
         // Use `Set` to remove all duplicates
@@ -47,9 +62,13 @@ const cartReducer = (state, action) => {
         allItems: state.allItems.filter(
           (itemId) => itemId !== action.payload._id
         ),
+        }
       }
       return updatedState
-    
+
+
+        return updateItemState
+
     default:
       return state
   }
@@ -67,16 +86,17 @@ const CartProvider = ({ children }) => {
   // Add an item to the cart
   const addToCart = (product) => {
     dispatch({ type: ADD_ITEM, payload: product })
-  }
-
+@@ -72,17 +43,18 @@ const CartProvider = ({ children }) => {
   // todo Update the quantity of an item in the cart
   const updateItemQuantity = (productId, quantity) => {
     // todo
+    dispatch({ type: UPDATE_ITEM_QUANTITY, payload:{productId, quantity}})
   }
 
   // todo Get the total price of all items in the cart
   const getCartTotal = () => {
     // todo
+    return getCartItems().reduce((acc, item) => acc + item.price * item.quantity, 0);
   }
 
   const getCartItems = () => {
@@ -86,14 +106,7 @@ const CartProvider = ({ children }) => {
   return (
     <CartContext.Provider
       value={{
-        cartItems: getCartItems(),
-        addToCart,
-        updateItemQuantity,
-        removeFromCart,
-        getCartTotal,
-      }}
-    >
-      {children}
+@@ -97,7 +69,5 @@ const CartProvider = ({ children }) => {
     </CartContext.Provider>
   )
 }

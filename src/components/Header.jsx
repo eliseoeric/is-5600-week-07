@@ -1,9 +1,14 @@
 import React, {useContext} from 'react';
 import { Link } from "react-router-dom";
+import React, { useContext } from 'react';
+import { Link } from 'react-router-dom';
+import { CartContext } from '../state/CartProvider';
 
 const Header = () => {
-  
+
   const totalItems = 0;
+  const { cartItems } = useContext(CartContext);
+  const totalItems = cartItems.reduce((acc, item) => acc + item.quantity, 0);
 
   return (
     <nav className="dt w-100 border-box pa3 ph5-ns">
@@ -15,9 +20,14 @@ const Header = () => {
         <Link className="link dim dark-gray f6 f5-ns dib mr3 mr4-ns" to="/orders" title="/orders">Orders</Link>
         <Link className="link dim dark-gray f6 f5-ns dib" to="/cart" title="Cart">Cart <span class="ba b--black-20 br-pill pa2">{totalItems}</span></Link>
       </div>
+    <nav>
+      <Link to="/">Products</Link>
+      <Link to="/orders">Orders</Link>
+      <Link to="/cart">Cart ({totalItems})</Link>
     </nav>
 
   );
 }
+};
 
 export default Header;

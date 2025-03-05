@@ -12,7 +12,6 @@ function cors(req: Request, res: Response, next: NextFunction): void {
   res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Access-Control-Max-Age', '86400');
   res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept');
-
   next();
 }
 

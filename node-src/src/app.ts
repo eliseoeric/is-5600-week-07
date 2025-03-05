@@ -7,6 +7,7 @@ import bodyParser from 'body-parser';
 import * as Products from './products';
 import * as Orders from './orders';
 import cuid from 'cuid';
+import * as middleware from './middleware';
 
 const productsFile = path.join(__dirname, '../data/full-products.json');
 

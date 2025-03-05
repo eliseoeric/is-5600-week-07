@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react'; 
 import { BASE_URL } from '../config';
 
 const Orders = () => {
   const [orders, setOrders] = useState([]);
-
   /**
    * TODO
    * 1. Create a `fetchOrders` function that retrieves all orders from the database
@@ -11,6 +11,16 @@ const Orders = () => {
    **/ 
 
 
+  useEffect(()=>{
+    fetchOrders();
+  },[])
+  const fetchOrders = () => {
+    fetch(`${BASE_URL}/orders`)  
+    .then((res) => res.json())
+    .then((data) => {
+      setOrders(data);
+    })
+  }
   return (
     <div className="center mw7 ba mv4">
       <div className="bg-white pa3 mb3">
@@ -39,5 +49,4 @@ const Orders = () => {
     </div>
   );
 };
-
 export default Orders;

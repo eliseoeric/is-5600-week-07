@@ -9,6 +9,15 @@ const Orders = () => {
    * 1. Create a `fetchOrders` function that retrieves all orders from the database
    * 2. Using the `useEffect` hook, update the existing `orders` state object when `fetchOrders` is complete
    **/ 
+  const fetchOrders = async () => {
+    const response = await fetch(`${BASE_URL}/orders`);
+    const data = await response.json();
+    setOrders(data);
+  };
+
+  useEffect(() => {
+    fetchOrders();
+  }, []);
 
 
   return (
@@ -26,6 +35,8 @@ const Orders = () => {
           </thead>
           <tbody>
             {orders && orders.map((order) => (
+               {orders.map((order) => (
+          
               <tr key={order._id}>
                 <td className="tl pv2">{order._id}</td>
                 <td className="tl pv2">{order.buyerEmail}</td>

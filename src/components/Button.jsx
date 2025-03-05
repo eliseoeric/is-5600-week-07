@@ -1,9 +1,13 @@
-import React from 'react'
+// src/components/Button.js
+import React from 'react';
 
-export default function Button({text, handleClick}) {
+const Button = ({ label, onClick }) => {
   return (
-    <a href="#" className="f5 no-underline black bg-animate hover-bg-black hover-white inline-flex items-center pa3 ba border-box mr4" onClick={handleClick}>
-      <span className="pl1">{text}</span>
-    </a>
-  )
-}
+    <button onClick={onClick} style={{ padding: '10px', border: 'none', cursor: 'pointer' }}>
+      <img src="https://thumbs.dreamstime.com/b/smart-phone-cartoon-thumb-up-white-background-48227025.jpg" alt="Button Icon" width="20" height="20" />
+      {label}
+    </button>
+  );
+};
+
+export default Button;

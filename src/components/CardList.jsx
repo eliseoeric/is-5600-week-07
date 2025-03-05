@@ -1,50 +1,37 @@
-import React, { useState, useEffect } from 'react'
-import Card from './Card'
-import Button from './Button'
-import Search from './Search'
+// src/components/CardList.js (or similar component)
 
-const CardList = ({ data }) => {
-  // define the limit state variable and set it to 10
-  const limit = 10;
+import React, { useState, useEffect } from 'react';
 
-  // Define the offset state variable and set it to 0
-  const [offset, setOffset] = useState(0);
-  // Define the products state variable and set it to the default dataset
-  const [products, setProducts] = useState(data);
+const CardList = () => {
+  const [products, setProducts] = useState([]);
 
   useEffect(() => {
-    setProducts(data.slice(offset, offset + limit));
-  }, [offset, limit, data])
-
-  const filterTags = (tagQuery) => {
-    const filtered = data.filter(product => {
-      if (!tagQuery) {
-        return product
-      }
-
-      return product.tags.find(({title}) => title === tagQuery)
-    })
-
-    setOffset(0)
-    setProducts(filtered)
-  }
-
+    // Fetch data from the backend
+    fetch('http://localhost:5000/products')  // Make sure the URL is correct
+      .then((response) => response.json())  // Convert response to JSON
+      .then((data) => {
+        console.log('Fetched products:', data);  // Log the fetched data to the console
+        setProducts(data);  // Set the products data in state
+      })
+      .catch((error) => console.error('Error fetching products:', error));  // Handle errors
+  }, []);  // The empty array ensures this runs only on component mount
 
   return (
-    <div className="cf pa2">
-      <Search handleSearch={filterTags}/>
-      <div className="mt2 mb2">
-      {products && products.map((product) => (
-          <Card key={product._id} {...product} />
-        ))}
-      </div>
-
-      <div className="flex items-center justify-center pa4">
-        <Button text="Previous" handleClick={() => setOffset(offset - limit)} />
-        <Button text="Next" handleClick={() => setOffset(offset + limit)} />
-      </div>
+    <div>
+      <h1>Product List</h1>
+      {products.length === 0 ? (
+        <p>Loading...</p>  // Display loading message until data is fetched
+      ) : (
+        <ul>
+          {products.map((product) => (
+            <li key={product.id}>
+              {product.name} - ${product.price}
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
-  )
-}
+  );
+};
 
 export default CardList;

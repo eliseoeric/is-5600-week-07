@@ -1,45 +1,92 @@
-import React from 'react'
-import { useParams } from 'react-router-dom';
-import '../App.css';
+import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { BASE_URL } from '../config';
 
+const Orders = () => {
+@@ -9,7 +9,16 @@ const Orders = () => {
+   * 1. Create a `fetchOrders` function that retrieves all orders from the database
+   * 2. Using the `useEffect` hook, update the existing `orders` state object when `fetchOrders` is complete
+   **/ 
 
-export default function SingleView({data}) {
-  // get the id from the url using useParams
-  const { id } = useParams();
-  
-  // get the product from the data using the id
-  const product = data.find(product => product.id === id);
+  const fetchOrders=()=>{
+    fetch('${BASE_URL}/orders')
+    .then((res)=>res.json())
+    .then((data)=>{
+      setOrders(data);
+    })
+  }
+  useEffect(() =>{
+    const { payload } = action;
+  switch (action.type) {
+    case ADD_ITEM:
+      console.log({state, action})
+      console.log({ state, action })
+      const newState = {
+        ...state,
+        itemsById: {
+@@ -49,7 +49,19 @@ const cartReducer = (state, action) => {
+        ),
+      }
+      return updatedState
 
-  const { user } = product;
-
-  const title = product.description ?? product.alt_description;
-  const style = {
-    backgroundImage: `url(${product.urls["regular"]})`
+    case UPDATE_ITEM_QUANTITY:
+      const currentItem = state.itemsById[payload._id];
+      const updatedItemState = {
+        ...state,
+        itemsById: {
+          ...state.itemsById,
+          [payload._id]: {
+            ...currentItem,
+            quantity: currentItem.quantity + payload.quantity,
+          }
+        }
+      }
+      return updatedItemState
+    default:
+      return state
+  }
+}
+// Define the provider
+const CartProvider = ({ children }) => {
+  const [state, dispatch] = useReducer(cartReducer, initialState)
+  // Remove an item from the cart
+  const removeFromCart = (product) => {
+    dispatch({ type: REMOVE_ITEM, payload: product })
+  }
+  // Add an item to the cart
+  const addToCart = (product) => {
+    dispatch({ type: ADD_ITEM, payload: product })
   }
 
-  return (
-    <article class="bg-white center mw7 ba b--black-10 mv4">
-      <div class="pv2 ph3">
-        <div class="flex items-center">
-          <img src={user?.profile_image?.medium} class="br-100 h3 w3 dib" alt={user.instagram_username} />
-          <h1 class="ml3 f4">{user.first_name} {user.last_name}</h1>
-        </div>
-      </div>
-      <div class="aspect-ratio aspect-ratio--4x3">
-        <div class="aspect-ratio--object cover" style={style}></div>
-      </div>
-      <div class="pa3 flex justify-between">
-        <div class="mw6">
-          <h1 class="f6 ttu tracked">Product ID: {id}</h1>
-          <a href={`/products/${id}`} class="link dim lh-title">{title}</a>
-        </div>
-        <div class="gray db pv2">&hearts;<span>{product.likes}</span></div>
-      </div>
-      <div className="pa3 flex justify-end">
-        <span className="ma2 f4">${product.price}</span>
-        {/* TODO Implement the AddToCart button */}
-      </div>
-    </article>
+  // todo Update the quantity of an item in the cart
+  const updateItemQuantity = (productId, quantity) => {
+    // todo
+    dispatch({type: UPDATE_ITEM_QUANTITY, payload: {_id: productId, quantity}})
+  }
 
+  // todo Get the total price of all items in the cart
+  const getCartTotal = () => {
+    // todo
+    return getCartItems().reduce((acc, item)=> acc + item.price*item.quantity, 0);
+  }
+
+  const getCartItems = () => {
+    return state.allItems.map((itemId) => state.itemsById[itemId]) ?? [];
+  }
+  return (
+    <CartContext.Provider
+      value={{
+        cartItems: getCartItems(),
+        addToCart,
+        updateItemQuantity,
+        removeFromCart,
+        getCartTotal,
+      }}
+    >
+      {children}
+    </CartContext.Provider>
   )
 }
+const useCart = () => useContext(CartContext)
+
+export { CartProvider, useCart }

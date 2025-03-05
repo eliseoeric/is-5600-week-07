@@ -1,14 +1,22 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { BASE_URL } from '../config';
 
 const Orders = () => {
   const [orders, setOrders] = useState([]);
 
-  /**
-   * TODO
-   * 1. Create a `fetchOrders` function that retrieves all orders from the database
-   * 2. Using the `useEffect` hook, update the existing `orders` state object when `fetchOrders` is complete
-   **/ 
+  const fetchOrders = () => {
+          fetch(`${BASE_URL}/products`)
+            .then((res) => res.json())
+            .then((data) => {
+              console.log('lol2', data);
+              setOrders(data);
+            });
+
+  };
+
+  useEffect(() => {
+    fetchOrders();
+  },[])
 
 
   return (

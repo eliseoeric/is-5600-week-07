@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { BASE_URL } from '../config';
+
 
 const Orders = () => {
   const [orders, setOrders] = useState([]);
@@ -9,6 +10,19 @@ const Orders = () => {
    * 1. Create a `fetchOrders` function that retrieves all orders from the database
    * 2. Using the `useEffect` hook, update the existing `orders` state object when `fetchOrders` is complete
    **/ 
+
+  useEffect(() => {
+    fetchOrders();
+    }, []);
+
+   // Create a function to fetch the products
+  const fetchOrders = () => {
+      fetch(`${BASE_URL}/orders`)
+        .then((res) => res.json())
+        .then((data) => {
+          setOrders(data);
+        });
+    }
 
 
   return (
@@ -39,5 +53,4 @@ const Orders = () => {
     </div>
   );
 };
-
 export default Orders;

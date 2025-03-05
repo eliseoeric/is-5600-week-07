@@ -1,15 +1,28 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import { BASE_URL } from '../config';
-
 const Orders = () => {
+  const limit = 10;
   const [orders, setOrders] = useState([]);
+  
 
   /**
    * TODO
    * 1. Create a `fetchOrders` function that retrieves all orders from the database
    * 2. Using the `useEffect` hook, update the existing `orders` state object when `fetchOrders` is complete
-   **/ 
+   **/
+  const [offset, setOffset] = useState(0);
+  const fetchOrders = () => {
+    fetch(`${BASE_URL}/orders?offset=${offset}&limit=${limit}`)
+      .then((res) => res.json())
+      .then((data) => {
+        setOrders(data);
+      });
+  }
 
+  // Update the `useEffect` to monitor the `offset` state variable
+  useEffect(() => {
+   fetchOrders();
+  }, [offset]);
 
   return (
     <div className="center mw7 ba mv4">

@@ -1,21 +1,34 @@
-import React from 'react'
+import React { useState useEffect }from 'react'
 import { useParams } from 'react-router-dom';
 import '../App.css';
 
 
 export default function SingleView({data}) {
   // get the id from the url using useParams
-  const { id } = useParams();
-  
-  // get the product from the data using the id
-  const product = data.find(product => product.id === id);
+   const {id} = useParams();
+   const [ product, setProduct ] = useState(null)
 
-  const { user } = product;
+  // Fetch the product by id from the server
+  const fetchProductById = async (id) => {
+    const product = await fetch(`${BASE_URL}/products/${id}`)
+      .then((res) => res.json());
+    return product;
+  };
 
-  const title = product.description ?? product.alt_description;
-  const style = {
-    backgroundImage: `url(${product.urls["regular"]})`
-  }
+  // Use the useEffect hook to fetch the product when the component boots
+  useEffect(() => {
+    const getProduct = async () => {
+      const data = await fetchProductById(id);
+      setProduct(data)
+    }
+    getProduct();
+  }, [id, fetchProductById]);
+  if (!product) return (<div className="loading-spinner"></div>);
+
+  // ...
+}
+
+   conast {user} = product;
 
   return (
     <article class="bg-white center mw7 ba b--black-10 mv4">

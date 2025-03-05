@@ -3,19 +3,24 @@ import { useParams } from 'react-router-dom';
 import '../App.css';
 
 
-export default function SingleView({data}) {
-  // get the id from the url using useParams
-  const { id } = useParams();
-  
-  // get the product from the data using the id
-  const product = data.find(product => product.id === id);
+export default function SingleView() {
+  const [product, setProduct] = useState(null);
+  const fetchProductById = async (id) => {
+    const product = await fetch(`${BASE_URL}/products/${id}`)
+      .then((res) => res.json());
+    return product;
+  };
 
-  const { user } = product;
-
-  const title = product.description ?? product.alt_description;
-  const style = {
-    backgroundImage: `url(${product.urls["regular"]})`
-  }
+  useEffect(() => {
+    const getProduct = async () => {
+      const data = await fetchProductById(id);
+      setProduct(data);
+    };
+    getProduct();
+  }, [id]);
+  if (!product) return (<div className="loading-spinner"></div>);
+  // show a spinner if there is no product loaded yet
+  if (!product) return (<div className="loading-spinner"></div>);
 
   return (
     <article class="bg-white center mw7 ba b--black-10 mv4">
@@ -37,7 +42,7 @@ export default function SingleView({data}) {
       </div>
       <div className="pa3 flex justify-end">
         <span className="ma2 f4">${product.price}</span>
-        {/* TODO Implement the AddToCart button */}
+        <AddToCart product={product} />
       </div>
     </article>
 

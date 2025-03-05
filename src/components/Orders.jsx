@@ -9,7 +9,24 @@ const Orders = () => {
    * 1. Create a `fetchOrders` function that retrieves all orders from the database
    * 2. Using the `useEffect` hook, update the existing `orders` state object when `fetchOrders` is complete
    **/ 
+  const fetchOrders = async () => {
+    try {
+      const response = await fetch(`${BASE_URL}/api/orders`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch orders');
+      }
+      const data = await response.json();
+      setOrders(data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
+    fetchOrders();
+  }, []);
 
   return (
     <div className="center mw7 ba mv4">

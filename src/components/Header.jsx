@@ -1,23 +1,51 @@
-import React, {useContext} from 'react';
-import { Link } from "react-router-dom";
+import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { BASE_URL } from '../config';
 
-const Header = () => {
-  
-  const totalItems = 0;
+const Orders = () => {
+@@ -9,8 +9,19 @@ const Orders = () => {
+   * 1. Create a `fetchOrders` function that retrieves all orders from the database
+   * 2. Using the `useEffect` hook, update the existing `orders` state object when `fetchOrders` is complete
+   **/ 
+  useEffect(() => {
+    fetchOrders();
+  }, [])
+
+
+  const fetchOrders = () => {
+    fetch(`${BASE_URL}/orders`)
+    .then((res) => res.json())
+    .then((data) => {
+      setOrders(data);
+    })
+  }
 
   return (
-    <nav className="dt w-100 border-box pa3 ph5-ns">
-      <a className="dtc v-mid mid-gray link dim w-25" href="/" title="Home">
-        <img src="https://img.logoipsum.com/280.svg" className="dib w2 h2 br-100" alt="Site Name" />
-      </a>
-      <div className="dtc v-mid w-75 tr">
-        <Link className="link dim dark-gray f6 f5-ns dib mr3 mr4-ns" to="/" title="Products">Products</Link>
-        <Link className="link dim dark-gray f6 f5-ns dib mr3 mr4-ns" to="/orders" title="/orders">Orders</Link>
-        <Link className="link dim dark-gray f6 f5-ns dib" to="/cart" title="Cart">Cart <span class="ba b--black-20 br-pill pa2">{totalItems}</span></Link>
+    <div className="center mw7 ba mv4">
+      <div className="bg-white pa3 mb3">
+        <h2 className="f2 mb2">Orders</h2>
+        <table className="w-100">
+          <thead>
+            <tr>
+              <th className="tl pv2">Order ID</th>
+              <th className="tl pv2">Buyer Email</th>
+              <th className="tl pv2">Products</th>
+              <th className="tl pv2">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {orders && orders.map((order) => (
+              <tr key={order._id}>
+                <td className="tl pv2">{order._id}</td>
+                <td className="tl pv2">{order.buyerEmail}</td>
+                <td className="tl pv2">{order.products.join(', ')}</td>
+                <td className="tl pv2">{order.status}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
-    </nav>
-
+    </div>
   );
-}
-
-export default Header;
+};
+export default Orders;

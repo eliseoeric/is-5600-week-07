@@ -1,4 +1,5 @@
 import mongoose, { Document as MongooseDocument } from 'mongoose';
+const url = 'mongodb://root:example@db:27017';
 
 // Extend mongoose.Document to include any additional properties
 export interface Document extends MongooseDocument {

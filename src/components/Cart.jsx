@@ -1,12 +1,22 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import PurchaseForm from './PurchaseForm';
+import { useCart } from '../state/CartProvider';
 
 const Cart = () => {
-  // TODO - get cart items from context
-  const cartItems = [];
-  const removeFromCart = () => {};
-  const updateItemQuantity = () => {};
-  const getCartTotal = () => {};
+  // ✅ Get cart logic from context
+  const {
+    cartItems,
+    removeFromCart,
+    updateItemQuantity,
+    getCartTotal,
+  } = useCart();
+
+  // ✅ Update quantity based on +1 or -1
+  const handleQuantityChange = (productId, change) => {
+    const item = cartItems.find((item) => item._id === productId);
+    const newQuantity = item.quantity + change;
+    updateItemQuantity(productId, newQuantity);
+  };
 
   return (
     <div className="center mw7 mv4">
@@ -28,19 +38,19 @@ const Cart = () => {
                 <td className="tr pv2">
                   <a
                     className="pointer ba b--black-10 pv1 ph2 mr2"
-                    onClick={() => updateItemQuantity(item._id, -1)}
+                    onClick={() => handleQuantityChange(item._id, -1)}
                   >
                     -
                   </a>
                   {item.quantity}
                   <a
                     className="pointer ba b--black-10 pv1 ph2 ml2"
-                    onClick={() => updateItemQuantity(item._id, 1)}
+                    onClick={() => handleQuantityChange(item._id, 1)}
                   >
                     +
                   </a>
                 </td>
-                <td className="tr pv2">${item.price * item.quantity}</td>
+                <td className="tr pv2">${(item.price * item.quantity).toFixed(2)}</td>
                 <td className="tr pv2">
                   <a
                     className="pointer ba b--black-10 pv1 ph2"

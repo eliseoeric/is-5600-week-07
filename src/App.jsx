@@ -1,24 +1,23 @@
-import React from 'react'
-import { Route, Routes} from 'react-router-dom';
-
-import Header from './components/Header';
-import CardList from './components/CardList';
-import SingleView from './components/SingleView';
-import productData from './data/full-products';
-
+import React from "react";
+import { Routes, Route } from "react-router-dom";
+import Header from "./components/Header";
+import ProductList from "./components/CardList";
+import DetailPage from "./components/SingleView";
+import CartPage from "./components/Cart";
+import OrderPage from "./components/Orders";
+import { CartProvider } from "./state/CartProvider";
 
 function App() {
-  
   return (
-    <div className="App">
+    <CartProvider>
       <Header />
-      
-        <Routes>
-          <Route path="/" element={<CardList data={productData} />} />
-          <Route path="/product/:id" element={<SingleView data={productData} />} />
-        </Routes>
-      
-    </div>
+      <Routes>
+        <Route path="/" element={<ProductList />} />
+        <Route path="/product/:id" element={<DetailPage />} />
+        <Route path="/cart" element={<CartPage />} />
+        <Route path="/orders" element={<OrderPage />} />
+      </Routes>
+    </CartProvider>
   );
 }
 

@@ -1,9 +1,10 @@
-import React, {useContext} from 'react';
+import React, { useContext } from 'react';
 import { Link } from "react-router-dom";
+import { CartContext } from '../context/CartContext'; // Make sure this path is correct
 
 const Header = () => {
-  
-  const totalItems = 0;
+  const { cartItems } = useContext(CartContext);
+  const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
     <nav className="dt w-100 border-box pa3 ph5-ns">
@@ -12,11 +13,12 @@ const Header = () => {
       </a>
       <div className="dtc v-mid w-75 tr">
         <Link className="link dim dark-gray f6 f5-ns dib mr3 mr4-ns" to="/" title="Products">Products</Link>
-        <Link className="link dim dark-gray f6 f5-ns dib mr3 mr4-ns" to="/orders" title="/orders">Orders</Link>
-        <Link className="link dim dark-gray f6 f5-ns dib" to="/cart" title="Cart">Cart <span class="ba b--black-20 br-pill pa2">{totalItems}</span></Link>
+        <Link className="link dim dark-gray f6 f5-ns dib mr3 mr4-ns" to="/orders" title="Orders">Orders</Link>
+        <Link className="link dim dark-gray f6 f5-ns dib" to="/cart" title="Cart">
+          Cart <span className="ba b--black-20 br-pill pa2">{totalItems}</span>
+        </Link>
       </div>
     </nav>
-
   );
 }
 

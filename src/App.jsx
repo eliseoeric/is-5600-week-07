@@ -1,24 +1,26 @@
-import React from 'react'
-import { Route, Routes} from 'react-router-dom';
+import React from 'react';
+import { Route, Routes } from 'react-router-dom';
 
 import Header from './components/Header';
 import CardList from './components/CardList';
 import SingleView from './components/SingleView';
-import productData from './data/full-products';
+import Orders from './components/Orders';
 
+import productData from './data/full-products';
+import { CartProvider } from './context/CartContext';
 
 function App() {
-  
   return (
-    <div className="App">
-      <Header />
-      
+    <CartProvider>
+      <div className="App">
+        <Header />
         <Routes>
           <Route path="/" element={<CardList data={productData} />} />
           <Route path="/product/:id" element={<SingleView data={productData} />} />
+          <Route path="/orders" element={<Orders />} /> {/* ✅ Added this line */}
         </Routes>
-      
-    </div>
+      </div>
+    </CartProvider>
   );
 }
 

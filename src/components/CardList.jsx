@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react'
 import Card from './Card'
 import Button from './Button'
 import Search from './Search'
+import { BASE_URL } from '../config';
 
 const CardList = ({ data }) => {
+const CardList = () => {
   // define the limit state variable and set it to 10
   const limit = 10;
 
@@ -15,19 +17,27 @@ const CardList = ({ data }) => {
   useEffect(() => {
     setProducts(data.slice(offset, offset + limit));
   }, [offset, limit, data])
+  const [products, setProducts] = useState([]);
 
   const filterTags = (tagQuery) => {
     const filtered = data.filter(product => {
-      if (!tagQuery) {
-        return product
-      }
-
-      return product.tags.find(({title}) => title === tagQuery)
-    })
-
-    setOffset(0)
+    -29,6 +26,19 @@ const CardList = ({ data }) => {
     setProducts(filtered)
   }
+
+  const fetchProducts = () => {
+    fetch(`${BASE_URL}/products?offset=${offset}&limit=${limit}`)
+      .then((res) => res.json())
+      .then((data) => {
+        setProducts(data);
+      });
+  };
+
+
+  useEffect(() => {
+    fetchProducts();
+  }, [offset]);
+
 
 
   return (

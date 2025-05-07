@@ -1,12 +1,14 @@
+// Cart.js
 import React, { useContext } from 'react';
+import { useCart } from '../state/CartProvider';
 import PurchaseForm from './PurchaseForm';
 
 const Cart = () => {
-  // TODO - get cart items from context
-  const cartItems = [];
+@@ -7,61 +9,37 @@ const Cart = () => {
   const removeFromCart = () => {};
   const updateItemQuantity = () => {};
   const getCartTotal = () => {};
+  const { cartItems, removeFromCart, updateItemQuantity, getCartTotal } = useCart();
 
   return (
     <div className="center mw7 mv4">
@@ -19,16 +21,19 @@ const Cart = () => {
               <th className="tr pv2">Quantity</th>
               <th className="tr pv2">Price</th>
               <th className="tr pv2">Action</th>
+@@ -22,20 +20,20 @@ const Cart = () => {
             </tr>
           </thead>
           <tbody>
             {cartItems && cartItems.map((item) => (
+            {cartItems.map((item) => (
               <tr key={item._id}>
                 <td className="tl pv2">{item.description}</td>
                 <td className="tr pv2">
                   <a
                     className="pointer ba b--black-10 pv1 ph2 mr2"
                     onClick={() => updateItemQuantity(item._id, -1)}
+                    onClick={() => updateItemQuantity(item._id, item.quantity - 1)}
                   >
                     -
                   </a>
@@ -36,6 +41,7 @@ const Cart = () => {
                   <a
                     className="pointer ba b--black-10 pv1 ph2 ml2"
                     onClick={() => updateItemQuantity(item._id, 1)}
+                    onClick={() => updateItemQuantity(item._id, item.quantity + 1)}
                   >
                     +
                   </a>
@@ -61,7 +67,9 @@ const Cart = () => {
         <PurchaseForm />
       </div>
     </div>
+@@ -64,4 +62,4 @@ const Cart = () => {
   );
 };
 
+export default Cart;
 export default Cart;

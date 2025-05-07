@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BASE_URL } from '../config';
 
 const Orders = () => {
@@ -10,6 +10,19 @@ const Orders = () => {
    * 2. Using the `useEffect` hook, update the existing `orders` state object when `fetchOrders` is complete
    **/ 
 
+  const fetchOrders = async () => {
+    try {
+      const response = await fetch(`${BASE_URL}/orders`);
+      const data = await response.json();
+      setOrders(data);
+    } catch (error) {
+      console.error("Failed to fetch:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchOrders();
+  }, []); 
 
   return (
     <div className="center mw7 ba mv4">

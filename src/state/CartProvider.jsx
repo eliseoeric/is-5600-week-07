@@ -1,9 +1,8 @@
 import React, { useReducer, useContext } from 'react'
 
 // Initialize the context
-const CartContext = React.createContext()
-
-// Definte the default state
+export const CartContext = React.createContext();
+// Define the default state
 const initialState = {
   itemsById: {},
   allItems: [],
@@ -16,10 +15,10 @@ const UPDATE_ITEM_QUANTITY = 'UPDATE_ITEM_QUANTITY'
 
 // Define the reducer
 const cartReducer = (state, action) => {
-  const { payload } = action;
+  const { payload } = action
   switch (action.type) {
     case ADD_ITEM:
-      console.log({state, action})
+      
       const newState = {
         ...state,
         itemsById: {
@@ -31,25 +30,36 @@ const cartReducer = (state, action) => {
               : 1,
           },
         },
-        // Use `Set` to remove all duplicates
-        allItems: Array.from(new Set([...state.allItems, action.payload._id])),
-      };
+        allItems: Array.from(new Set([...state.allItems, payload._id])),
+      }
       return newState
+
     case REMOVE_ITEM:
       const updatedState = {
         ...state,
         itemsById: Object.entries(state.itemsById)
-          .filter(([key, value]) => key !== action.payload._id)
+          .filter(([key]) => key !== payload._id)
           .reduce((obj, [key, value]) => {
             obj[key] = value
             return obj
           }, {}),
-        allItems: state.allItems.filter(
-          (itemId) => itemId !== action.payload._id
-        ),
-      }
+          allItems: state.allItems.filter((itemId) => itemId !== payload._id),
+        }
       return updatedState
-    
+      case UPDATE_ITEM_QUANTITY:
+        const currentItem = state.itemsById[payload._id]
+        if (!currentItem) return state // Prevent updates if item is not found
+        const updateItemState = {
+          ...state,
+          itemsById: {
+            ...state.itemsById,
+            [payload._id]: {
+              ...currentItem,
+              quantity: currentItem.quantity + payload.quantity,
+            },
+          },
+        }
+        return updateItemState
     default:
       return state
   }
@@ -69,18 +79,19 @@ const CartProvider = ({ children }) => {
     dispatch({ type: ADD_ITEM, payload: product })
   }
 
-  // todo Update the quantity of an item in the cart
+  // Update the quantity of an item in the cart
   const updateItemQuantity = (productId, quantity) => {
-    // todo
+    dispatch({ type: UPDATE_ITEM_QUANTITY, payload: { _id: productId, quantity } })
   }
 
-  // todo Get the total price of all items in the cart
+  // Get the total price of all items in the cart
   const getCartTotal = () => {
-    // todo
+    return getCartItems().reduce((acc, item) => acc + item.price * item.quantity, 0)
   }
 
+  // Get the cart items
   const getCartItems = () => {
-    return state.allItems.map((itemId) => state.itemsById[itemId]) ?? [];
+    return state.allItems.map((itemId) => state.itemsById[itemId]) ?? []
   }
 
   return (
@@ -97,7 +108,7 @@ const CartProvider = ({ children }) => {
     </CartContext.Provider>
   )
 }
-
+// Custom hook to use the Cart context
 const useCart = () => useContext(CartContext)
 
 export { CartProvider, useCart }

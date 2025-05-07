@@ -3,7 +3,7 @@ import React, { useReducer, useContext } from 'react'
 // Initialize the context
 const CartContext = React.createContext()
 
-// Definte the default state
+// Define the default state
 const initialState = {
   itemsById: {},
   allItems: [],
@@ -49,7 +49,18 @@ const cartReducer = (state, action) => {
         ),
       }
       return updatedState
-    
+    case UPDATE_ITEM_QUANTITY:
+      // Handle the UPDATE_ITEM_QUANTITY action
+      return {
+        ...state,
+        itemsById: {
+          ...state.itemsById,
+          [payload.id]: {
+            ...state.itemsById[payload.id],
+            quantity: payload.quantity
+          }
+        }
+      }
     default:
       return state
   }
@@ -69,14 +80,33 @@ const CartProvider = ({ children }) => {
     dispatch({ type: ADD_ITEM, payload: product })
   }
 
-  // todo Update the quantity of an item in the cart
+  // Update the quantity of an item in the cart
   const updateItemQuantity = (productId, quantity) => {
-    // todo
+    // Don't allow negative quantities
+    const newQuantity = Math.max(0, quantity);
+    
+    // If quantity is 0, remove the item
+    if (newQuantity === 0) {
+      const product = state.itemsById[productId];
+      if (product) {
+        removeFromCart(product);
+      }
+      return;
+    }
+    
+    // Otherwise update the quantity
+    dispatch({ 
+      type: UPDATE_ITEM_QUANTITY, 
+      payload: { id: productId, quantity: newQuantity } 
+    });
   }
 
-  // todo Get the total price of all items in the cart
+  // Get the total price of all items in the cart
   const getCartTotal = () => {
-    // todo
+    return state.allItems.reduce((total, itemId) => {
+      const item = state.itemsById[itemId];
+      return total + (item.price * item.quantity);
+    }, 0);
   }
 
   const getCartItems = () => {

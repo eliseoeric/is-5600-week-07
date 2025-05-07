@@ -1,15 +1,22 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { BASE_URL } from '../config';
 
 const Orders = () => {
   const [orders, setOrders] = useState([]);
 
-  /**
-   * TODO
-   * 1. Create a `fetchOrders` function that retrieves all orders from the database
-   * 2. Using the `useEffect` hook, update the existing `orders` state object when `fetchOrders` is complete
-   **/ 
+  useEffect(() => {
+    fetchOrders();
+  }, []);
 
+  const fetchOrders = async () => {
+    try {
+      const res = await fetch(`${BASE_URL}/orders`);
+      const data = await res.json();
+      setOrders(data);
+    } catch (error) {
+      console.error("Failed to fetch orders:", error);
+    }
+  };
 
   return (
     <div className="center mw7 ba mv4">
@@ -25,11 +32,11 @@ const Orders = () => {
             </tr>
           </thead>
           <tbody>
-            {orders && orders.map((order) => (
+            {orders.map((order) => (
               <tr key={order._id}>
                 <td className="tl pv2">{order._id}</td>
                 <td className="tl pv2">{order.buyerEmail}</td>
-                <td className="tl pv2">{order.products.join(', ')}</td>
+                <td className="tl pv2">{order.products?.join(', ') || '—'}</td>
                 <td className="tl pv2">{order.status}</td>
               </tr>
             ))}

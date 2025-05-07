@@ -1,14 +1,22 @@
 import React, { useState } from 'react';
+import React, {useState, useEffect} from 'react';
 import { BASE_URL } from '../config';
 
 const Orders = () => {
   const [orders, setOrders] = useState([]);
+  const fetchOrders = async () => {
+    try {
+      const response = await fetch(`${BASE_URL}/orders`);
+      const data = await response.json();
+      setOrders(data);
+    } catch (error) {
+      console.error("Failed to fetch:", error);
+    }
+  };
 
-  /**
-   * TODO
-   * 1. Create a `fetchOrders` function that retrieves all orders from the database
-   * 2. Using the `useEffect` hook, update the existing `orders` state object when `fetchOrders` is complete
-   **/ 
+  useEffect(() => {
+    fetchOrders();
+  }, []); 
 
 
   return (

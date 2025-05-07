@@ -30,6 +30,18 @@ const CardList = ({ data }) => {
   }
 
 
+  const fetchProducts = () => {
+    fetch(`${BASE_URL}/products?offset=${offset}&limit=${limit}`)
+      .then((res) => res.json())
+      .then((data) => {
+        setProducts(data);
+      });
+  };
+
+  useEffect(() => {
+    fetchProducts();
+  }, [offset]);
+
   return (
     <div className="cf pa2">
       <Search handleSearch={filterTags}/>

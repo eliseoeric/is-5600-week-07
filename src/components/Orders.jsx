@@ -1,9 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BASE_URL } from '../config';
 
 const Orders = () => {
-  const [orders, setOrders] = useState([]);
-
+  const fetchOrders=()=>{
+    fetch('${BASE_URL}/orders')
+    .then((res)=>res.json())
+    .then((data)=>{
+      setOrders(data);
+    })
+  }
+  useEffect(() =>{
+    fetchOrders();
+  }, [])
   /**
    * TODO
    * 1. Create a `fetchOrders` function that retrieves all orders from the database

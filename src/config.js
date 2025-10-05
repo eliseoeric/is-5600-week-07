@@ -1,2 +1,2 @@
-// TODO: Replace this with your own Server URL for your codespace
-export const BASE_URL = "https://glowing-space-memory-q7p4jvr9g4p424rj7-3080.app.github.dev";
+// src/config.js
+export const BASE_URL = "https://miniature-winner-967pp7467g737x5j-3000.app.github.dev";

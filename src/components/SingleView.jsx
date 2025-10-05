@@ -1,21 +1,36 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom';
 import '../App.css';
-
+import AddToCart from './AddToCart';
+import { BASE_URL } from '../config';
 
 export default function SingleView({data}) {
-  // get the id from the url using useParams
-  const { id } = useParams();
   
-  // get the product from the data using the id
-  const product = data.find(product => product.id === id);
+// get the id from the url using useParams
+const { id } = useParams();
 
-  const { user } = product;
+// Define the state object for product data
+const [ product, setProduct ] = useState(null)
 
-  const title = product.description ?? product.alt_description;
-  const style = {
-    backgroundImage: `url(${product.urls["regular"]})`
+// Fetch the product by id from the server
+const fetchProductById = async (id) => {
+  const product = await fetch(`${BASE_URL}/products/${id}`)
+    .then((res) => res.json());
+  return product;
+};
+
+useEffect(() => {
+  const getProduct = async () => {
+    const data = await fetchProductById(id);
+    setProduct(data)
   }
+  getProduct();
+});
+
+// show a spinner if there is no product loaded yet
+if (!product) return (<div className="loading-spinner"></div>);
+
+const { user } = product;
 
   return (
     <article class="bg-white center mw7 ba b--black-10 mv4">
@@ -38,6 +53,7 @@ export default function SingleView({data}) {
       <div className="pa3 flex justify-end">
         <span className="ma2 f4">${product.price}</span>
         {/* TODO Implement the AddToCart button */}
+        <AddToCart product={product}></AddToCart>
       </div>
     </article>
 

@@ -1,50 +1,58 @@
-import React, { useState, useEffect } from 'react'
-import Card from './Card'
-import Button from './Button'
-import Search from './Search'
+// src/components/CardList.jsx
 
-const CardList = ({ data }) => {
-  // define the limit state variable and set it to 10
+import React, { useState, useEffect, useCallback } from "react";
+import { BASE_URL } from "../config";
+import Card from "./Card";
+import Button from "./Button";
+
+const CardList = () => {
+  const [products, setProducts] = useState([]);
+  const [offset, setOffset] = useState(0);
   const limit = 10;
 
-  // Define the offset state variable and set it to 0
-  const [offset, setOffset] = useState(0);
-  // Define the products state variable and set it to the default dataset
-  const [products, setProducts] = useState(data);
-
-  useEffect(() => {
-    setProducts(data.slice(offset, offset + limit));
-  }, [offset, limit, data])
-
-  const filterTags = (tagQuery) => {
-    const filtered = data.filter(product => {
-      if (!tagQuery) {
-        return product
+  // ✅ Use useCallback to avoid missing dependency warnings
+  const fetchProducts = useCallback(async () => {
+    try {
+      const res = await fetch(`${BASE_URL}/products?offset=${offset}&limit=${limit}`);
+      if (!res.ok) {
+        throw new Error(`Failed to fetch products: ${res.status}`);
       }
+      const data = await res.json();
+      setProducts(data);
+    } catch (err) {
+      console.error("Error fetching products:", err);
+    }
+  }, [offset, limit]); // dependencies — runs again when offset changes
 
-      return product.tags.find(({title}) => title === tagQuery)
-    })
+  // ✅ useEffect now correctly uses fetchProducts
+  useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]);
 
-    setOffset(0)
-    setProducts(filtered)
-  }
+  const handlePrevious = () => {
+    setOffset((prev) => Math.max(prev - limit, 0));
+  };
 
+  const handleNext = () => {
+    setOffset((prev) => prev + limit);
+  };
 
   return (
     <div className="cf pa2">
-      <Search handleSearch={filterTags}/>
-      <div className="mt2 mb2">
-      {products && products.map((product) => (
-          <Card key={product._id} {...product} />
+      <div
+        className="mt2 mb2 grid gap3"
+        style={{ gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))" }}
+      >
+        {products.map((product) => (
+          <Card key={product.id} {...product} />
         ))}
       </div>
-
-      <div className="flex items-center justify-center pa4">
-        <Button text="Previous" handleClick={() => setOffset(offset - limit)} />
-        <Button text="Next" handleClick={() => setOffset(offset + limit)} />
+      <div className="flex justify-center pa4">
+        <Button text="Previous" handleClick={handlePrevious} />
+        <Button text="Next" handleClick={handleNext} />
       </div>
     </div>
-  )
-}
+  );
+};
 
 export default CardList;

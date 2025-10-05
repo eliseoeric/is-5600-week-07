@@ -1,27 +1,24 @@
+// src/components/Card.jsx
 import React from "react";
 import { Link } from "react-router-dom";
 
-const Card = ({description, alt_description, id, _id, user, urls, likes}) => {
-
-  const style = {
-    backgroundImage: `url(${urls.small})`
-  }
-  
+export default function Card({ id, name, price, image }) {
   return (
-    <div className="fl w-50 w-25-m w-20-l pa2">
-      <Link to={`/product/${_id}`} className="db link dim tc"> 
-        <div style={style} alt="" class="w-100 db outline black-10 h4 cover"></div>
-        <dl className="mt2 f6 lh-copy">
-          <dt className="clip">Title</dt>
-          <dd className="ml0 black truncate w-100">{description ?? alt_description}</dd>
-          <dt className="clip">Artist</dt>
-          <dd className="ml0 gray truncate w-100">{user.first_name} {user.last_name}</dd>
-          <dt className="clip">Likes</dt>
-          <dd className="ml0 gray truncate w-100">{likes} Likes</dd>
-        </dl>
+    <div style={{
+      border: "1px solid #ddd",
+      borderRadius: 8,
+      padding: 12,
+      margin: 8,
+      width: 220,
+      boxSizing: "border-box"
+    }}>
+      <Link to={`/product/${id}`} style={{ textDecoration: "none", color: "inherit" }}>
+        <div style={{ height: 140, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <img src={image} alt={name} style={{ maxHeight: "100%", maxWidth: "100%", objectFit: "contain" }} />
+        </div>
+        <h3 style={{ fontSize: "1rem", margin: "8px 0" }}>{name}</h3>
+        <p style={{ margin: 0 }}>${price}</p>
       </Link>
     </div>
-  )
+  );
 }
-
-export default Card;

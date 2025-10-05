@@ -3,19 +3,29 @@ import { useParams } from 'react-router-dom';
 import '../App.css';
 
 
-export default function SingleView({data}) {
-  // get the id from the url using useParams
-  const { id } = useParams();
-  
-  // get the product from the data using the id
-  const product = data.find(product => product.id === id);
+export default function SingleView() {
 
-  const { user } = product;
+  // Define the state object for product data
+  const [ product, setProduct ] = useState(null)
 
-  const title = product.description ?? product.alt_description;
-  const style = {
-    backgroundImage: `url(${product.urls["regular"]})`
-  }
+  // Fetch the product by id from the server
+  const fetchProductById = async (id) => {
+    const product = await fetch(`${BASE_URL}/products/${id}`)
+      .then((res) => res.json());
+    return product;
+  };
+
+  // Use the useEffect hook to fetch the product when the component boots
+  useEffect(() => {
+    const getProduct = async () => {
+      const data = await fetchProductById(id);
+      setProduct(data)
+    }
+    getProduct();
+  }, [id, fetchProductById]);
+
+  // show a spinner if there is no product loaded yet
+  if (!product) return (<div className="loading-spinner"></div>);
 
   return (
     <article class="bg-white center mw7 ba b--black-10 mv4">

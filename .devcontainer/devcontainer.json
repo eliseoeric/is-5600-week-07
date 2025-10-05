@@ -1,48 +1,13 @@
 {
-  "name": "IS 5600 - Lab 7",
-  
-  "dockerComposeFile": "docker-compose.yml",
-	"service": "app",
-  "runServices": ["server", "db"],
-	"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
-  "postCreateCommand": {
-    "server": "cd node-src && npm install",
-    "app": "npm install"
-  },
-  "postAttachCommand": {
-    "app": "npm start",
-    "server": "cd node-src && npm run dev"
-  },
-  // Configure tool-specific properties.
+  "name": "React + Node Dev Container",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:20",
   "customizations": {
-    "codespaces": {
-      "openFiles": ["src/App.js"]
-    },
-    // Configure properties specific to VS Code.
     "vscode": {
-      "settings": {},
       "extensions": [
-        "streetsidesoftware.code-spell-checker",
-        "mongodb.mongodb-vscode"
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode"
       ]
     }
   },
-  "portsAttributes": {
-    "3000": {
-      "label": "React Application",
-      "onAutoForward": "openPreview"
-    },
-    "27017": {
-      "label": "MongoDB",
-      "onAutoForward": "notify"
-    },
-    "3080": {
-      "label": "Node Application"
-    }
-  },
-  "forwardPorts": [3000, 27017, 3080],
-  "containerEnv": {
-    "MONGO_INITDB_ROOT_USERNAME": "root",
-    "MONGO_INITDB_ROOT_PASSWORD": "example"
-  }
+  "postCreateCommand": "npm install"
 }

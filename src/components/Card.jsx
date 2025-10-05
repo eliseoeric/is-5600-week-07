@@ -1,27 +1,31 @@
+// src/components/Card.js
 import React from "react";
 import { Link } from "react-router-dom";
 
-const Card = ({description, alt_description, id, _id, user, urls, likes}) => {
-
-  const style = {
-    backgroundImage: `url(${urls.small})`
-  }
-  
+const Card = ({ id, name, description, price, imageUrl }) => {
   return (
-    <div className="fl w-50 w-25-m w-20-l pa2">
-      <Link to={`/product/${_id}`} className="db link dim tc"> 
-        <div style={style} alt="" class="w-100 db outline black-10 h4 cover"></div>
-        <dl className="mt2 f6 lh-copy">
-          <dt className="clip">Title</dt>
-          <dd className="ml0 black truncate w-100">{description ?? alt_description}</dd>
-          <dt className="clip">Artist</dt>
-          <dd className="ml0 gray truncate w-100">{user.first_name} {user.last_name}</dd>
-          <dt className="clip">Likes</dt>
-          <dd className="ml0 gray truncate w-100">{likes} Likes</dd>
-        </dl>
-      </Link>
+    <div
+      style={{
+        border: "1px solid #ddd",
+        padding: "20px",
+        margin: "10px",
+        borderRadius: "10px",
+        width: "200px",
+        textAlign: "center",
+        display: "inline-block",
+        verticalAlign: "top",
+      }}
+    >
+      <img
+        src={imageUrl || "https://via.placeholder.com/150"}
+        alt={name}
+        style={{ width: "100%", borderRadius: "5px" }}
+      />
+      <h3>{name}</h3>
+      <p>${price}</p>
+      <Link to={`/product/${id}`}>View</Link>
     </div>
-  )
-}
+  );
+};
 
 export default Card;

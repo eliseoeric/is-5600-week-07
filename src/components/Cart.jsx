@@ -1,67 +1,42 @@
-import React, { useContext } from 'react';
-import PurchaseForm from './PurchaseForm';
+// src/components/Cart.js
+import React from "react";
+import { useCart } from "../state/CartProvider";
 
-const Cart = () => {
-  // TODO - get cart items from context
-  const cartItems = [];
-  const removeFromCart = () => {};
-  const updateItemQuantity = () => {};
-  const getCartTotal = () => {};
+export default function Cart() {
+  const { cartItems, updateItemQuantity, removeFromCart, getCartTotal } =
+    useCart();
 
   return (
-    <div className="center mw7 mv4">
-      <div className="bg-white pa3 mb3">
-        <h2 className="f2 mb2">Cart</h2>
-        <table className="w-100 ba pa2">
-          <thead>
-            <tr>
-              <th className="tl pv2">Product</th>
-              <th className="tr pv2">Quantity</th>
-              <th className="tr pv2">Price</th>
-              <th className="tr pv2">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {cartItems && cartItems.map((item) => (
-              <tr key={item._id}>
-                <td className="tl pv2">{item.description}</td>
-                <td className="tr pv2">
-                  <a
-                    className="pointer ba b--black-10 pv1 ph2 mr2"
-                    onClick={() => updateItemQuantity(item._id, -1)}
-                  >
-                    -
-                  </a>
-                  {item.quantity}
-                  <a
-                    className="pointer ba b--black-10 pv1 ph2 ml2"
-                    onClick={() => updateItemQuantity(item._id, 1)}
-                  >
-                    +
-                  </a>
-                </td>
-                <td className="tr pv2">${item.price * item.quantity}</td>
-                <td className="tr pv2">
-                  <a
-                    className="pointer ba b--black-10 pv1 ph2"
-                    onClick={() => removeFromCart(item)}
-                  >
-                    Remove
-                  </a>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        <div className="tr f4 mv3">
-          Total: ${getCartTotal().toFixed(2)}
+    <div style={{ padding: "30px" }}>
+      <h2>Your Cart</h2>
+      {cartItems.length === 0 && <p>Cart is empty.</p>}
+      {cartItems.map((item) => (
+        <div
+          key={item.id}
+          style={{
+            borderBottom: "1px solid #ccc",
+            marginBottom: "10px",
+            paddingBottom: "10px",
+          }}
+        >
+          <h3>{item.name}</h3>
+          <p>${item.price}</p>
+          <input
+            type="number"
+            value={item.quantity}
+            onChange={(e) =>
+              updateItemQuantity(item.id, parseInt(e.target.value))
+            }
+          />
+          <button
+            style={{ marginLeft: "10px" }}
+            onClick={() => removeFromCart(item.id)}
+          >
+            Remove
+          </button>
         </div>
-      </div>
-      <div className="flex justify-end pa3 mb3">
-        <PurchaseForm />
-      </div>
+      ))}
+      <h3>Total: ${getCartTotal()}</h3>
     </div>
   );
-};
-
-export default Cart;
+}

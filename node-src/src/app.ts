@@ -38,7 +38,7 @@ Products.list().then((products) => {
         console.log('No products found, loading from file');
         fs.readFile(productsFile, 'utf-8').then((data) => {
             const products = JSON.parse(data);
-            products.forEach((product) => {
+            products.forEach((product: any) => {
                 if (!product.price) {
                     product.price = Math.floor(Math.random() * 100) + 1; // Set random price between 1 and 100
                 }
@@ -57,7 +57,7 @@ Products.list().then((products) => {
                             status: 'CREATED'
                         };
                         console.log('Creating order', order);
-                        Orders.create(order);
+                        Orders.create(order as any);
                     }
                 }
             });

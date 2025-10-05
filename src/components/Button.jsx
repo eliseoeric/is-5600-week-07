@@ -1,9 +1,27 @@
-import React from 'react'
+// src/components/AddToCart.jsx
+import React, { useContext } from "react";
+import { CartContext } from "../state/CartProvider";
 
-export default function Button({text, handleClick}) {
+export default function AddToCart({ product }) {
+  const { addToCart } = useContext(CartContext);
+
+  const handleClick = () => {
+    console.log("Adding to cart", product);
+    addToCart(product);
+  };
+
   return (
-    <a href="#" className="f5 no-underline black bg-animate hover-bg-black hover-white inline-flex items-center pa3 ba border-box mr4" onClick={handleClick}>
-      <span className="pl1">{text}</span>
-    </a>
-  )
+    <button
+      onClick={handleClick}
+      style={{
+        padding: "10px 20px",
+        backgroundColor: "#2196F3",
+        color: "white",
+        border: "none",
+        borderRadius: "5px",
+      }}
+    >
+      Add to Cart
+    </button>
+  );
 }

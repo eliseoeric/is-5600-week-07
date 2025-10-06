@@ -65,3 +65,40 @@ const Cart = () => {
 };
 
 export default Cart;
+import React from "react";
+import { useCart } from "../context/CartContext";
+
+const Cart = () => {
+  const { cart, removeItem, updateItemQuantity, getCartTotal } = useCart();
+
+  return (
+    <div>
+      <h2>Your Cart</h2>
+      {cart.length === 0 ? (
+        <p>No items in cart.</p>
+      ) : (
+        <ul>
+          {cart.map((item) => (
+            <li key={item.id}>
+              <strong>{item.name}</strong> - ${item.price}
+              <div>
+                <input
+                  type="number"
+                  min="1"
+                  value={item.quantity}
+                  onChange={(e) =>
+                    updateItemQuantity(item.id, parseInt(e.target.value))
+                  }
+                />
+                <button onClick={() => removeItem(item.id)}>Remove</button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+      <h3>Total: ${getCartTotal()}</h3>
+    </div>
+  );
+};
+
+export default Cart;

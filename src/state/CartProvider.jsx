@@ -3,7 +3,7 @@ import React, { useReducer, useContext } from 'react'
 // Initialize the context
 const CartContext = React.createContext()
 
-// Definte the default state
+// Define the default state
 const initialState = {
   itemsById: {},
   allItems: [],
@@ -76,7 +76,7 @@ const CartProvider = ({ children }) => {
 
   // todo Get the total price of all items in the cart
   const getCartTotal = () => {
-    // todo
+    return getCartItems().reduce((acc, item) => acc + item.price * item.quantity, 0);
   }
 
   const getCartItems = () => {

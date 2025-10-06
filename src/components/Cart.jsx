@@ -1,12 +1,19 @@
-import React, { useContext } from 'react';
-import PurchaseForm from './PurchaseForm';
+import React from "react";
+import PurchaseForm from "./PurchaseForm";
+import { useCart } from "../state/CartProvider";
+import { Link } from "react-router-dom";
 
-const Cart = () => {
-  // TODO - get cart items from context
-  const cartItems = [];
-  const removeFromCart = () => {};
-  const updateItemQuantity = () => {};
-  const getCartTotal = () => {};
+export default function Cart() {
+  const { cartItems, removeFromCart, updateItemQuantity, getCartTotal } = useCart();
+
+  if (!cartItems.length) {
+    return (
+      <div className="center mw7 mv4 tc">
+        <p>Your cart is empty.</p>
+        <Link to="/" className="link dim blue">Continue shopping</Link>
+      </div>
+    );
+  }
 
   return (
     <div className="center mw7 mv4">
@@ -22,30 +29,27 @@ const Cart = () => {
             </tr>
           </thead>
           <tbody>
-            {cartItems && cartItems.map((item) => (
+            {cartItems.map((item) => (
               <tr key={item._id}>
-                <td className="tl pv2">{item.description}</td>
+                <td className="tl pv2">{item.title ?? item.description ?? item.alt_description}</td>
                 <td className="tr pv2">
                   <a
                     className="pointer ba b--black-10 pv1 ph2 mr2"
-                    onClick={() => updateItemQuantity(item._id, -1)}
+                    onClick={() => updateItemQuantity(item._id, Math.max(0, (item.quantity || 0) - 1))}
                   >
                     -
                   </a>
                   {item.quantity}
                   <a
                     className="pointer ba b--black-10 pv1 ph2 ml2"
-                    onClick={() => updateItemQuantity(item._id, 1)}
+                    onClick={() => updateItemQuantity(item._id, (item.quantity || 0) + 1)}
                   >
                     +
                   </a>
                 </td>
-                <td className="tr pv2">${item.price * item.quantity}</td>
+                <td className="tr pv2">${(Number(item.price) * Number(item.quantity)).toFixed(2)}</td>
                 <td className="tr pv2">
-                  <a
-                    className="pointer ba b--black-10 pv1 ph2"
-                    onClick={() => removeFromCart(item)}
-                  >
+                  <a className="pointer ba b--black-10 pv1 ph2" onClick={() => removeFromCart(item)}>
                     Remove
                   </a>
                 </td>
@@ -62,6 +66,4 @@ const Cart = () => {
       </div>
     </div>
   );
-};
-
-export default Cart;
+}

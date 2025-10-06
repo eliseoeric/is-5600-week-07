@@ -1,45 +1,41 @@
-version: '3.8'
+version: "3.8"
 
 services:
+  app:
+    image: mcr.microsoft.com/devcontainers/typescript-node:20
+    user: node
+    init: true
+    working_dir: /workspaces/is-5600-week-07
+    volumes:
+      - ..:/workspaces/is-5600-week-07:cached
+    # Vite on port 3000 (change to `npm start` if you're using CRA)
+    command: sh -c "npm ci || npm install; npm run dev -- --host --port 3000"
+    depends_on:
+      - server
+
   server:
-    build: 
-      context: .
-      dockerfile: Dockerfile
+    image: mcr.microsoft.com/devcontainers/typescript-node:20
+    user: node
+    init: true
     working_dir: /workspaces/is-5600-week-07/node-src
     volumes:
-      - ../..:/workspaces:cached
+      - ..:/workspaces/is-5600-week-07:cached
     environment:
-     PORT: 3080 
-
-    # Overrides default command so things don't shut down after the process ends.
-    # command: sh -c "npm install && npm run dev"
-
-    # Runs app on the same network as the database container, allows "forwardPorts" in devcontainer.json function.
-    network_mode: service:db
-
-    # Use "forwardPorts" in **devcontainer.json** to forward an app port locally. 
-    # (Adding the "ports" property to this file will not forward from a Codespace.)
+      PORT: 3080
+      MONGODB_URI: mongodb://root:example@db:27017/?authSource=admin
+    command: sh -c "npm ci || npm install; npm run dev"
+    depends_on:
+      - db
 
   db:
-    image: mongo:latest
+    image: mongo:6
     restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+      MONGO_INITDB_DATABASE: products-db
     volumes:
       - mongodb-data:/data/db
-
-    # Uncomment to change startup options
-    environment:
-     MONGO_INITDB_ROOT_USERNAME: root
-     MONGO_INITDB_ROOT_PASSWORD: example
-     MONGO_INITDB_DATABASE: products-db
-
-    # Add "forwardPorts": ["27017"] to **devcontainer.json** to forward MongoDB locally.
-    # (Adding the "ports" property to this file will not forward from a Codespace.)
-  
-  app:
-    image: mcr.microsoft.com/devcontainers/universal:2
-    working_dir: /src
-    volumes:
-      - ../..:/workspaces:cached
 
 volumes:
   mongodb-data:

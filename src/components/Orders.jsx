@@ -1,43 +1,43 @@
-import React, { useState } from 'react';
-import { BASE_URL } from '../config';
+import React, { useEffect, useState } from "react";
+import { BASE_URL } from "../config";
 
-const Orders = () => {
+export default function Orders() {
   const [orders, setOrders] = useState([]);
 
-  /**
-   * TODO
-   * 1. Create a `fetchOrders` function that retrieves all orders from the database
-   * 2. Using the `useEffect` hook, update the existing `orders` state object when `fetchOrders` is complete
-   **/ 
+  useEffect(() => {
+    fetch(`${BASE_URL}/orders`)
+      .then((res) => res.json())
+      .then((data) => setOrders(Array.isArray(data) ? data : []));
+  }, []);
 
+  if (!orders.length) {
+    return <div className="center mw7 ba mv4 pa3">No orders yet.</div>;
+  }
 
   return (
     <div className="center mw7 ba mv4">
       <div className="bg-white pa3 mb3">
         <h2 className="f2 mb2">Orders</h2>
-        <table className="w-100">
-          <thead>
-            <tr>
-              <th className="tl pv2">Order ID</th>
-              <th className="tl pv2">Buyer Email</th>
-              <th className="tl pv2">Products</th>
-              <th className="tl pv2">Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {orders && orders.map((order) => (
-              <tr key={order._id}>
-                <td className="tl pv2">{order._id}</td>
-                <td className="tl pv2">{order.buyerEmail}</td>
-                <td className="tl pv2">{order.products.join(', ')}</td>
-                <td className="tl pv2">{order.status}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        {orders.map((o) => (
+          <div key={o.id || o._id || o.createdAt} className="pa2 mb2 ba b--black-10 br2">
+            <div className="flex justify-between">
+              <div className="fw6">Order #{o.id || o._id || "N/A"}</div>
+              <div className="fw6">${Number(o.total || 0).toFixed(2)}</div>
+            </div>
+            <div className="gray">
+              {o.createdAt ? new Date(o.createdAt).toLocaleString() : ""}
+            </div>
+            <div className="mt2">
+              {(o.items || []).map((it) => (
+                <div key={(it.id || it._id) + String(it.title)} className="flex justify-between pv1">
+                  <span>{it.title} × {it.quantity}</span>
+                  <span>${(Number(it.price) * Number(it.quantity)).toFixed(2)}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
-};
-
-export default Orders;
+}

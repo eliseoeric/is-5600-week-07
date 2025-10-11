@@ -1,26 +1,18 @@
 {
-  "name": "IS 5600 - Lab 7",
-  
-  "dockerComposeFile": "docker-compose.yml",
-	"service": "app",
-  "runServices": ["server", "db"],
-	"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+  "name": "IS 5600 - Lab 7 (no-compose)",
+  "image": "mcr.microsoft.com/devcontainers/universal:2",
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
   "postCreateCommand": {
-    "server": "cd node-src && npm install",
-    "app": "npm install"
+    "server": "cd node-src && npm ci || npm install",
+    "app": "npm ci || npm install"
   },
   "postAttachCommand": {
-    "app": "npm start",
-    "server": "cd node-src && npm run dev"
+    "server": "cd node-src && npx tsx src/app.ts",
+    "app": "npx vite --host --port 3000"
   },
-  // Configure tool-specific properties.
   "customizations": {
-    "codespaces": {
-      "openFiles": ["src/App.js"]
-    },
-    // Configure properties specific to VS Code.
+    "codespaces": { "openFiles": ["src/App.jsx"] },
     "vscode": {
-      "settings": {},
       "extensions": [
         "streetsidesoftware.code-spell-checker",
         "mongodb.mongodb-vscode"
@@ -28,21 +20,11 @@
     }
   },
   "portsAttributes": {
-    "3000": {
-      "label": "React Application",
-      "onAutoForward": "openPreview"
-    },
-    "27017": {
-      "label": "MongoDB",
-      "onAutoForward": "notify"
-    },
-    "3080": {
-      "label": "Node Application"
-    }
+    "3000": { "label": "React Application", "onAutoForward": "openPreview" },
+    "3080": { "label": "Node Application", "onAutoForward": "notify" }
   },
-  "forwardPorts": [3000, 27017, 3080],
+  "forwardPorts": [3000, 3080],
   "containerEnv": {
-    "MONGO_INITDB_ROOT_USERNAME": "root",
-    "MONGO_INITDB_ROOT_PASSWORD": "example"
+    "PORT": "3080"
   }
 }

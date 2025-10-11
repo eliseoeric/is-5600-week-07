@@ -1,38 +1,31 @@
-import React, { useState, useEffect } from "react";
-import Card from "./Card";
-import Button from "./Button";
+import { useEffect, useState } from "react";
 import { BASE_URL } from "../config";
 
-const LIMIT = 10;
-
 export default function CardList() {
-  const [products, setProducts] = useState([]);
-  const [offset, setOffset] = useState(0);
-
-  const fetchProducts = () => {
-    fetch(`${BASE_URL}/products?offset=${offset}&limit=${LIMIT}`)
-      .then((res) => res.json())
-      .then((data) => setProducts(Array.isArray(data) ? data : []));
-  };
+  const [products, setProducts] = useState(null);
+  const [err, setErr] = useState(null);
 
   useEffect(() => {
-    fetchProducts();
-  }, [offset]);
+    fetch(`${BASE_URL}/products`)
+      .then(async (r) => {
+        if (!r.ok) throw new Error(`${r.status}`);
+        return r.json();
+      })
+      .then(setProducts)
+      .catch((e) => setErr(`error: ${e.message}`));
+  }, []);
 
-  const handlePrevious = () => setOffset((o) => Math.max(0, o - LIMIT));
-  const handleNext = () => setOffset((o) => o + LIMIT);
+  if (err) return <div style={{color:'red'}}>{err}</div>;
+  if (!products) return <div>Loading…</div>;
 
   return (
-    <div className="cf pa2">
-      <div className="mt2 mb2">
-        {products.map((p) => (
-          <Card key={p.id || p._id} {...p} id={p.id || p._id} />
-        ))}
-      </div>
-      <div className="flex items-center justify-center pa4">
-        <Button text="Previous" handleClick={handlePrevious} />
-        <Button text="Next" handleClick={handleNext} />
-      </div>
-    </div>
+    <ul style={{maxWidth: 640, margin: "2rem"}}>
+      {products.map((p) => (
+        <li key={p._id} style={{marginBottom:"1rem"}}>
+          <b>{p.title}</b> — ${p.price}
+          <div>{p.description}</div>
+        </li>
+      ))}
+    </ul>
   );
 }

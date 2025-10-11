@@ -1,1 +1,5 @@
-[{"_id":"1","title":"Sample Print","description":"Test","price":19.99,"image":"https://picsum.photos/300"}]
+[
+  {"_id":"1","title":"Sample Print","description":"Test","price":19.99,"image":"https://picsum.photos/300?1"},
+  {"_id":"2","title":"Ocean Canvas","description":"Beautiful ocean view","price":29.99,"image":"https://picsum.photos/300?2"},
+  {"_id":"3","title":"Mountain Art","description":"Peaceful mountain scenery","price":34.99,"image":"https://picsum.photos/300?3"}
+]

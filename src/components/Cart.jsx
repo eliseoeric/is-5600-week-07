@@ -1,19 +1,7 @@
-import React from "react";
-import PurchaseForm from "./PurchaseForm";
 import { useCart } from "../state/CartProvider";
-import { Link } from "react-router-dom";
 
 export default function Cart() {
   const { cartItems, removeFromCart, updateItemQuantity, getCartTotal } = useCart();
-
-  if (!cartItems.length) {
-    return (
-      <div className="center mw7 mv4 tc">
-        <p>Your cart is empty.</p>
-        <Link to="/" className="link dim blue">Continue shopping</Link>
-      </div>
-    );
-  }
 
   return (
     <div className="center mw7 mv4">
@@ -31,23 +19,19 @@ export default function Cart() {
           <tbody>
             {cartItems.map((item) => (
               <tr key={item._id}>
-                <td className="tl pv2">{item.title ?? item.description ?? item.alt_description}</td>
+                <td className="tl pv2">{item.title ?? item.description}</td>
                 <td className="tr pv2">
-                  <a
-                    className="pointer ba b--black-10 pv1 ph2 mr2"
-                    onClick={() => updateItemQuantity(item._id, Math.max(0, (item.quantity || 0) - 1))}
-                  >
+                  <a className="pointer ba b--black-10 pv1 ph2 mr2"
+                     onClick={() => updateItemQuantity(item._id, item.quantity - 1)}>
                     -
                   </a>
                   {item.quantity}
-                  <a
-                    className="pointer ba b--black-10 pv1 ph2 ml2"
-                    onClick={() => updateItemQuantity(item._id, (item.quantity || 0) + 1)}
-                  >
+                  <a className="pointer ba b--black-10 pv1 ph2 ml2"
+                     onClick={() => updateItemQuantity(item._id, item.quantity + 1)}>
                     +
                   </a>
                 </td>
-                <td className="tr pv2">${(Number(item.price) * Number(item.quantity)).toFixed(2)}</td>
+                <td className="tr pv2">${(item.price * item.quantity).toFixed(2)}</td>
                 <td className="tr pv2">
                   <a className="pointer ba b--black-10 pv1 ph2" onClick={() => removeFromCart(item)}>
                     Remove
@@ -57,12 +41,7 @@ export default function Cart() {
             ))}
           </tbody>
         </table>
-        <div className="tr f4 mv3">
-          Total: ${getCartTotal().toFixed(2)}
-        </div>
-      </div>
-      <div className="flex justify-end pa3 mb3">
-        <PurchaseForm />
+        <div className="tr f4 mv3">Total: ${getCartTotal().toFixed(2)}</div>
       </div>
     </div>
   );

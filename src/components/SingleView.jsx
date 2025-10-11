@@ -1,39 +1,29 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import "../App.css";
 import { BASE_URL } from "../config";
-import { useCart } from "../state/CartProvider";
+import AddToCart from "./AddToCart";
 
 export default function SingleView() {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
-  const { addToCart } = useCart();
 
   useEffect(() => {
+    let alive = true;
     fetch(`${BASE_URL}/products/${id}`)
-      .then((res) => res.json())
-      .then((data) => setProduct(data));
+      .then((r) => r.json())
+      .then((data) => { if (alive) setProduct(data); });
+    return () => { alive = false; };
   }, [id]);
 
-  if (!product) return <div className="loading-spinner"></div>;
+  if (!product) return <div className="pa3">Loading…</div>;
 
   return (
-    <article className="center mw6 mv4 ba">
-      <div className="flex">
-        <img src={product.image} alt={product.title} className="w-50 pa3" />
-        <div className="w-50 pa3">
-          <h1 className="f3 mv2">{product.title}</h1>
-          <p className="mv2">{product.description}</p>
-        </div>
-      </div>
-      <div className="pa3 flex justify-end">
+    <article className="center mw7 mv4 pa3 ba b--black-10">
+      <h1 className="f2 mb2">{product.title ?? product.description}</h1>
+      <p className="mb3">{product.description}</p>
+      <div className="pa3 flex justify-end items-center">
         <span className="ma2 f4">${product.price}</span>
-        <a
-          className="f6 link dim br3 ba bw1 ph3 pv2 mb2 dib black"
-          onClick={() => addToCart({ ...product, _id: product.id || product._id })}
-        >
-          Add to Cart
-        </a>
+        <AddToCart product={product} />
       </div>
     </article>
   );

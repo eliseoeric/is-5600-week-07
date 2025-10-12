@@ -1,24 +1,17 @@
 {
   "name": "IS 5600 - Lab 7",
-  
   "dockerComposeFile": "docker-compose.yml",
-	"service": "app",
+  "service": "server",
   "runServices": ["server", "db"],
-	"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
-  "postCreateCommand": {
-    "server": "cd node-src && npm install",
-    "app": "npm install"
-  },
-  "postAttachCommand": {
-    "app": "npm start",
-    "server": "cd node-src && npm run dev"
-  },
-  // Configure tool-specific properties.
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+
+  "postCreateCommand": "cd node-src && npm install && cd .. && npm install",
+  "postAttachCommand": "npm start",
+
   "customizations": {
     "codespaces": {
       "openFiles": ["src/App.js"]
     },
-    // Configure properties specific to VS Code.
     "vscode": {
       "settings": {},
       "extensions": [
@@ -27,6 +20,7 @@
       ]
     }
   },
+
   "portsAttributes": {
     "3000": {
       "label": "React Application",
@@ -40,7 +34,9 @@
       "label": "Node Application"
     }
   },
+
   "forwardPorts": [3000, 27017, 3080],
+
   "containerEnv": {
     "MONGO_INITDB_ROOT_USERNAME": "root",
     "MONGO_INITDB_ROOT_PASSWORD": "example"

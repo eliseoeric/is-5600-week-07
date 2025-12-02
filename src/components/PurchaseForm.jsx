@@ -29,6 +29,13 @@ export default function PurchaseForm({filter}) {
       .then((res) => res.json())
       .then((data) => {
         console.log('Order created:', data);
+        // notify other parts of the app (Orders list) to refresh
+        try {
+          window.dispatchEvent(new CustomEvent('orders-updated', { detail: data }));
+        } catch (err) {
+          // no-op in non-browser environments
+        }
+        setBuyerEmail('')
       })
       .catch((error) => {
         console.error('Error creating order:', error);

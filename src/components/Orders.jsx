@@ -3,12 +3,27 @@ import { BASE_URL } from '../config';
 
 const Orders = () => {
   const [orders, setOrders] = useState([]);
-
   /**
-   * TODO
-   * 1. Create a `fetchOrders` function that retrieves all orders from the database
-   * 2. Using the `useEffect` hook, update the existing `orders` state object when `fetchOrders` is complete
-   **/ 
+   * Fetch orders from the API and set state
+   */
+  const fetchOrders = async () => {
+    try {
+      const res = await fetch(`${BASE_URL}/orders`);
+      const data = await res.json();
+      setOrders(data);
+    } catch (err) {
+      console.error('Error fetching orders', err);
+    }
+  };
+
+  React.useEffect(() => {
+    fetchOrders();
+
+    // Refresh orders when a new order is created elsewhere in the app
+    const handler = () => fetchOrders();
+    window.addEventListener('orders-updated', handler);
+    return () => window.removeEventListener('orders-updated', handler);
+  }, []);
 
 
   return (

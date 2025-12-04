@@ -17,8 +17,7 @@ export default function PurchaseForm({filter}) {
       products,
       status: "PENDING",
     };
-    
-    // post cart to orders API
+  
     fetch(`${BASE_URL}/orders`, {
       method: 'POST',
       headers: {

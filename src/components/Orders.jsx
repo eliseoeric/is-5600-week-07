@@ -1,41 +1,36 @@
-import React, { useState } from 'react';
+// src/components/Orders.jsx
+import React, { useState, useEffect } from 'react';
 import { BASE_URL } from '../config';
 
 const Orders = () => {
   const [orders, setOrders] = useState([]);
 
-  /**
-   * TODO
-   * 1. Create a `fetchOrders` function that retrieves all orders from the database
-   * 2. Using the `useEffect` hook, update the existing `orders` state object when `fetchOrders` is complete
-   **/ 
+  useEffect(() => {
+    fetch(`${BASE_URL}/orders`)
+      .then(res => res.json())
+      .then(data => setOrders(data))
+      .catch(err => console.error("Error fetching orders:", err));
+  }, []);
 
+  if (!orders.length) return <div className="pa4 tc">No orders found.</div>;
 
   return (
-    <div className="center mw7 ba mv4">
-      <div className="bg-white pa3 mb3">
-        <h2 className="f2 mb2">Orders</h2>
-        <table className="w-100">
-          <thead>
-            <tr>
-              <th className="tl pv2">Order ID</th>
-              <th className="tl pv2">Buyer Email</th>
-              <th className="tl pv2">Products</th>
-              <th className="tl pv2">Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {orders && orders.map((order) => (
-              <tr key={order._id}>
-                <td className="tl pv2">{order._id}</td>
-                <td className="tl pv2">{order.buyerEmail}</td>
-                <td className="tl pv2">{order.products.join(', ')}</td>
-                <td className="tl pv2">{order.status}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+    <div className="pa4 mw7 center">
+      <h2>Previous Orders</h2>
+      {orders.map((order) => (
+        <div key={order._id || order.id} className="ba b--black-10 pa3 mv3">
+          <div className="flex justify-between items-center mb3">
+            <h3 className="f5 ma0">Order ID: {order._id || order.id}</h3>
+            <span className="f6 fw6 bg-light-green pa1 br2">{order.status}</span>
+          </div>
+          <div className="pl3 bl b--black-10 bw2">
+             {/* If the API returns items in the order, map them here. 
+                 Assuming simplified display for now based on typical lab structures */}
+             <p>Total Items: {order.items ? order.items.length : 0}</p>
+             <p className="b">Total Cost: ${order.total ? order.total.toFixed(2) : "0.00"}</p>
+          </div>
+        </div>
+      ))}
     </div>
   );
 };

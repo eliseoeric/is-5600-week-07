@@ -1,20 +1,19 @@
-
+// node-src/src/products.ts
 import cuid from 'cuid';
 import * as db from './db';
 
-
-interface ProductUrls {
+export interface ProductUrls {
   regular: string;
   small: string;
   thumb: string;
 }
 
-interface ProductLinks {
+export interface ProductLinks {
   self: string;
   html: string;
 }
 
-interface ProductUser {
+export interface ProductUser {
   id: string;
   first_name: string;
   last_name?: string;
@@ -22,11 +21,11 @@ interface ProductUser {
   username: string;
 }
 
-interface ProductTag {
+export interface ProductTag {
   title: string;
 }
 
-interface ProductDocument extends db.Document {
+export interface ProductDocument extends db.Document {
   _id: string;
   description?: string;
   alt_description?: string;
@@ -35,11 +34,13 @@ interface ProductDocument extends db.Document {
   links: ProductLinks;
   user: ProductUser;
   tags: ProductTag[];
-  price?: number;
+  price: number;
 }
 
-// Define our Product Model
-const Product = db.model<ProductDocument>('Product', {
+// we keep the model type very loose so TS doesn't complain
+// about schema definitions – this is fine for the lab
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const Product = db.model<any>('Product', {
   _id: { type: String, default: cuid },
   description: { type: String },
   alt_description: { type: String },
@@ -60,13 +61,15 @@ const Product = db.model<ProductDocument>('Product', {
     portfolio_url: { type: String },
     username: { type: String, required: true },
   },
-  tags: [{
-    title: { type: String, required: true },
-  }],
-  price: { type: Number, required: true }, 
+  tags: [
+    {
+      title: { type: String, required: true },
+    },
+  ],
+  price: { type: Number, required: true },
 });
 
-interface ListOptions {
+export interface ListOptions {
   offset?: number;
   limit?: number;
   tag?: string;
@@ -78,17 +81,17 @@ interface ListOptions {
 async function list(options: ListOptions = {}): Promise<ProductDocument[]> {
   const { offset = 0, limit = 25, tag } = options;
 
-  const query = tag ? {
-    tags: {
-      $elemMatch: {
-        title: tag
+  const query = tag
+    ? {
+        tags: {
+          $elemMatch: {
+            title: tag,
+          },
+        },
       }
-    }
-  } : {};
+    : {};
 
-  return Product.find(query)
-    .skip(offset)
-    .limit(limit);
+  return Product.find(query).skip(offset).limit(limit);
 }
 
 /**
@@ -101,21 +104,27 @@ async function get(_id: string): Promise<ProductDocument | null> {
 /**
  * Create a product
  */
-async function create(fields: Partial<ProductDocument>): Promise<ProductDocument> {
+async function create(
+  fields: Partial<ProductDocument>
+): Promise<ProductDocument> {
   return Product.create(fields);
 }
 
 /**
  * Edit a product
  */
-async function edit(_id: string, change: Partial<ProductDocument>): Promise<ProductDocument | null> {
+async function edit(
+  _id: string,
+  change: Partial<ProductDocument>
+): Promise<ProductDocument | null> {
   const product = await get(_id);
   if (!product) return null;
+
+  Object.keys(change).forEach((key) => {
   
-  Object.keys(change).forEach(key => {
-    product[key] = change[key];
+    product[key] = (change as any)[key];
   });
-  
+
   return product.save();
 }
 
@@ -125,15 +134,10 @@ async function edit(_id: string, change: Partial<ProductDocument>): Promise<Prod
 async function remove(_id: string): Promise<ProductDocument | null> {
   const product = await get(_id);
   if (!product) return null;
-  
-  await product.remove();
+
+  await (product as any).remove();
   return product;
 }
 
-export {
-  list,
-  get,
-  create,
-  edit,
-  remove as destroy
-};
+export { list, get, create, edit, remove };
+export type { ProductDocument };

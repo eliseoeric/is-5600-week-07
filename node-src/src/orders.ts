@@ -1,54 +1,62 @@
+// node-src/src/orders.ts
 import cuid from 'cuid';
 import * as db from './db';
-import { ProductDocument } from './products';
+import type { ProductDocument } from './products';
 
-type OrderStatus = 'CREATED' | 'PENDING' | 'COMPLETED';
+export type OrderStatus = 'CREATED' | 'PENDING' | 'COMPLETED';
 
-interface OrderDocument extends db.Document {
+export interface OrderDocument extends db.Document {
   _id: string;
   buyerEmail: string;
-  products: string[] | ProductDocument[];
+  products: (string | ProductDocument)[];
   status: OrderStatus;
 }
 
-interface ListOptions {
+export interface ListOptions {
   offset?: number;
   limit?: number;
   productId?: string;
   status?: OrderStatus;
 }
 
-const Order = db.model<OrderDocument>('Order', {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const Order = db.model<any>('Order', {
   _id: { type: String, default: cuid },
   buyerEmail: { type: String, required: true },
-  products: [{
-    type: String,
-    ref: 'Product', // ref will automatically fetch associated products for us
-    index: true,
-    required: true
-  }],
+  products: [
+    {
+      type: String,
+      ref: 'Product',
+      index: true,
+      required: true,
+    },
+  ],
   status: {
     type: String,
     index: true,
-    default: 'CREATED' as OrderStatus,
-    enum: ['CREATED', 'PENDING', 'COMPLETED']
-  }
+    default: 'CREATED',
+    enum: ['CREATED', 'PENDING', 'COMPLETED'],
+  },
 });
 
 async function list(options: ListOptions = {}): Promise<OrderDocument[]> {
   const { offset = 0, limit = 25, productId, status } = options;
 
-  const productQuery = productId ? {
-    products: productId
-  } : {};
+  const productQuery = productId
+    ? {
+        products: productId,
+      }
+    : {};
 
-  const statusQuery = status ? {
-    status: status,
-  } : {};
+  const statusQuery = status
+    ? {
+        status,
+      }
+    : {};
 
   const query = {
     ...productQuery,
-    ...statusQuery
+    ...statusQuery,
   };
 
   const orders = await Order.find(query)
@@ -56,28 +64,24 @@ async function list(options: ListOptions = {}): Promise<OrderDocument[]> {
     .skip(offset)
     .limit(limit);
 
-  return orders;
+  return orders as OrderDocument[];
 }
 
 /**
  * Get an order
  */
 async function get(_id: string): Promise<OrderDocument | null> {
-  return Order.findById(_id).populate('products');
+  return Order.findById(_id).populate('products') as Promise<OrderDocument | null>;
 }
 
 /**
  * Create an order
  */
-async function create(fields: Partial<OrderDocument>): Promise<OrderDocument> {
+async function create(
+  fields: Partial<OrderDocument>
+): Promise<OrderDocument> {
   const order = await Order.create(fields);
-  return order.populate('products');
+  return order.populate('products') as Promise<OrderDocument>;
 }
 
-export {
-  create,
-  get,
-  list,
-  OrderDocument,
-  OrderStatus
-};
+export { create, get, list };

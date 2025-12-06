@@ -1,27 +1,56 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-const Card = ({description, alt_description, id, _id, user, urls, likes}) => {
+function Card(props) {
+  const {
+    id,
+    _id,
+    urls,
+    image,
+    description,
+    alt_description,
+    user,
+    likes,
+    price,
+  } = props;
+  const cardId = _id || id;
+  const imgSrc =
+    image ||
+    urls?.small ||
+    urls?.thumb ||
+    urls?.regular ||
+    "https://via.placeholder.com/400x300?text=No+Image";
 
-  const style = {
-    backgroundImage: `url(${urls.small})`
-  }
-  
+  const title = description || alt_description || "Untitled";
+
+  const artist =
+    user?.name ||
+    [user?.first_name, user?.last_name].filter(Boolean).join(" ");
+
+  const imageElement = (
+    <img src={imgSrc} alt={title} className="card__image" />
+  );
+
   return (
-    <div className="fl w-50 w-25-m w-20-l pa2">
-      <Link to={`/product/${_id}`} className="db link dim tc"> 
-        <div style={style} alt="" class="w-100 db outline black-10 h4 cover"></div>
-        <dl className="mt2 f6 lh-copy">
-          <dt className="clip">Title</dt>
-          <dd className="ml0 black truncate w-100">{description ?? alt_description}</dd>
-          <dt className="clip">Artist</dt>
-          <dd className="ml0 gray truncate w-100">{user.first_name} {user.last_name}</dd>
-          <dt className="clip">Likes</dt>
-          <dd className="ml0 gray truncate w-100">{likes} Likes</dd>
-        </dl>
-      </Link>
+    <div className="card">
+      {cardId ? (
+        <Link to={`/product/${cardId}`}>{imageElement}</Link>
+      ) : (
+        imageElement
+      )}
+
+      <div className="card__body">
+        <h3 className="card__title">{title}</h3>
+        {artist && <p className="card__author">{artist}</p>}
+        {typeof likes === "number" && (
+          <p className="card__likes">{likes} Likes</p>
+        )}
+        {typeof price === "number" && (
+          <p className="card__price">${price.toFixed(2)}</p>
+        )}
+      </div>
     </div>
-  )
+  );
 }
 
 export default Card;

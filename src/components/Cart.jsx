@@ -1,62 +1,114 @@
-import React, { useContext } from 'react';
+
+import React from 'react';
+import { useCart } from '../state/CartProvider';
+import { Link } from 'react-router-dom';
 import PurchaseForm from './PurchaseForm';
 
 const Cart = () => {
-  // TODO - get cart items from context
-  const cartItems = [];
-  const removeFromCart = () => {};
-  const updateItemQuantity = () => {};
-  const getCartTotal = () => {};
+  const { cartItems, removeFromCart, updateItemQuantity, getCartTotal } = useCart();
 
   return (
     <div className="center mw7 mv4">
-      <div className="bg-white pa3 mb3">
-        <h2 className="f2 mb2">Cart</h2>
-        <table className="w-100 ba pa2">
-          <thead>
+      <div className="bg-blue-lightest pa4 br3 shadow-2">
+        <h2 className="f2 mb3" style={{ color: '#60a5fa' }}>Cart</h2>
+
+        <table 
+          className="w-100 ba b--blue-lightest"
+          style={{ borderColor: '#bfdbfe', tableLayout: 'auto' }}
+        >
+          <thead className="bg-blue-lighter" style={{ backgroundColor: '#e0f2fe' }}>
             <tr>
-              <th className="tl pv2">Product</th>
-              <th className="tr pv2">Quantity</th>
-              <th className="tr pv2">Price</th>
-              <th className="tr pv2">Action</th>
+              <th className="tl pv2 ph2">Product</th>
+              <th className="tr pv2 ph2">Quantity</th>
+              <th className="tr pv2 ph2">Price</th>
+              <th className="tr pv2 ph2">Action</th>
             </tr>
           </thead>
+
           <tbody>
-            {cartItems && cartItems.map((item) => (
-              <tr key={item._id}>
-                <td className="tl pv2">{item.description}</td>
-                <td className="tr pv2">
-                  <a
-                    className="pointer ba b--black-10 pv1 ph2 mr2"
-                    onClick={() => updateItemQuantity(item._id, -1)}
+            {cartItems && cartItems.length > 0 ? (
+              cartItems.map((item) => {
+                const itemId = item._id || item.id;
+                const quantity = item.quantity || 0;
+                const price = item.price || 0;
+
+                return (
+                  <tr 
+                    key={itemId}
+                    className="hover-bg-blue-lightest"
+                    style={{ 
+                      transition: 'background 0.2s',
+                      verticalAlign: 'middle'
+                    }}
                   >
-                    -
-                  </a>
-                  {item.quantity}
-                  <a
-                    className="pointer ba b--black-10 pv1 ph2 ml2"
-                    onClick={() => updateItemQuantity(item._id, 1)}
-                  >
-                    +
-                  </a>
-                </td>
-                <td className="tr pv2">${item.price * item.quantity}</td>
-                <td className="tr pv2">
-                  <a
-                    className="pointer ba b--black-10 pv1 ph2"
-                    onClick={() => removeFromCart(item)}
-                  >
-                    Remove
-                  </a>
+                    
+                    <td 
+                      className="tl pv2 ph2"
+                      style={{
+                        whiteSpace: 'normal',
+                        wordBreak: 'break-word'
+                      }}
+                    >
+                      <Link
+                        to={`/product/${itemId}`}
+                        className="blue-dark hover-blue underline"
+                      >
+                        {item.title || item.description || 'Unnamed Product'}
+                      </Link>
+                    </td>
+
+                    
+                    <td className="tr pv2 ph2">
+                      <span
+                        className="pointer ba b--blue-lightest pv1 ph2 mr2"
+                        onClick={() => updateItemQuantity(itemId, quantity - 1)}
+                      >
+                        -
+                      </span>
+
+                      {quantity}
+
+                      <span
+                        className="pointer ba b--blue-lightest pv1 ph2 ml2"
+                        onClick={() => updateItemQuantity(itemId, quantity + 1)}
+                      >
+                        +
+                      </span>
+                    </td>
+
+                    
+                    <td className="tr pv2 ph2">
+                      ${(price * quantity).toFixed(2)}
+                    </td>
+
+                    
+                    <td className="tr pv2 ph2">
+                      <span
+                        className="pointer ba b--blue-lightest pv1 ph2 bg-red-lightest hover-bg-red"
+                        onClick={() => removeFromCart(item)}
+                      >
+                        Remove
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })
+            ) : (
+              <tr>
+                <td colSpan="4" className="pa3 tc" style={{ color: '#60a5fa' }}>
+                  Your cart is empty.
                 </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
-        <div className="tr f4 mv3">
-          Total: ${getCartTotal().toFixed(2)}
+
+        
+        <div className="tr f4 mv3" style={{ color: '#3b82f6' }}>
+          Total: ${(getCartTotal() || 0).toFixed(2)}
         </div>
       </div>
+
       <div className="flex justify-end pa3 mb3">
         <PurchaseForm />
       </div>

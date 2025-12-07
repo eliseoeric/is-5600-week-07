@@ -21,3 +21,19 @@ const Header = () => {
 }
 
 export default Header;
+// src/components/Header.js
+
+import { useCart } from "../state/CartProvider";
+import { Link } from "react-router-dom";
+
+export default function Header() {
+  const { cartItems } = useCart();
+  const totalItems = cartItems.reduce((acc, item) => acc + item.quantity, 0);
+
+  return (
+    <header className="pa3 bg-light-gray flex justify-between">
+      <Link to="/">Home</Link>
+      <Link to="/cart">Cart ({totalItems})</Link>
+    </header>
+  );
+}

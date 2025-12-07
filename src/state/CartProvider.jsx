@@ -49,6 +49,18 @@ const cartReducer = (state, action) => {
         ),
       }
       return updatedState
+    case UPDATE_ITEM_QUANTITY:
+      const { id, quantity } = action.payload;
+      return {
+        ...state,
+        itemsById: {
+          ...state.itemsById,
+          [id]: {
+            ...state.itemsById[id],
+            quantity: quantity,
+          },
+        },
+      }
     
     default:
       return state
@@ -69,14 +81,17 @@ const CartProvider = ({ children }) => {
     dispatch({ type: ADD_ITEM, payload: product })
   }
 
-  // todo Update the quantity of an item in the cart
+  // Update the quantity of an item in the cart
   const updateItemQuantity = (productId, quantity) => {
-    // todo
+    dispatch({ type: UPDATE_ITEM_QUANTITY, payload: { id: productId, quantity } })
   }
 
-  // todo Get the total price of all items in the cart
+  // Get the total price of all items in the cart
   const getCartTotal = () => {
-    // todo
+    return state.allItems.reduce((total, itemId) => {
+      const item = state.itemsById[itemId];
+      return total + (item.price * item.quantity);
+    }, 0);
   }
 
   const getCartItems = () => {
@@ -98,6 +113,7 @@ const CartProvider = ({ children }) => {
   )
 }
 
-const useCart = () => useContext(CartContext)
+// Export hook separately to fix Vite Fast Refresh warning
+export const useCart = () => useContext(CartContext)
 
-export { CartProvider, useCart }
+export { CartProvider }

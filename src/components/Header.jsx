@@ -1,23 +1,35 @@
-import React, {useContext} from 'react';
+import React from "react";
 import { Link } from "react-router-dom";
+import { useCart } from "../state/CartProvider";
 
 const Header = () => {
-  
-  const totalItems = 0;
+  const { cartItems } = useCart();
+  const totalItems = cartItems.reduce((acc, item) => acc + item.quantity, 0);
 
   return (
-    <nav className="dt w-100 border-box pa3 ph5-ns">
-      <a className="dtc v-mid mid-gray link dim w-25" href="/" title="Home">
-        <img src="https://img.logoipsum.com/280.svg" className="dib w2 h2 br-100" alt="Site Name" />
-      </a>
-      <div className="dtc v-mid w-75 tr">
-        <Link className="link dim dark-gray f6 f5-ns dib mr3 mr4-ns" to="/" title="Products">Products</Link>
-        <Link className="link dim dark-gray f6 f5-ns dib mr3 mr4-ns" to="/orders" title="/orders">Orders</Link>
-        <Link className="link dim dark-gray f6 f5-ns dib" to="/cart" title="Cart">Cart <span class="ba b--black-20 br-pill pa2">{totalItems}</span></Link>
-      </div>
-    </nav>
+    <header className="pa3 bg-black-80 white flex items-center justify-between">
+      <Link to="/" className="no-underline white">
+        <h1 className="ma0 f3">Fullstack Prints</h1>
+      </Link>
 
+      <nav className="flex items-center">
+        <Link to="/orders" className="white no-underline mh2">
+          Orders
+        </Link>
+
+        <Link
+          to="/cart"
+          className="white no-underline mh2 flex items-center"
+          aria-label="Cart"
+        >
+          <span className="mr2">Cart</span>
+          <span className="br-pill ba ph2 pv1">
+            {totalItems}
+          </span>
+        </Link>
+      </nav>
+    </header>
   );
-}
+};
 
 export default Header;

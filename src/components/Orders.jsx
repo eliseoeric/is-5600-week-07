@@ -1,43 +1,50 @@
-import React, { useState } from 'react';
-import { BASE_URL } from '../config';
+import React, { useEffect, useState } from "react";
+import { BASE_URL } from "../config";
 
-const Orders = () => {
+export default function Orders() {
   const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  /**
-   * TODO
-   * 1. Create a `fetchOrders` function that retrieves all orders from the database
-   * 2. Using the `useEffect` hook, update the existing `orders` state object when `fetchOrders` is complete
-   **/ 
+  const fetchOrders = () => {
+    fetch(`${BASE_URL}/orders`)
+      .then((res) => res.json())
+      .then((data) => {
+        setOrders(data);
+      })
+      .catch((err) => console.error(err))
+      .finally(() => setLoading(false));
+  };
 
+  useEffect(() => {
+    fetchOrders();
+  }, []);
+
+  if (loading) return <div className="pa4 tc">Loading...</div>;
+
+  if (!orders || orders.length === 0)
+    return <div className="pa4 tc">No orders yet.</div>;
 
   return (
-    <div className="center mw7 ba mv4">
-      <div className="bg-white pa3 mb3">
-        <h2 className="f2 mb2">Orders</h2>
-        <table className="w-100">
-          <thead>
-            <tr>
-              <th className="tl pv2">Order ID</th>
-              <th className="tl pv2">Buyer Email</th>
-              <th className="tl pv2">Products</th>
-              <th className="tl pv2">Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {orders && orders.map((order) => (
-              <tr key={order._id}>
-                <td className="tl pv2">{order._id}</td>
-                <td className="tl pv2">{order.buyerEmail}</td>
-                <td className="tl pv2">{order.products.join(', ')}</td>
-                <td className="tl pv2">{order.status}</td>
-              </tr>
+    <div className="pa4">
+      <h2 className="f2 mb3">Orders</h2>
+
+      {orders.map((order) => (
+        <div key={order.id} className="ba b--black-10 pa3 mb3 br2">
+          <h3 className="f4 mb2">Order #{order.id}</h3>
+
+          <p className="mb2">
+            <strong>Total:</strong> ${Number(order.total).toFixed(2)}
+          </p>
+
+          <ul className="ml0 pl3">
+            {order.items.map((item) => (
+              <li key={item.id}>
+                {item.title || item.name} x {item.quantity} @ ${item.price}
+              </li>
             ))}
-          </tbody>
-        </table>
-      </div>
+          </ul>
+        </div>
+      ))}
     </div>
   );
-};
-
-export default Orders;
+}

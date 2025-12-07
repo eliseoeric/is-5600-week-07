@@ -65,3 +65,52 @@ const Cart = () => {
 };
 
 export default Cart;
+// src/components/Cart.js
+import { useCart } from "../state/CartProvider";
+import { Link } from "react-router-dom";
+
+export default function Cart() {
+  const { cartItems, updateItemQuantity, removeFromCart, getCartTotal } = useCart();
+
+  return (
+    <div className="pa4">
+      <h1>Your Cart</h1>
+
+      {cartItems.length === 0 && <p>The cart is empty.</p>}
+
+      {cartItems.map(item => (
+        <div key={item.id} className="ba pa3 mv2">
+
+          <h2>{item.name}</h2>
+          <p>${item.price}</p>
+
+          <input
+            type="number"
+            value={item.quantity}
+            min="1"
+            onChange={(e) =>
+              updateItemQuantity(item.id, Number(e.target.value))
+            }
+          />
+
+          <button
+            className="ml3"
+            onClick={() => removeFromCart(item.id)}
+          >
+            Remove
+          </button>
+
+        </div>
+      ))}
+
+      <h2>Total: ${getCartTotal()}</h2>
+
+      <Link to="/orders">
+        <button className="mt3">
+          View Orders
+        </button>
+      </Link>
+
+    </div>
+  );
+}

@@ -41,3 +41,33 @@ const Orders = () => {
 };
 
 export default Orders;
+// src/components/Orders.js
+
+import { useState, useEffect } from "react";
+import { BASE_URL } from "../config";
+
+export default function Orders() {
+  const [orders, setOrders] = useState([]);
+
+  const fetchOrders = async () => {
+    const data = await fetch(`${BASE_URL}/orders`).then(res => res.json());
+    setOrders(data);
+  };
+
+  useEffect(() => {
+    fetchOrders();
+  }, []);
+
+  return (
+    <div className="pa4">
+      <h1>Your Orders</h1>
+
+      {orders.map(order => (
+        <div key={order.id} className="ba pa3 mv2">
+          <p><strong>Order ID:</strong> {order.id}</p>
+          <p><strong>Total:</strong> ${order.total}</p>
+        </div>
+      ))}
+    </div>
+  );
+}

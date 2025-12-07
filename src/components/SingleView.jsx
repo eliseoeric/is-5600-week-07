@@ -43,3 +43,40 @@ export default function SingleView({data}) {
 
   )
 }
+// src/components/SingleView.js
+
+import React, { useState, useEffect } from "react";
+import { BASE_URL } from "../config";
+import { useParams } from "react-router-dom";
+import AddToCart from "./AddToCart";
+
+export default function SingleView() {
+  const { id } = useParams();
+  const [product, setProduct] = useState(null);
+
+  const fetchProductById = async (id) => {
+    const product = await fetch(`${BASE_URL}/products/${id}`)
+      .then((res) => res.json());
+    return product;
+  };
+
+  useEffect(() => {
+    const getProduct = async () => {
+      const data = await fetchProductById(id);
+      setProduct(data);
+    };
+    getProduct();
+  }, [id]);
+
+  if (!product) return <div className="loading-spinner">Loading...</div>;
+
+  return (
+    <div className="pa4">
+      <h1>{product.name}</h1>
+      <p>{product.description}</p>
+      <h3>${product.price}</h3>
+
+      <AddToCart product={product} />
+    </div>
+  );
+}

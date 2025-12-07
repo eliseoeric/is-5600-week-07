@@ -1,27 +1,25 @@
+// src/components/Card.jsx
 import React from "react";
 import { Link } from "react-router-dom";
+import OrderButton from "./AddToCart";
 
-const Card = ({description, alt_description, id, _id, user, urls, likes}) => {
-
-  const style = {
-    backgroundImage: `url(${urls.small})`
-  }
-  
+export default function Card({ id, name, price, image }) {
   return (
-    <div className="fl w-50 w-25-m w-20-l pa2">
-      <Link to={`/product/${_id}`} className="db link dim tc"> 
-        <div style={style} alt="" class="w-100 db outline black-10 h4 cover"></div>
-        <dl className="mt2 f6 lh-copy">
-          <dt className="clip">Title</dt>
-          <dd className="ml0 black truncate w-100">{description ?? alt_description}</dd>
-          <dt className="clip">Artist</dt>
-          <dd className="ml0 gray truncate w-100">{user.first_name} {user.last_name}</dd>
-          <dt className="clip">Likes</dt>
-          <dd className="ml0 gray truncate w-100">{likes} Likes</dd>
-        </dl>
-      </Link>
+    <div className="ba pa3 br3 mb3 w-100 w-30-ns dib">
+      <img
+        src={image}
+        alt={name}
+        className="w-100 mb2"
+        style={{ maxHeight: "200px", objectFit: "cover" }}
+      />
+      <h3 className="f5 mb2">{name}</h3>
+      <p className="f6 gray mb2">${price}</p>
+      <div className="flex justify-between items-center">
+        <Link to={`/product/${id}`} className="f6 link dim ph3 pv2 mb2 dib white bg-blue br2">
+          View
+        </Link>
+        <OrderButton product={{ id, name, price, image }} />
+      </div>
     </div>
-  )
+  );
 }
-
-export default Card;

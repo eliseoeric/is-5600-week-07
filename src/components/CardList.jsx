@@ -1,50 +1,53 @@
-import React, { useState, useEffect } from 'react'
-import Card from './Card'
-import Button from './Button'
-import Search from './Search'
+import React, { useEffect, useState } from "react";
+import Card from "./Card";
+import Button from "./Button";
+import Search from "./Search";
 
 const CardList = ({ data }) => {
-  // define the limit state variable and set it to 10
-  const limit = 10;
-
-  // Define the offset state variable and set it to 0
+  const pageSize = 10;
   const [offset, setOffset] = useState(0);
-  // Define the products state variable and set it to the default dataset
-  const [products, setProducts] = useState(data);
+  const [visible, setVisible] = useState(data);
 
   useEffect(() => {
-    setProducts(data.slice(offset, offset + limit));
-  }, [offset, limit, data])
+    setVisible(data.slice(offset, offset + pageSize));
+  }, [data, offset, pageSize]);
 
-  const filterTags = (tagQuery) => {
-    const filtered = data.filter(product => {
-      if (!tagQuery) {
-        return product
-      }
+  const handleTagFilter = (tag) => {
+    const result = data.filter((product) => {
+      if (!tag) return true;
+      return product.tags?.some(({ title }) => title === tag);
+    });
 
-      return product.tags.find(({title}) => title === tagQuery)
-    })
+    setOffset(0);
+    setVisible(result);
+  };
 
-    setOffset(0)
-    setProducts(filtered)
-  }
+  const handlePrev = () => {
+    setOffset((current) => Math.max(0, current - pageSize));
+  };
 
+  const handleNext = () => {
+    setOffset((current) =>
+      current + pageSize < data.length ? current + pageSize : current
+    );
+  };
 
   return (
     <div className="cf pa2">
-      <Search handleSearch={filterTags}/>
-      <div className="mt2 mb2">
-      {products && products.map((product) => (
+      <Search handleSearch={handleTagFilter} />
+
+      <div className="mt2 mb2 cf">
+        {visible?.map((product) => (
           <Card key={product._id} {...product} />
         ))}
       </div>
 
       <div className="flex items-center justify-center pa4">
-        <Button text="Previous" handleClick={() => setOffset(offset - limit)} />
-        <Button text="Next" handleClick={() => setOffset(offset + limit)} />
+        <Button text="Previous" handleClick={handlePrev} />
+        <Button text="Next" handleClick={handleNext} />
       </div>
     </div>
-  )
-}
+  );
+};
 
 export default CardList;

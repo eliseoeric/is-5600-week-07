@@ -1,9 +1,11 @@
+@@ -1,88 +1,51 @@
 import React, { useReducer, useContext } from 'react'
 
 // Initialize the context
 const CartContext = React.createContext()
 
 // Definte the default state
+// Define the default state
 const initialState = {
   itemsById: {},
   allItems: [],
@@ -13,6 +15,10 @@ const initialState = {
 const ADD_ITEM = 'ADD_ITEM'
 const REMOVE_ITEM = 'REMOVE_ITEM'
 const UPDATE_ITEM_QUANTITY = 'UPDATE_ITEM_QUANTITY'
+@@ -49,7 +49,21 @@ const cartReducer = (state, action) => {
+        ),
+      }
+      return updatedState
 
 // Define the reducer
 const cartReducer = (state, action) => {
@@ -21,8 +27,12 @@ const cartReducer = (state, action) => {
     case ADD_ITEM:
       console.log({state, action})
       const newState = {
+    case UPDATE_ITEM_QUANTITY:
+      const currentItem=state.itemsById[payload._id]
+      const updateItemState={
         ...state,
         itemsById: {
+        itemsById:{
           ...state.itemsById,
           [payload._id]: {
             ...payload,
@@ -30,6 +40,9 @@ const cartReducer = (state, action) => {
               ? state.itemsById[payload._id].quantity + 1
               : 1,
           },
+        [payload._id]:{
+          ...currentItem,
+          quantity: currentItem.quantity+payload.quantity,
         },
         // Use `Set` to remove all duplicates
         allItems: Array.from(new Set([...state.allItems, action.payload._id])),
@@ -49,7 +62,10 @@ const cartReducer = (state, action) => {
         ),
       }
       return updatedState
-    
+
+      }
+
+      return updateItemState;
     default:
       return state
   }
@@ -68,15 +84,18 @@ const CartProvider = ({ children }) => {
   const addToCart = (product) => {
     dispatch({ type: ADD_ITEM, payload: product })
   }
+@@ -71,12 +85,12 @@ const CartProvider = ({ children }) => {
 
   // todo Update the quantity of an item in the cart
   const updateItemQuantity = (productId, quantity) => {
     // todo
+    dispatch({ type: UPDATE_ITEM_QUANTITY,payload :{_id:productId,quantity}});
   }
 
   // todo Get the total price of all items in the cart
   const getCartTotal = () => {
     // todo
+    return getCartItems().reduce((acc,item)=>acc +item.price *item.quantity,0);
   }
 
   const getCartItems = () => {
@@ -100,4 +119,5 @@ const CartProvider = ({ children }) => {
 
 const useCart = () => useContext(CartContext)
 
+export { CartProvider, useCart }
 export { CartProvider, useCart }

@@ -1,22 +1,33 @@
-import React, {useContext} from 'react';
-import { Link } from "react-router-dom";
+import React from "react";
+import { Link, NavLink } from "react-router-dom";
+import { useCart } from "../context/CartContext";
 
-const Header = () => {
-  
-  const totalItems = 0;
+function Header() {
+  const { totalItems } = useCart();
+
+  const linkClasses = ({ isActive }) =>
+    "link dim black mr3 " + (isActive ? "b" : "");
 
   return (
-    <nav className="dt w-100 border-box pa3 ph5-ns">
-      <a className="dtc v-mid mid-gray link dim w-25" href="/" title="Home">
-        <img src="https://img.logoipsum.com/280.svg" className="dib w2 h2 br-100" alt="Site Name" />
-      </a>
-      <div className="dtc v-mid w-75 tr">
-        <Link className="link dim dark-gray f6 f5-ns dib mr3 mr4-ns" to="/" title="Products">Products</Link>
-        <Link className="link dim dark-gray f6 f5-ns dib mr3 mr4-ns" to="/orders" title="/orders">Orders</Link>
-        <Link className="link dim dark-gray f6 f5-ns dib" to="/cart" title="Cart">Cart <span class="ba b--black-20 br-pill pa2">{totalItems}</span></Link>
-      </div>
-    </nav>
-
+    <header className="pa3 bb b--black-10 flex justify-between items-center">
+      <Link to="/" className="link dim black f3 b">
+        Site
+      </Link>
+      <nav className="flex items-center">
+        <NavLink to="/" className={linkClasses} end>
+          Products
+        </NavLink>
+        <NavLink to="/orders" className={linkClasses}>
+          Orders
+        </NavLink>
+        <NavLink to="/cart" className={linkClasses}>
+          Cart{" "}
+          <span className="ba br-100 ph2 pv0 ml1">
+            {totalItems}
+          </span>
+        </NavLink>
+      </nav>
+    </header>
   );
 }
 

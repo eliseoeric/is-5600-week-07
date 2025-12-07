@@ -1,45 +1,85 @@
-import React from 'react'
-import { useParams } from 'react-router-dom';
-import '../App.css';
-
-
-export default function SingleView({data}) {
-  // get the id from the url using useParams
+import React, { useEffect, useState } from "react";
+import { useParams, Link } from "react-router-dom";
+import config from "../config";
+import AddToCart from "./AddToCart";
+const SingleView = () => {
   const { id } = useParams();
-  
-  // get the product from the data using the id
-  const product = data.find(product => product.id === id);
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    async function fetchProduct() {
+      try {
+        const res = await fetch(`${config.BASE_URL}/products/${id}`);
+        if (!res.ok) throw new Error("Failed to fetch product");
+        const data = await res.json();
+        setProduct(data);
+      } catch (err) {
+        console.error(err);
+        setProduct(null);
+      } finally {
+        setLoading(false);
+      }
+    }
 
-  const { user } = product;
+    fetchProduct();
+  }, [id]);
 
-  const title = product.description ?? product.alt_description;
-  const style = {
-    backgroundImage: `url(${product.urls["regular"]})`
+  if (loading) {
+    return <p className="pa4">Loading…</p>;
   }
 
-  return (
-    <article class="bg-white center mw7 ba b--black-10 mv4">
-      <div class="pv2 ph3">
-        <div class="flex items-center">
-          <img src={user?.profile_image?.medium} class="br-100 h3 w3 dib" alt={user.instagram_username} />
-          <h1 class="ml3 f4">{user.first_name} {user.last_name}</h1>
-        </div>
+  if (!product) {
+    return (
+      <div className="pa4">
+        <Link to="/" className="link dim blue db mb3">
+          ← Back to products
+        </Link>
+        <p>Product not found.</p>
       </div>
-      <div class="aspect-ratio aspect-ratio--4x3">
-        <div class="aspect-ratio--object cover" style={style}></div>
-      </div>
-      <div class="pa3 flex justify-between">
-        <div class="mw6">
-          <h1 class="f6 ttu tracked">Product ID: {id}</h1>
-          <a href={`/products/${id}`} class="link dim lh-title">{title}</a>
-        </div>
-        <div class="gray db pv2">&hearts;<span>{product.likes}</span></div>
-      </div>
-      <div className="pa3 flex justify-end">
-        <span className="ma2 f4">${product.price}</span>
-        {/* TODO Implement the AddToCart button */}
-      </div>
-    </article>
+    );
+  }
 
-  )
-}
+  const imageUrl =
+    product.urls?.regular || product.image || product.urls?.small || "";
+  const title = product.description || product.name || "Untitled";
+  const author =
+    product.user?.name ||
+    [product.user?.first_name, product.user?.last_name]
+      .filter(Boolean)
+      .join(" ") ||
+    "Unknown";
+  const likes = product.likes ?? 0;
+  const price = product.price ?? 0;
+
+  return (
+    <div className="pa4">
+      <Link to="/" className="link dim blue db mb3">
+        ← Back to products
+      </Link>
+
+      <div className="flex flex-column flex-row-ns">
+        <div className="w-100 w-70-ns pr4-ns">
+          {imageUrl && (
+            <img
+              src={imageUrl}
+              alt={title}
+              className="w-100"
+              style={{ objectFit: "cover" }}
+            />
+          )}
+        </div>
+
+        <div className="w-100 w-30-ns mt3 mt0-ns">
+          <h1 className="f2 mb2">{title}</h1>
+          <p className="gray mb2">By {author}</p>
+          <p className="gray mb3">{likes} Likes</p>
+          <p className="b f3 mb3">${price.toFixed(2)}</p>
+
+          <AddToCart product={product} />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default SingleView;

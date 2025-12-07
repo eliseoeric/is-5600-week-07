@@ -43,3 +43,45 @@ export default function SingleView({data}) {
 
   )
 }
+// src/components/SingleView.jsx
+import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import { BASE_URL } from "../config";
+import AddToCart from "./AddToCart";
+
+export default function SingleView() {
+  const { id } = useParams();
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const fetchProductById = async (id) => {
+    const res = await fetch(`${BASE_URL}/products/${id}`);
+    if (!res.ok) throw new Error("Failed to fetch product");
+    return res.json();
+  };
+
+  useEffect(() => {
+    if (!id) return;
+    let mounted = true;
+    setLoading(true);
+    fetchProductById(id)
+      .then((data) => {
+        if (mounted) setProduct(data);
+      })
+      .catch((e) => console.error(e))
+      .finally(() => mounted && setLoading(false));
+    return () => { mounted = false; };
+  }, [id]);
+
+  if (loading) return <div className="loading-spinner">Loading...</div>;
+  if (!product) return <div>Product not found</div>;
+
+  return (
+    <div className="single-view">
+      <h2>{product.title || product.name}</h2>
+      <p>{product.description}</p>
+      <p>Price: ${product.price}</p>
+      <AddToCart product={product} />
+    </div>
+  );
+}

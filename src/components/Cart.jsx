@@ -65,3 +65,64 @@ const Cart = () => {
 };
 
 export default Cart;
+// src/components/AddToCart.jsx
+import React, { useContext } from "react";
+import { CartContext } from "../state/CartProvider";
+
+export default function AddToCart({ product }) {
+  const { addToCart } = useContext(CartContext);
+
+  const handleClick = () => {
+    addToCart(product);
+  };
+
+  return (
+    <button className="f6 link dim br3 ba bw1 ph3 pv2 mb2 dib black" onClick={handleClick}>
+      Add to Cart
+    </button>
+  );
+}
+// src/components/Cart.jsx
+import React from "react";
+import { useCart } from "../state/CartProvider";
+
+export default function Cart() {
+  const { cartItems, updateItemQuantity, removeFromCart, getCartTotal } = useCart();
+
+  if (!cartItems || cartItems.length === 0) return <div>Your cart is empty</div>;
+
+  return (
+    <div className="cart">
+      <h2>Your Cart</h2>
+      <ul>
+        {cartItems.map((item) => (
+          <li key={item.id} style={{ marginBottom: 12 }}>
+            <div><strong>{item.title || item.name}</strong></div>
+            <div>Price: ${item.price}</div>
+            <div>
+              Quantity:
+              <input
+                type="number"
+                value={item.quantity}
+                min="0"
+                onChange={(e) => {
+                  const q = parseInt(e.target.value, 10);
+                  updateItemQuantity(item.id, isNaN(q) ? 0 : q);
+                }}
+                style={{ width: 70, marginLeft: 8 }}
+              />
+              <button onClick={() => removeFromCart(item.id)} style={{ marginLeft: 8 }}>
+                Remove
+              </button>
+            </div>
+          </li>
+        ))}
+      </ul>
+
+      <div>
+        <strong>Total: ${getCartTotal().toFixed(2)}</strong>
+      </div>
+    </div>
+  );
+}
+

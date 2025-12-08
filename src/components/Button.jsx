@@ -1,9 +1,12 @@
-import React from 'react'
-
-export default function Button({text, handleClick}) {
+export default function Button({ text, onClick, disabled }) {
   return (
-    <a href="#" className="f5 no-underline black bg-animate hover-bg-black hover-white inline-flex items-center pa3 ba border-box mr4" onClick={handleClick}>
-      <span className="pl1">{text}</span>
-    </a>
-  )
+    <button
+      className="btn f6 link dim br2 ba ph3 pv2 black bg-white"
+      onClick={onClick}
+      disabled={disabled}
+      type="button"
+    >
+      {text}
+    </button>
+  );
 }

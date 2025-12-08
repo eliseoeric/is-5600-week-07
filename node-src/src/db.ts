@@ -1,22 +1,25 @@
-import mongoose, { Document as MongooseDocument } from 'mongoose';
+// src/db.ts
+import mongoose from "mongoose";
+import { MongoMemoryServer } from "mongodb-memory-server";
 
-// Extend mongoose.Document to include any additional properties
-export interface Document extends MongooseDocument {
-  [key: string]: any;
+async function connect() {
+  try {
+    // If you have a real Mongo URL, set it via env MONGO_URL
+    let uri = process.env.MONGO_URL;
+
+    if (!uri) {
+      const mongod = await MongoMemoryServer.create();
+      uri = mongod.getUri();
+      console.log("[db] Started in-memory MongoDB");
+    }
+
+    await mongoose.connect(uri);
+    console.log("[db] Connected:", uri);
+  } catch (err) {
+    console.error("[db] Connection error:", err);
+  }
 }
 
-/**
- * In this example we are connecting to a local MongoDB instance. This instance is running via docker-compose in our GitHub Codespaces environment.
- * In a real-world application, you would want to use a cloud-based MongoDB service like MongoDB Atlas.
- */
-mongoose.connect(
-  process.env.MONGODB_URI || 'mongodb://root:example@db:27017/?authSource=admin',
-  {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-  }
-);
+connect();
 
-export const model = mongoose.model.bind(mongoose);
-export const Schema = mongoose.Schema;
 export default mongoose;

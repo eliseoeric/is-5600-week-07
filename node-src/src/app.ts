@@ -1,74 +1,36 @@
-import express from 'express';
-import { promises as fs } from 'fs';
-import * as path from 'path';
-import api from './api';
-import * as middleware from './middleware';
-import bodyParser from 'body-parser';
-import * as Products from './products';
-import * as Orders from './orders';
-import cuid from 'cuid';
+import express from "express";
+import cors from "cors";
+import morgan from "morgan";
+import * as api from "./api";
+import { notFound, handleError } from "./middleware";
 
-const productsFile = path.join(__dirname, '../data/full-products.json');
+const app = express();
 
-// Set the port
-const port: number = process.env.PORT ? parseInt(process.env.PORT) : 3080;
+app.use(cors({ origin: "*" }));
+app.use(express.json());
+app.use(morgan("dev"));
 
-// Boot the app
-const app: express.Application = express();
+app.get("/health", (_req, res) => res.json({ ok: true }));
 
-// Register the public directory
-app.use(express.static(__dirname + '/public'));
+// Product routes
+app.get("/products", api.listProducts);
+app.get("/products/:id", api.getProduct);
+app.post("/products", api.createProduct);
+app.put("/products/:id", api.editProduct);
+app.delete("/products/:id", api.deleteProduct);
+// dev-only seed route
+app.post("/dev/seed", api.seedProducts);
 
-// register the routes
-app.use(bodyParser.json());
-app.use(middleware.cors);
 
-// Register root route
-app.get('/', api.handleRoot);
+// Order routes
+app.get("/orders", api.listOrders);
+app.post("/orders", api.createOrder);
 
-// Register Products routes
-app.get('/products', api.listProducts);
-app.get('/products/:id', api.getProduct);
-app.put('/products/:id', api.editProduct);
-app.delete('/products/:id', api.deleteProduct);
-app.post('/products', api.createProduct);
+// 404 + error handlers
+app.use(notFound);
+app.use(handleError);
 
-Products.list().then((products) => {
-    if (products.length === 0) {
-        console.log('No products found, loading from file');
-        fs.readFile(productsFile, 'utf-8').then((data) => {
-            const products = JSON.parse(data);
-            products.forEach((product) => {
-                if (!product.price) {
-                    product.price = Math.floor(Math.random() * 100) + 1; // Set random price between 1 and 100
-                }
-                console.log('Creating product', product);
-                Products.create(product);
-            });
-        }).then(() => {
-            // Create 5 orders using the products
-            Products.list().then((products) => {
-                if (products.length > 0) {
-                    for (let i = 0; i < 5; i++) {
-                        const order = {
-                            _id: cuid(),
-                            buyerEmail: `buyer${i}@example.com`,
-                            products: [products[Math.floor(Math.random() * products.length)]._id],
-                            status: 'CREATED'
-                        };
-                        console.log('Creating order', order);
-                        Orders.create(order);
-                    }
-                }
-            });
-        });
-    }
+const PORT = Number(process.env.PORT) || 3001;
+app.listen(PORT, () => {
+  console.log(`Node API listening on http://localhost:${PORT}`);
 });
-
-// Register Order Routes
-app.get('/orders', api.listOrders);
-app.post('/orders', api.createOrder);
-// edit and delete routes
-
-// Boot the server
-app.listen(port, () => console.log(`Server listening on port ${port}`));

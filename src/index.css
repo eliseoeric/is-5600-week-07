@@ -1,13 +1,10 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
-}
+/* Minimal tweaks. Tachyons comes from index.html */
+* { box-sizing: border-box; }
+body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+a { text-decoration: none; }
+.container { max-width: 1200px; margin: 0 auto; padding: 0 1rem; }
+.pagination { display:flex; align-items:center; justify-content:center; gap:.75rem; margin:2rem 0; }
+.pagination .btn:disabled { opacity:.45; cursor:not-allowed; }
+.grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.25rem; }
+.card { border:1px solid #eee; border-radius:10px; overflow:hidden; background:#fff; }
+.card .thumb { width:100%; height:140px; object-fit:cover; display:block; }

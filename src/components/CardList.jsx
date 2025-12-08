@@ -6,17 +6,30 @@ import Search from './Search'
 const CardList = ({ data }) => {
   // define the limit state variable and set it to 10
   const limit = 10;
+  const BASE_URL=`https://shiny-space-fishstick-v6wpj7r6g6q4cxw6p-3080.app.github.dev`;
 
   // Define the offset state variable and set it to 0
   const [offset, setOffset] = useState(0);
   // Define the products state variable and set it to the default dataset
   const [products, setProducts] = useState(data);
 
-  useEffect(() => {
-    setProducts(data.slice(offset, offset + limit));
-  }, [offset, limit, data])
 
-  const filterTags = (tagQuery) => {
+  // Update fetch projects to include the limit and offset parameters
+  const fetchProducts = () => {
+    fetch(`${BASE_URL}/products?offset=${offset}&limit=${limit}`)
+      .then((res) => res.json())
+      .then((data) => {
+        setProducts(data);
+      });
+  }
+  
+  // Update the `useEffect` to monitor the `offset` state variable
+  useEffect(() => {
+   fetchProducts();
+
+  }, [offset]);
+
+const filterTags = (tagQuery) => {
     const filtered = data.filter(product => {
       if (!tagQuery) {
         return product
@@ -28,11 +41,10 @@ const CardList = ({ data }) => {
     setOffset(0)
     setProducts(filtered)
   }
-
-
+  
   return (
     <div className="cf pa2">
-      <Search handleSearch={filterTags}/>
+     <Search handleSearch={filterTags}/>
       <div className="mt2 mb2">
       {products && products.map((product) => (
           <Card key={product._id} {...product} />

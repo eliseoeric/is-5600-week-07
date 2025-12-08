@@ -1,83 +1,94 @@
+// node-src/src/orders.ts
 import cuid from 'cuid';
-import * as db from './db';
-import { ProductDocument } from './products';
+import db from './db';
 
-type OrderStatus = 'CREATED' | 'PENDING' | 'COMPLETED';
+const { Schema, model } = db;
 
-interface OrderDocument extends db.Document {
-  _id: string;
+// Define OrderStatus enum
+export enum OrderStatus {
+  PENDING = 'pending',
+  PROCESSING = 'processing',
+  SHIPPED = 'shipped',
+  DELIVERED = 'delivered',
+  CANCELLED = 'cancelled'
+}
+
+// Define OrderItem interface
+export interface OrderItem {
+  productId: string;
+  quantity: number;
+  price: number;
+  name?: string;
+}
+
+// Define OrderDocument interface
+export interface OrderDocument extends db.mongoose.Document {
+  id: string;
   buyerEmail: string;
-  products: string[] | ProductDocument[];
+  items: OrderItem[];
+  total: number;
   status: OrderStatus;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-interface ListOptions {
-  offset?: number;
-  limit?: number;
-  productId?: string;
-  status?: OrderStatus;
-}
-
-const Order = db.model<OrderDocument>('Order', {
-  _id: { type: String, default: cuid },
+// Define the schema
+const orderSchema = new Schema<OrderDocument>({
+  id: { type: String, default: cuid },
   buyerEmail: { type: String, required: true },
-  products: [{
-    type: String,
-    ref: 'Product', // ref will automatically fetch associated products for us
-    index: true,
-    required: true
+  items: [{
+    productId: { type: String, required: true },
+    quantity: { type: Number, required: true },
+    price: { type: Number, required: true },
+    name: { type: String }
   }],
-  status: {
-    type: String,
-    index: true,
-    default: 'CREATED' as OrderStatus,
-    enum: ['CREATED', 'PENDING', 'COMPLETED']
-  }
+  total: { type: Number, required: true },
+  status: { type: String, enum: Object.values(OrderStatus), default: OrderStatus.PENDING },
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now }
 });
 
-async function list(options: ListOptions = {}): Promise<OrderDocument[]> {
-  const { offset = 0, limit = 25, productId, status } = options;
+// Create the model
+const Order = model<OrderDocument>('Order', orderSchema);
 
-  const productQuery = productId ? {
-    products: productId
-  } : {};
-
-  const statusQuery = status ? {
-    status: status,
-  } : {};
-
-  const query = {
-    ...productQuery,
-    ...statusQuery
-  };
-
-  const orders = await Order.find(query)
-    .sort({ _id: 1 })
+// Function to get all orders
+export async function list(limit = 25, offset = 0) {
+  const orders = await Order.find({})
+    .limit(limit)
     .skip(offset)
-    .limit(limit);
-
+    .sort({ createdAt: -1 })
+    .lean()
+    .exec() as OrderDocument[];
+  
   return orders;
 }
 
-/**
- * Get an order
- */
-async function get(_id: string): Promise<OrderDocument | null> {
-  return Order.findById(_id).populate('products');
+// Function to get order by ID
+export async function get(_id: string) {
+  const order = await Order.findOne({ id: _id }).lean().exec();
+  return order as OrderDocument | null;
 }
 
-/**
- * Create an order
- */
-async function create(fields: Partial<OrderDocument>): Promise<OrderDocument> {
+// Function to create an order
+export async function create(fields: Partial<OrderDocument>) {
   const order = await Order.create(fields);
-  return order.populate('products');
+  return order as OrderDocument;
 }
 
-export {
-  create,
-  get,
+// Function to update order status
+export async function updateStatus(_id: string, status: OrderStatus) {
+  const order = await Order.findOneAndUpdate(
+    { id: _id },
+    { status, updatedAt: Date.now() },
+    { new: true }
+  ).lean().exec();
+  
+  return order as OrderDocument | null;
+}
+
+export default {
   list,
-  OrderDocument,
-  OrderStatus
+  get,
+  create,
+  updateStatus
 };

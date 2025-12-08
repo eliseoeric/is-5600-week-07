@@ -1,103 +1,144 @@
-import React, { useReducer, useContext } from 'react'
+import React, { useReducer, useContext } from "react";
 
-// Initialize the context
-const CartContext = React.createContext()
+// Create Cart Context
+const CartContext = React.createContext();
 
-// Definte the default state
+// Default cart state
 const initialState = {
   itemsById: {},
   allItems: [],
-}
+};
 
-// Define reducer actions
-const ADD_ITEM = 'ADD_ITEM'
-const REMOVE_ITEM = 'REMOVE_ITEM'
-const UPDATE_ITEM_QUANTITY = 'UPDATE_ITEM_QUANTITY'
+// Action Types
+const ADD_ITEM = "ADD_ITEM";
+const REMOVE_ITEM = "REMOVE_ITEM";
+const UPDATE_ITEM_QUANTITY = "UPDATE_ITEM_QUANTITY";
 
-// Define the reducer
+// Reducer
 const cartReducer = (state, action) => {
   const { payload } = action;
+
   switch (action.type) {
-    case ADD_ITEM:
-      console.log({state, action})
-      const newState = {
+    // ✅ ADD ITEM TO CART
+    case ADD_ITEM: {
+      const id = payload._id;
+
+      return {
         ...state,
         itemsById: {
           ...state.itemsById,
-          [payload._id]: {
+          [id]: {
             ...payload,
-            quantity: state.itemsById[payload._id]
-              ? state.itemsById[payload._id].quantity + 1
+            quantity: state.itemsById[id]
+              ? state.itemsById[id].quantity + 1
               : 1,
           },
         },
-        // Use `Set` to remove all duplicates
-        allItems: Array.from(new Set([...state.allItems, action.payload._id])),
+        allItems: Array.from(new Set([...state.allItems, id])),
       };
-      return newState
-    case REMOVE_ITEM:
-      const updatedState = {
+    }
+
+    // ❌ REMOVE ITEM
+    case REMOVE_ITEM: {
+      const id = payload._id;
+
+      const updatedItemsById = { ...state.itemsById };
+      delete updatedItemsById[id];
+
+      return {
         ...state,
-        itemsById: Object.entries(state.itemsById)
-          .filter(([key, value]) => key !== action.payload._id)
-          .reduce((obj, [key, value]) => {
-            obj[key] = value
-            return obj
-          }, {}),
-        allItems: state.allItems.filter(
-          (itemId) => itemId !== action.payload._id
-        ),
+        itemsById: updatedItemsById,
+        allItems: state.allItems.filter((itemId) => itemId !== id),
+      };
+    }
+
+    // 🔥 UPDATE QUANTITY (NEW CASE)
+    case UPDATE_ITEM_QUANTITY: {
+      const { productId, quantity } = payload;
+
+      // If quantity is 0 or lower → remove item entirely
+      if (quantity <= 0) {
+        const updatedItemsById = { ...state.itemsById };
+        delete updatedItemsById[productId];
+
+        return {
+          ...state,
+          itemsById: updatedItemsById,
+          allItems: state.allItems.filter((id) => id !== productId),
+        };
       }
-      return updatedState
-    
+
+      return {
+        ...state,
+        itemsById: {
+          ...state.itemsById,
+          [productId]: {
+            ...state.itemsById[productId],
+            quantity,
+          },
+        },
+      };
+    }
+
     default:
-      return state
+      return state;
   }
-}
+};
 
-// Define the provider
+// Provider Component
 const CartProvider = ({ children }) => {
-  const [state, dispatch] = useReducer(cartReducer, initialState)
+  const [state, dispatch] = useReducer(cartReducer, initialState);
 
-  // Remove an item from the cart
-  const removeFromCart = (product) => {
-    dispatch({ type: REMOVE_ITEM, payload: product })
-  }
-
-  // Add an item to the cart
+  // Add item to cart
   const addToCart = (product) => {
-    dispatch({ type: ADD_ITEM, payload: product })
-  }
+    dispatch({ type: ADD_ITEM, payload: product });
+  };
 
-  // todo Update the quantity of an item in the cart
-  const updateItemQuantity = (productId, quantity) => {
-    // todo
-  }
+  // Remove item from cart
+  const removeFromCart = (product) => {
+    dispatch({ type: REMOVE_ITEM, payload: product });
+  };
 
-  // todo Get the total price of all items in the cart
-  const getCartTotal = () => {
-    // todo
-  }
+  // 🔥 Update quantity (+1 or -1)
+  const updateItemQuantity = (productId, change) => {
+    const currentQty = state.itemsById[productId]?.quantity || 0;
+    const newQty = currentQty + change;
 
+    dispatch({
+      type: UPDATE_ITEM_QUANTITY,
+      payload: { productId, quantity: newQty },
+    });
+  };
+
+  // Return list of cart items (expand IDs into objects)
   const getCartItems = () => {
-    return state.allItems.map((itemId) => state.itemsById[itemId]) ?? [];
-  }
+    return state.allItems.map((id) => state.itemsById[id]).filter(Boolean);
+  };
+
+  // Calculate total price
+  const getCartTotal = () => {
+    return getCartItems().reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0
+    );
+  };
 
   return (
     <CartContext.Provider
       value={{
         cartItems: getCartItems(),
         addToCart,
-        updateItemQuantity,
         removeFromCart,
+        updateItemQuantity,
         getCartTotal,
       }}
     >
       {children}
     </CartContext.Provider>
-  )
-}
+  );
+};
 
-const useCart = () => useContext(CartContext)
+// Hook
+const useCart = () => useContext(CartContext);
 
-export { CartProvider, useCart }
+export { CartProvider, useCart };

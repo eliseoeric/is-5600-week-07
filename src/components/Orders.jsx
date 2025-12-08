@@ -1,43 +1,59 @@
-import React, { useState } from 'react';
-import { BASE_URL } from '../config';
+// src/components/Orders.jsx
+import React, { useEffect, useState } from "react";
+import { BASE_URL } from "../config";
 
-const Orders = () => {
+export default function Orders() {
   const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  /**
-   * TODO
-   * 1. Create a `fetchOrders` function that retrieves all orders from the database
-   * 2. Using the `useEffect` hook, update the existing `orders` state object when `fetchOrders` is complete
-   **/ 
+  const fetchOrders = () => {
+    setLoading(true);
+    fetch(`${BASE_URL}/orders`)
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to fetch orders");
+        return res.json();
+      })
+      .then((data) => setOrders(data || []))
+      .catch((err) => {
+        console.error(err);
+        setOrders([]);
+      })
+      .finally(() => setLoading(false));
+  };
 
+  useEffect(() => {
+    fetchOrders();
+  }, []);
 
   return (
-    <div className="center mw7 ba mv4">
-      <div className="bg-white pa3 mb3">
-        <h2 className="f2 mb2">Orders</h2>
-        <table className="w-100">
+    <div>
+      <h2>Orders</h2>
+      {loading ? (
+        <div>Loading orders...</div>
+      ) : orders.length === 0 ? (
+        <div>No orders yet</div>
+      ) : (
+        <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <thead>
             <tr>
-              <th className="tl pv2">Order ID</th>
-              <th className="tl pv2">Buyer Email</th>
-              <th className="tl pv2">Products</th>
-              <th className="tl pv2">Status</th>
+              <th style={{ textAlign: "left", borderBottom: "1px solid #eee" }}>Order ID</th>
+              <th style={{ textAlign: "left", borderBottom: "1px solid #eee" }}>Email</th>
+              <th style={{ textAlign: "left", borderBottom: "1px solid #eee" }}>Products</th>
+              <th style={{ textAlign: "left", borderBottom: "1px solid #eee" }}>Total</th>
             </tr>
           </thead>
           <tbody>
-            {orders && orders.map((order) => (
-              <tr key={order._id}>
-                <td className="tl pv2">{order._id}</td>
-                <td className="tl pv2">{order.buyerEmail}</td>
-                <td className="tl pv2">{order.products.join(', ')}</td>
-                <td className="tl pv2">{order.status}</td>
+            {orders.map((o) => (
+              <tr key={o._id}>
+                <td style={{ padding: 8 }}>{o._id}</td>
+                <td>{o.buyerEmail}</td>
+                <td>{o.products?.map(p => p.productId ? `${p.productId} (x${p.quantity})` : JSON.stringify(p)).join(", ")}</td>
+                <td>${(o.total ?? 0).toFixed(2)}</td>
               </tr>
             ))}
           </tbody>
         </table>
-      </div>
+      )}
     </div>
   );
-};
-
-export default Orders;
+}

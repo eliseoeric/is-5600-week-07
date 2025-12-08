@@ -1,45 +1,49 @@
-import React from 'react'
-import { useParams } from 'react-router-dom';
-import '../App.css';
+// src/components/SingleView.jsx
+import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import { BASE_URL } from "../config";
+import AddToCart from "./AddToCart";
 
-
-export default function SingleView({data}) {
-  // get the id from the url using useParams
+export default function SingleView() {
   const { id } = useParams();
-  
-  // get the product from the data using the id
-  const product = data.find(product => product.id === id);
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const { user } = product;
+  useEffect(() => {
+    if (!id) return;
+    setLoading(true);
+    fetch(`${BASE_URL}/products/${id}`)
+      .then((res) => {
+        if (!res.ok) throw new Error("Product fetch failed");
+        return res.json();
+      })
+      .then((data) => setProduct(data))
+      .catch((err) => {
+        console.error("fetch product", err);
+        setProduct(null);
+      })
+      .finally(() => setLoading(false));
+  }, [id]);
 
-  const title = product.description ?? product.alt_description;
-  const style = {
-    backgroundImage: `url(${product.urls["regular"]})`
-  }
+  if (loading) return <div>Loading product...</div>;
+  if (!product) return <div>Product not found</div>;
 
   return (
-    <article class="bg-white center mw7 ba b--black-10 mv4">
-      <div class="pv2 ph3">
-        <div class="flex items-center">
-          <img src={user?.profile_image?.medium} class="br-100 h3 w3 dib" alt={user.instagram_username} />
-          <h1 class="ml3 f4">{user.first_name} {user.last_name}</h1>
+    <article style={{ border: "1px solid #eee", padding: 12, borderRadius: 8, background: "#fff" }}>
+      <h2>{product.description || "Untitled product"}</h2>
+      <div style={{ display: "flex", gap: 12 }}>
+        <div style={{ width: 320 }}>
+          <img src={product.urls?.regular} alt="" style={{ width: "100%", borderRadius: 6 }} />
         </div>
-      </div>
-      <div class="aspect-ratio aspect-ratio--4x3">
-        <div class="aspect-ratio--object cover" style={style}></div>
-      </div>
-      <div class="pa3 flex justify-between">
-        <div class="mw6">
-          <h1 class="f6 ttu tracked">Product ID: {id}</h1>
-          <a href={`/products/${id}`} class="link dim lh-title">{title}</a>
+        <div style={{ flex: 1 }}>
+          <p><strong>Price:</strong> ${product.price ?? "0.00"}</p>
+          <p><strong>Likes:</strong> {product.likes ?? 0}</p>
+          <p><strong>Author:</strong> {product.user?.name || product.user?.first_name || "—"}</p>
+          <div style={{ marginTop: 12 }}>
+            <AddToCart product={product} />
+          </div>
         </div>
-        <div class="gray db pv2">&hearts;<span>{product.likes}</span></div>
-      </div>
-      <div className="pa3 flex justify-end">
-        <span className="ma2 f4">${product.price}</span>
-        {/* TODO Implement the AddToCart button */}
       </div>
     </article>
-
-  )
+  );
 }

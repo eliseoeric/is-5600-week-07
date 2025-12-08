@@ -1,67 +1,61 @@
-import React, { useContext } from 'react';
-import PurchaseForm from './PurchaseForm';
+// src/components/Cart.jsx
+import React from "react";
+import { useCart } from "../state/CartProvider";
+import PurchaseForm from "./PurchaseForm";
 
-const Cart = () => {
-  // TODO - get cart items from context
-  const cartItems = [];
-  const removeFromCart = () => {};
-  const updateItemQuantity = () => {};
-  const getCartTotal = () => {};
+export default function Cart() {
+  const { cartItems, removeFromCart, updateItemQuantity, getCartTotal } = useCart();
+
+  const changeQuantityBy = (id, delta) => {
+    const item = cartItems.find((c) => c._id === id);
+    if (!item) return;
+    const newQty = Number(item.quantity || 0) + delta;
+    updateItemQuantity(id, newQty);
+  };
 
   return (
-    <div className="center mw7 mv4">
-      <div className="bg-white pa3 mb3">
-        <h2 className="f2 mb2">Cart</h2>
-        <table className="w-100 ba pa2">
+    <div>
+      <h2>Cart</h2>
+      {cartItems.length === 0 ? (
+        <div>Your cart is empty</div>
+      ) : (
+        <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <thead>
             <tr>
-              <th className="tl pv2">Product</th>
-              <th className="tr pv2">Quantity</th>
-              <th className="tr pv2">Price</th>
-              <th className="tr pv2">Action</th>
+              <th style={{ textAlign: "left", borderBottom: "1px solid #eee" }}>Product</th>
+              <th style={{ textAlign: "center", borderBottom: "1px solid #eee" }}>Quantity</th>
+              <th style={{ textAlign: "right", borderBottom: "1px solid #eee" }}>Price</th>
+              <th style={{ textAlign: "right", borderBottom: "1px solid #eee" }}>Action</th>
             </tr>
           </thead>
           <tbody>
-            {cartItems && cartItems.map((item) => (
+            {cartItems.map((item) => (
               <tr key={item._id}>
-                <td className="tl pv2">{item.description}</td>
-                <td className="tr pv2">
-                  <a
-                    className="pointer ba b--black-10 pv1 ph2 mr2"
-                    onClick={() => updateItemQuantity(item._id, -1)}
-                  >
-                    -
-                  </a>
-                  {item.quantity}
-                  <a
-                    className="pointer ba b--black-10 pv1 ph2 ml2"
-                    onClick={() => updateItemQuantity(item._id, 1)}
-                  >
-                    +
-                  </a>
+                <td style={{ padding: 8 }}>{item.description ?? "Product"}</td>
+                <td style={{ textAlign: "center" }}>
+                  <button onClick={() => changeQuantityBy(item._id, -1)}>-</button>
+                  <span style={{ margin: "0 8px" }}>{item.quantity}</span>
+                  <button onClick={() => changeQuantityBy(item._id, +1)}>+</button>
                 </td>
-                <td className="tr pv2">${item.price * item.quantity}</td>
-                <td className="tr pv2">
-                  <a
-                    className="pointer ba b--black-10 pv1 ph2"
-                    onClick={() => removeFromCart(item)}
-                  >
-                    Remove
-                  </a>
+                <td style={{ textAlign: "right" }}>
+                  ${(Number(item.price || 0) * Number(item.quantity || 0)).toFixed(2)}
+                </td>
+                <td style={{ textAlign: "right" }}>
+                  <button onClick={() => removeFromCart(item)}>Remove</button>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
-        <div className="tr f4 mv3">
-          Total: ${getCartTotal().toFixed(2)}
-        </div>
+      )}
+
+      <div style={{ marginTop: 12, textAlign: "right", fontWeight: 700 }}>
+        Total: ${getCartTotal().toFixed(2)}
       </div>
-      <div className="flex justify-end pa3 mb3">
+
+      <div style={{ marginTop: 16 }}>
         <PurchaseForm />
       </div>
     </div>
   );
-};
-
-export default Cart;
+}

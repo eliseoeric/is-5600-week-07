@@ -1,25 +1,28 @@
-import React from 'react'
-import { Route, Routes} from 'react-router-dom';
+// src/App.jsx
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { CartProvider } from "./state/CartProvider";
 
-import Header from './components/Header';
-import CardList from './components/CardList';
-import SingleView from './components/SingleView';
-import productData from './data/full-products';
+import Header from "./components/Header";
+import CardList from "./components/CardList";
+import SingleView from "./components/SingleView";
+import Cart from "./components/Cart";
+import Orders from "./components/Orders";
 
-
-function App() {
-  
+export default function App() {
   return (
-    <div className="App">
-      <Header />
-      
-        <Routes>
-          <Route path="/" element={<CardList data={productData} />} />
-          <Route path="/product/:id" element={<SingleView data={productData} />} />
-        </Routes>
-      
-    </div>
+    <CartProvider>
+      <Router>
+        <Header />
+        <div style={{ maxWidth: 1100, margin: "0 auto", padding: 12 }}>
+          <Routes>
+            <Route path="/" element={<CardList />} />
+            <Route path="/product/:id" element={<SingleView />} />
+            <Route path="/cart" element={<Cart />} />
+            <Route path="/orders" element={<Orders />} />
+          </Routes>
+        </div>
+      </Router>
+    </CartProvider>
   );
 }
-
-export default App;

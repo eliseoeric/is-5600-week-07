@@ -1,50 +1,23 @@
-import React, { useState, useEffect } from 'react'
-import Card from './Card'
-import Button from './Button'
-import Search from './Search'
+import React, {useContext} from 'react';
+import { Link } from "react-router-dom";
+import { useCart } from '../state/CartProvider';
 
-const CardList = ({ data }) => {
-  // define the limit state variable and set it to 10
-  const limit = 10;
-
-  // Define the offset state variable and set it to 0
-  const [offset, setOffset] = useState(0);
-  // Define the products state variable and set it to the default dataset
-  const [products, setProducts] = useState(data);
-
-  useEffect(() => {
-    setProducts(data.slice(offset, offset + limit));
-  }, [offset, limit, data])
-
-  const filterTags = (tagQuery) => {
-    const filtered = data.filter(product => {
-      if (!tagQuery) {
-        return product
-      }
-
-      return product.tags.find(({title}) => title === tagQuery)
-    })
-
-    setOffset(0)
-    setProducts(filtered)
-  }
+const Header = () => {
+  const { cartItems } = useCart();
+  const totalItems = cartItems.reduce((acc, item) => acc + item.quantity, 0);
 
 
   return (
-    <div className="cf pa2">
-      <Search handleSearch={filterTags}/>
-      <div className="mt2 mb2">
-      {products && products.map((product) => (
-          <Card key={product._id} {...product} />
-        ))}
+    <nav className="dt w-100 border-box pa3 ph5-ns">
+      <a className="dtc v-mid mid-gray link dim w-25" href="/" title="Home">
+        <img src="https://img.logoipsum.com/280.svg" className="dib w2 h2 br-100" alt="Site Name" />
+      </a>
+      <div className="dtc v-mid w-75 tr">
+        <Link className="link dim dark-gray f6 f5-ns dib mr3 mr4-ns" to="/" title="Products">Products</Link>
+        <Link className="link dim dark-gray f6 f5-ns dib mr3 mr4-ns" to="/orders" title="/orders">Orders</Link>
+        <Link className="link dim dark-gray f6 f5-ns dib" to="/cart" title="Cart">Cart <span className="ba b--black-20 br-pill pa2">{totalItems}</span></Link>
       </div>
+    </nav>
 
-      <div className="flex items-center justify-center pa4">
-        <Button text="Previous" handleClick={() => setOffset(offset - limit)} />
-        <Button text="Next" handleClick={() => setOffset(offset + limit)} />
-      </div>
-    </div>
-  )
+  );
 }
-
-export default CardList;

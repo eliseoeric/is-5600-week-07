@@ -7,7 +7,7 @@ export default function Search({ handleSearch }) {
     const value = e.target.value;
     setSearch(value);
 
-    // Instant filtering while typing
+   
     if (handleSearch) {
       handleSearch(value);
     }

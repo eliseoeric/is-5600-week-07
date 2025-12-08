@@ -6,7 +6,7 @@ import '../App.css';
 export default function SingleView({data}) {
   const { id } = useParams();
 
-  // Try both _id and id, and compare as strings to be safe
+  
   const product = data.find(
     (p) => String(p._id) === String(id) || String(p.id) === String(id)
   );

@@ -21,7 +21,7 @@ export default function Cart() {
 
         <tbody>
           {cartItems.map((item) => {
-            const price = item.price ?? 5; // default price for images
+            const price = item.price ?? 5; 
             return (
               <tr key={item.id}>
                 <td className="pv3">{item.description || item.alt_description}</td>

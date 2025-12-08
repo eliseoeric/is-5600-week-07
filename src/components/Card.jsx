@@ -13,7 +13,7 @@ export default function Card(props) {
     alt_description,
   } = props;
 
-  // Prefer _id, fall back to id
+
   const cardId = _id || id;
 
   const title = description ?? alt_description;

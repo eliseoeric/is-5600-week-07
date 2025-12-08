@@ -5,7 +5,7 @@ import { useCart } from '../state/CartProvider';
 const Header = () => {
   const { cartItems } = useCart();
 
-  // Sum of all quantities in the cart
+ 
   const totalItems = cartItems.reduce(
     (sum, item) => sum + (item.quantity || 0),
     0

@@ -6,12 +6,11 @@ import Search from "./Search";
 const CardList = ({ data }) => {
   const limit = 10;
 
-  // where we are in the list
   const [offset, setOffset] = useState(0);
-  // the products currently being shown
+
   const [products, setProducts] = useState(data);
 
-  // whenever offset or data changes, recalculate visible products
+
   useEffect(() => {
     setProducts(data.slice(offset, offset + limit));
   }, [offset, limit, data]);
@@ -20,11 +19,11 @@ const CardList = ({ data }) => {
     const trimmed = tagQuery.trim().toLowerCase();
 
     const filtered = data.filter((product) => {
-      if (!trimmed) return true; // show all
+      if (!trimmed) return true; 
 
       if (!product.tags) return false;
 
-      // check if any tag title includes the search text (case-insensitive)
+      
       return product.tags.some((tag) =>
         tag.title.toLowerCase().includes(trimmed)
       );

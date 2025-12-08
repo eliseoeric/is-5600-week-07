@@ -7,7 +7,7 @@ import SingleView from './components/SingleView';
 import Cart from './components/Cart';
 import productData from './data/full-products';
 
-// ⬅️ import CartProvider from state
+
 import { CartProvider } from './state/CartProvider';
 
 function App() {
@@ -22,7 +22,7 @@ function App() {
             path="/product/:id"
             element={<SingleView data={productData} />}
           />
-          {/* ⬅️ cart route */}
+         
           <Route path="/cart" element={<Cart />} />
         </Routes>
       </div>

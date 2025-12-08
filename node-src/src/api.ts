@@ -1,8 +1,10 @@
-import { Request, Response, NextFunction } from 'express';
-import * as path from 'path';
-import * as Products from './products';
-import * as Orders from './orders';
-import autoCatch from './lib/auto-catch';
+import { Request, Response, NextFunction } from "express";
+import * as path from "path";
+import * as Products from "./products";
+import * as Orders from "./orders";
+
+// IMPORTANT FIX → use require() because auto-catch.js has no TS types
+const autoCatch = require("./lib/auto-catch");
 
 interface QueryParams {
   offset?: number;
@@ -11,89 +13,96 @@ interface QueryParams {
 }
 
 /**
- * Handle the root route
+ * Handle root /
  */
-function handleRoot(req: Request, res: Response): void {
-  res.sendFile(path.join(__dirname, '/index.html'));
+async function handleRoot(req: Request, res: Response) {
+  res.sendFile(path.join(__dirname, "/index.html"));
 }
 
 /**
- * List all products
+ * List all products with pagination
  */
-async function listProducts(req: Request, res: Response): Promise<void> {
+async function listProducts(req: Request, res: Response) {
   const { offset = 0, limit = 25, tag } = req.query as unknown as QueryParams;
-  res.json(await Products.list({
+
+  const products = await Products.list({
     offset: Number(offset),
     limit: Number(limit),
-    tag
-  }));
+    tag,
+  });
+
+  res.json(products);
 }
 
 /**
- * Get a single product
+ * Get a single product by ID
  */
-async function getProduct(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
+async function getProduct(req: Request, res: Response, next: NextFunction) {
   const { id } = req.params;
 
   const product = await Products.get(id);
-  if (!product) {
-    return next();
-  }
+  if (!product) return next();
 
-  return res.json(product);
+  res.json(product);
 }
 
 /**
- * Create a product
+ * Create product
  */
-async function createProduct(req: Request, res: Response): Promise<void> {
+async function createProduct(req: Request, res: Response) {
   const product = await Products.create(req.body);
   res.json(product);
 }
 
 /**
- * Edit a product
+ * Edit product
  */
-async function editProduct(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
+async function editProduct(req: Request, res: Response, next: NextFunction) {
   const { id } = req.params;
+
   const product = await Products.edit(id, req.body);
-  if (!product) {
-    return next();
-  }
-  return res.json(product);
+  if (!product) return next();
+
+  res.json(product);
 }
 
 /**
- * Delete a product
+ * Delete product
  */
-async function deleteProduct(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
+async function deleteProduct(req: Request, res: Response, next: NextFunction) {
   const { id } = req.params;
+
   const product = await Products.remove(id);
-  if (!product) {
-    return next();
-  }
-  return res.json(product);
+  if (!product) return next();
+
+  res.json(product);
 }
 
 /**
- * Create an order
+ * Create order
  */
-async function createOrder(req: Request, res: Response): Promise<void> {
+async function createOrder(req: Request, res: Response) {
   const order = await Orders.create(req.body);
   res.json(order);
 }
 
 /**
- * List all orders
+ * List orders
  */
-async function listOrders(req: Request, res: Response): Promise<void> {
+async function listOrders(req: Request, res: Response) {
   const { offset = 0, limit = 25 } = req.query as unknown as QueryParams;
-  res.json(await Orders.list({
+
+  const orders = await Orders.list({
     offset: Number(offset),
-    limit: Number(limit)
-  }));
+    limit: Number(limit),
+  });
+
+  res.json(orders);
 }
 
+/**
+ * Export handlers wrapped in autoCatch()
+ */
 export default autoCatch({
   handleRoot,
   listProducts,
@@ -102,5 +111,5 @@ export default autoCatch({
   editProduct,
   deleteProduct,
   createOrder,
-  listOrders
+  listOrders,
 });

@@ -1,27 +1,44 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React from 'react';
+import { Link } from 'react-router-dom';
 
-const Card = ({description, alt_description, id, _id, user, urls, likes}) => {
+export default function Card(props) {
+  const {
+    _id,
+    id,
+    urls,
+    user,
+    likes,
+    price,
+    description,
+    alt_description,
+  } = props;
 
+  // Prefer _id, fall back to id
+  const cardId = _id || id;
+
+  const title = description ?? alt_description;
   const style = {
-    backgroundImage: `url(${urls.small})`
-  }
-  
-  return (
-    <div className="fl w-50 w-25-m w-20-l pa2">
-      <Link to={`/product/${_id}`} className="db link dim tc"> 
-        <div style={style} alt="" class="w-100 db outline black-10 h4 cover"></div>
-        <dl className="mt2 f6 lh-copy">
-          <dt className="clip">Title</dt>
-          <dd className="ml0 black truncate w-100">{description ?? alt_description}</dd>
-          <dt className="clip">Artist</dt>
-          <dd className="ml0 gray truncate w-100">{user.first_name} {user.last_name}</dd>
-          <dt className="clip">Likes</dt>
-          <dd className="ml0 gray truncate w-100">{likes} Likes</dd>
-        </dl>
-      </Link>
-    </div>
-  )
-}
+    backgroundImage: `url(${urls.small || urls.thumb || urls.regular})`,
+  };
 
-export default Card;
+  return (
+    <article className="fl w-100 w-50-m w-25-l pa2">
+      <div className="bg-white br2 pa2 shadow-1">
+        <Link to={`/product/${cardId}`} className="link black">
+          <div className="aspect-ratio aspect-ratio--4x3 mb2">
+            <div className="aspect-ratio--object cover" style={style}></div>
+          </div>
+        </Link>
+
+        <h1 className="f6 mv2 truncate">{title}</h1>
+        <p className="f7 mv1 gray">
+          {user?.first_name} {user?.last_name}
+        </p>
+        <p className="f7 mv1 gray">{likes} Likes</p>
+        {price != null && (
+          <p className="f6 mv1 b">${price}</p>
+        )}
+      </div>
+    </article>
+  );
+}

@@ -1,8 +1,10 @@
-module.exports = function autoCatch (handlers) {
-  return Object.keys(handlers).reduce((autoHandlers, key) => {
-    const handler = handlers[key]
-    autoHandlers[key] = (req, res, next) =>
-      Promise.resolve(handler(req, res, next)).catch(next)
-    return autoHandlers
-  }, {})
-}
+// node-src/src/lib/auto-catch.js
+module.exports = function autoCatch(fn) {
+  return async (req, res, next) => {
+    try {
+      await fn(req, res, next);
+    } catch (error) {
+      next(error);
+    }
+  };
+};

@@ -1,106 +1,113 @@
-import { Request, Response, NextFunction } from 'express';
-import * as path from 'path';
-import * as Products from './products';
-import * as Orders from './orders';
-import autoCatch from './lib/auto-catch';
+// node-src/src/api.ts
+import express from 'express';
+import Products, { ProductDocument } from './products';
+import Orders, { OrderDocument, OrderStatus } from './orders';
 
-interface QueryParams {
-  offset?: number;
-  limit?: number;
-  tag?: string;
-}
+// Create a simple auto-catch function
+const autoCatch = (fn: Function) => {
+  return async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    try {
+      await fn(req, res, next);
+    } catch (error) {
+      next(error);
+    }
+  };
+};
 
-/**
- * Handle the root route
- */
-function handleRoot(req: Request, res: Response): void {
-  res.sendFile(path.join(__dirname, '/index.html'));
-}
+const router = express.Router();
 
-/**
- * List all products
- */
-async function listProducts(req: Request, res: Response): Promise<void> {
-  const { offset = 0, limit = 25, tag } = req.query as unknown as QueryParams;
-  res.json(await Products.list({
-    offset: Number(offset),
-    limit: Number(limit),
-    tag
-  }));
-}
+// Products routes
+router.get('/products', autoCatch(async (req, res) => {
+  const { offset = 0, limit = 25, tag } = req.query;
+  const products = await Products.list(
+    Number(limit),
+    Number(offset),
+    tag as string
+  );
+  res.json(products);
+}));
 
-/**
- * Get a single product
- */
-async function getProduct(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
+router.get('/products/:id', autoCatch(async (req, res) => {
   const { id } = req.params;
-
   const product = await Products.get(id);
+  
   if (!product) {
-    return next();
+    return res.status(404).json({ error: 'Product not found' });
   }
+  
+  res.json(product);
+}));
 
-  return res.json(product);
-}
-
-/**
- * Create a product
- */
-async function createProduct(req: Request, res: Response): Promise<void> {
+router.post('/products', autoCatch(async (req, res) => {
   const product = await Products.create(req.body);
   res.json(product);
-}
+}));
 
-/**
- * Edit a product
- */
-async function editProduct(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
+router.put('/products/:id', autoCatch(async (req, res) => {
   const { id } = req.params;
-  const product = await Products.edit(id, req.body);
+  const product = await Products.update(id, req.body);
+  
   if (!product) {
-    return next();
+    return res.status(404).json({ error: 'Product not found' });
   }
-  return res.json(product);
-}
+  
+  res.json(product);
+}));
 
-/**
- * Delete a product
- */
-async function deleteProduct(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
+router.delete('/products/:id', autoCatch(async (req, res) => {
   const { id } = req.params;
-  const product = await Products.remove(id);
-  if (!product) {
-    return next();
+  const deletedCount = await Products.remove(id);
+  
+  if (!deletedCount) {
+    return res.status(404).json({ error: 'Product not found' });
   }
-  return res.json(product);
-}
+  
+  res.json({ success: true });
+}));
 
-/**
- * Create an order
- */
-async function createOrder(req: Request, res: Response): Promise<void> {
-  const order = await Orders.create(req.body);
+// Orders routes
+router.get('/orders', autoCatch(async (req, res) => {
+  const { offset = 0, limit = 25 } = req.query;
+  const orders = await Orders.list(Number(limit), Number(offset));
+  res.json(orders);
+}));
+
+router.get('/orders/:id', autoCatch(async (req, res) => {
+  const { id } = req.params;
+  const order = await Orders.get(id);
+  
+  if (!order) {
+    return res.status(404).json({ error: 'Order not found' });
+  }
+  
   res.json(order);
-}
+}));
 
-/**
- * List all orders
- */
-async function listOrders(req: Request, res: Response): Promise<void> {
-  const { offset = 0, limit = 25 } = req.query as unknown as QueryParams;
-  res.json(await Orders.list({
-    offset: Number(offset),
-    limit: Number(limit)
-  }));
-}
+router.post('/orders', autoCatch(async (req, res) => {
+  const orderData = {
+    ...req.body,
+    status: OrderStatus.PENDING
+  };
+  
+  const order = await Orders.create(orderData);
+  res.status(201).json(order);
+}));
 
-export default autoCatch({
-  handleRoot,
-  listProducts,
-  getProduct,
-  createProduct,
-  editProduct,
-  deleteProduct,
-  createOrder,
-  listOrders
-});
+router.patch('/orders/:id/status', autoCatch(async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+  
+  if (!Object.values(OrderStatus).includes(status)) {
+    return res.status(400).json({ error: 'Invalid status' });
+  }
+  
+  const order = await Orders.updateStatus(id, status);
+  
+  if (!order) {
+    return res.status(404).json({ error: 'Order not found' });
+  }
+  
+  res.json(order);
+}));
+
+export default router;

@@ -1,2 +1,3 @@
-// TODO: Replace this with your own Server URL for your codespace
-export const BASE_URL = "https://glowing-space-memory-q7p4jvr9g4p424rj7-3080.app.github.dev";
+const BASE_URL = import.meta.env.VITE_API_URL || 'https://your-codespace-3001.app.github.dev';
+
+export { BASE_URL };

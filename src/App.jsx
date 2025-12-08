@@ -1,24 +1,26 @@
-import React from 'react'
-import { Route, Routes} from 'react-router-dom';
-
-import Header from './components/Header';
-import CardList from './components/CardList';
-import SingleView from './components/SingleView';
-import productData from './data/full-products';
-
+import Products from "./components/Products";
+import Cart from "./components/Cart";
+import Orders from "./components/Orders";
+import { StoreProvider } from "./context/StoreContext";
 
 function App() {
-  
   return (
-    <div className="App">
-      <Header />
-      
-        <Routes>
-          <Route path="/" element={<CardList data={productData} />} />
-          <Route path="/product/:id" element={<SingleView data={productData} />} />
-        </Routes>
-      
-    </div>
+    <StoreProvider>
+      <div className="pa4">
+        <h1 className="tc">Fullstack Prints</h1>
+
+        <div className="flex flex-row">
+          <div className="w-50 pa3">
+            <Products />
+          </div>
+
+          <div className="w-50 pa3">
+            <Cart />
+            <Orders />
+          </div>
+        </div>
+      </div>
+    </StoreProvider>
   );
 }
 

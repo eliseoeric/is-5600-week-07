@@ -1,15 +1,24 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { BASE_URL } from '../config';
 
 const Orders = () => {
   const [orders, setOrders] = useState([]);
 
-  /**
-   * TODO
-   * 1. Create a `fetchOrders` function that retrieves all orders from the database
-   * 2. Using the `useEffect` hook, update the existing `orders` state object when `fetchOrders` is complete
-   **/ 
+  const fetchOrders = async () => {
+    try {
+      const response = await fetch(`${BASE_URL}/orders`);
+      if (!response.ok) throw new Error('Failed to fetch orders');
 
+      const data = await response.json();
+      setOrders(data);
+    } catch (error) {
+      console.error("Error fetching orders:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchOrders();
+  }, []);
 
   return (
     <div className="center mw7 ba mv4">
@@ -25,14 +34,20 @@ const Orders = () => {
             </tr>
           </thead>
           <tbody>
-            {orders && orders.map((order) => (
-              <tr key={order._id}>
-                <td className="tl pv2">{order._id}</td>
-                <td className="tl pv2">{order.buyerEmail}</td>
-                <td className="tl pv2">{order.products.join(', ')}</td>
-                <td className="tl pv2">{order.status}</td>
+            {orders.length > 0 ? (
+              orders.map((order) => (
+                <tr key={order._id}>
+                  <td className="tl pv2">{order._id}</td>
+                  <td className="tl pv2">{order.buyerEmail}</td>
+                  <td className="tl pv2">{order.products?.join(', ')}</td>
+                  <td className="tl pv2">{order.status}</td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="4" className="tc pv3">No orders found</td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
       </div>

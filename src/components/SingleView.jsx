@@ -1,22 +1,34 @@
-import React from 'react'
-import { useParams } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';import { useParams } from 'react-router-dom';
 import '../App.css';
+import { BASE_URL } from '../config';
 
 
-export default function SingleView({data}) {
+export default function SingleView() {
   // get the id from the url using useParams
   const { id } = useParams();
+
+    // Define the state object for product data
+      const [ product, setProduct ] = useState(null);
   
-  // get the product from the data using the id
-  const product = data.find(product => product.id === id);
+  // Fetch the product by id from the server
+    const fetchProductById = async (id) => {
+          const url = `${BASE_URL}/products/${id}`;
+              const response = await fetch(url);
+                  const data = await response.json();
+                      setProduct(data);
+                        };
 
-  const { user } = product;
+                          // useEffect to call fetchProductById when component mounts
+                            useEffect(() => {
+                                  if (id) {
+                                          fetchProductById(id);
+                                              }
+                                                }, [id]);
 
-  const title = product.description ?? product.alt_description;
-  const style = {
-    backgroundImage: `url(${product.urls["regular"]})`
-  }
-
+                                                  if (!product) {
+                                                        return <div>Loading...</div>;
+                                                          }
+                                                          
   return (
     <article class="bg-white center mw7 ba b--black-10 mv4">
       <div class="pv2 ph3">

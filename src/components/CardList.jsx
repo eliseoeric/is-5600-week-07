@@ -48,3 +48,53 @@ const CardList = ({ data }) => {
 }
 
 export default CardList;
+// src/components/CardList.jsx
+import React, { useState, useEffect } from "react";
+import { BASE_URL } from "../config";
+import Card from "./Card"; // adjust import path if necessary
+import Button from "./Button"; // adjust import path if necessary
+
+const CardList = () => {
+  const limit = 10; // page size
+  const [offset, setOffset] = useState(0);
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  const fetchProducts = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch(`${BASE_URL}/products?offset=${offset}&limit=${limit}`);
+      if (!res.ok) throw new Error("Failed to fetch products");
+      const data = await res.json();
+      setProducts(data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchProducts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [offset]);
+
+  const handleNext = () => setOffset((o) => o + limit);
+  const handlePrevious = () => setOffset((o) => Math.max(0, o - limit));
+
+  return (
+    <div className="cf pa2">
+      {loading && <div>Loading products...</div>}
+      <div className="mt2 mb2">
+        {products && products.map((product) => <Card key={product.id} {...product} />)}
+      </div>
+
+      <div className="flex items-center justify-center pa4">
+        <Button text="Previous" handleClick={handlePrevious} />
+        <Button text="Next" handleClick={handleNext} />
+      </div>
+    </div>
+  );
+};
+
+export default CardList;

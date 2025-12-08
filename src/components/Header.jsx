@@ -21,3 +21,21 @@ const Header = () => {
 }
 
 export default Header;
+// inside Header component file
+import React from "react";
+import { useCart } from "../state/CartProvider";
+import { Link } from "react-router-dom";
+
+const Header = () => {
+  const { cartItems } = useCart();
+  const totalItems = cartItems.reduce((acc, item) => acc + Number(item.quantity), 0);
+
+  return (
+    <header className="app-header">
+      <Link to="/">Home</Link>
+      <Link to="/cart">Cart ({totalItems})</Link>
+    </header>
+  );
+};
+
+export default Header;

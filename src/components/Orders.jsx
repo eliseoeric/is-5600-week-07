@@ -41,3 +41,55 @@ const Orders = () => {
 };
 
 export default Orders;
+// src/components/Orders.jsx
+import React, { useEffect, useState } from "react";
+import { BASE_URL } from "../config";
+
+export default function Orders() {
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchOrders = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch(`${BASE_URL}/orders`);
+      if (!res.ok) throw new Error("Failed to fetch orders");
+      const data = await res.json();
+      setOrders(data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchOrders();
+  }, []);
+
+  if (loading) return <div>Loading orders...</div>;
+  if (!orders || orders.length === 0) return <div>No orders yet.</div>;
+
+  return (
+    <div className="orders">
+      <h2>Orders</h2>
+      <ul>
+        {orders.map((order) => (
+          <li key={order.id} style={{ marginBottom: 12 }}>
+            <div><strong>Order #{order.id}</strong></div>
+            <div>Date: {new Date(order.createdAt || order.date || Date.now()).toLocaleString()}</div>
+            <div>Total: ${order.total || order.amount || 0}</div>
+            <div>
+              Items:
+              <ul>
+                {(order.items || []).map((it, idx) => (
+                  <li key={idx}>{it.title || it.name} — qty: {it.quantity}</li>
+                ))}
+              </ul>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}

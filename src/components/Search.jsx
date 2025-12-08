@@ -1,16 +1,21 @@
 import React from 'react'
 
-export default function Search({filter}) {
+export default function Search({handleSearch}) {
 
+  // This is a controlled component, so we need to keep track of the search term in state
   const [search, setSearch] = React.useState('')
 
+  // This function will be called whenever the user types in the search box
   const handleChange = (e) => {
     setSearch(e.target.value)
   }
 
+  // This function will be called when the user submits the form
   const handleSubmit = (e) => {
+    // Prevent the default behaviour of the form, which is to refresh the page
     e.preventDefault()
-    filter(search)
+    // Call the handleSearch function that was passed in as a prop; this will pass the search term back up to the parent component (CardList) where it can be used to filter the cards
+    handleSearch(search.toLowerCase())
   }
 
   return (

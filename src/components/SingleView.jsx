@@ -1,7 +1,4 @@
-import React from 'react'
 import { useParams } from 'react-router-dom';
-import '../App.css';
-
 
 export default function SingleView({data}) {
   // get the id from the url using useParams
@@ -21,7 +18,7 @@ export default function SingleView({data}) {
     <article class="bg-white center mw7 ba b--black-10 mv4">
       <div class="pv2 ph3">
         <div class="flex items-center">
-          <img src={user?.profile_image?.medium} class="br-100 h3 w3 dib" alt={user.instagram_username} />
+          <img src={user.profile_image["medium"]} class="br-100 h3 w3 dib" alt={user.instagram_username} />
           <h1 class="ml3 f4">{user.first_name} {user.last_name}</h1>
         </div>
       </div>
@@ -34,10 +31,6 @@ export default function SingleView({data}) {
           <a href={`/products/${id}`} class="link dim lh-title">{title}</a>
         </div>
         <div class="gray db pv2">&hearts;<span>{product.likes}</span></div>
-      </div>
-      <div className="pa3 flex justify-end">
-        <span className="ma2 f4">${product.price}</span>
-        {/* TODO Implement the AddToCart button */}
       </div>
     </article>
 

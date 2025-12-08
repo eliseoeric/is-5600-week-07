@@ -1,50 +1,98 @@
-import React, {useContext} from 'react'
-import { useCart } from '../state/CartProvider'
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useCart } from '../state/CartProvider';
 import { BASE_URL } from '../config';
 
-export default function PurchaseForm({filter}) {
-  const { cartItems  } = useCart();
+const PurchaseForm = () => {
+  const [email, setEmail] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const { cartItems } = useCart();
+  const navigate = useNavigate();
 
-  const [ buyerEmail, setBuyerEmail ] = React.useState('')
-
-  const handleSubmit = (e) => {
-    e.preventDefault()
-
-    const products = cartItems.map((item) => item._id);
-
-    const order = {
-      buyerEmail,
-      products,
-      status: "PENDING",
-    };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     
-    // post cart to orders API
-    fetch(`${BASE_URL}/orders`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(order),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        console.log('Order created:', data);
-      })
-      .catch((error) => {
-        console.error('Error creating order:', error);
+    if (!email) {
+      setError('Please enter your email');
+      return;
+    }
+
+    if (cartItems.length === 0) {
+      setError('Your cart is empty');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError('');
+
+      // Create order with product IDs
+      const productIds = cartItems.map(item => item._id);
+
+      const response = await fetch(`${BASE_URL}/orders`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          buyerEmail: email,
+          products: productIds,
+          status: 'CREATED'
+        }),
       });
-    
-  }
+
+      if (!response.ok) {
+        throw new Error('Failed to create order');
+      }
+
+      const order = await response.json();
+      console.log('Order created:', order);
+
+      // Success! Redirect to orders page
+      alert('Order placed successfully!');
+      navigate('/orders');
+      
+    } catch (err) {
+      console.error('Error creating order:', err);
+      setError('Failed to place order. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <form className="pt4 pb4 pl2 black-80 w-50" onSubmit={handleSubmit}>
-      <fieldset className="cf bn ma0 pa0">
-        <div className="cf mb2">
-          <input className="f6 f5-l input-reset fl black-80 ba b--black-20 bg-white pa3 lh-solid w-100 w-70-l br2-ns br--left-ns" placeholder='Email Address' value={buyerEmail} onChange={(e) => setBuyerEmail(e.target.value)} type="email" />
-          <input className="f6 f5-l button-reset fl pv3 tc bn bg-animate bg-black-70 hover-bg-black white pointer w-100 w-30-l br2-ns br--right-ns" type="submit" value="Purchase" />
+    <form onSubmit={handleSubmit} className="bg-white pa3 br2 ba b--black-10">
+      <h3 className="f4 mb3">Complete Purchase</h3>
+      
+      {error && (
+        <div className="bg-light-red pa2 mb3 br2">
+          <p className="ma0 dark-red">{error}</p>
         </div>
-        <small id="name-desc" className="f6 black-60 db mb2">Enter your email address to complete purchase</small>
-    </fieldset>
+      )}
+
+      <div className="mb3">
+        <label htmlFor="email" className="db mb2 f6">Email Address:</label>
+        <input
+          id="email"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="your@email.com"
+          className="input-reset ba b--black-20 pa2 mb2 db w-100"
+          required
+        />
+      </div>
+
+      <button
+        type="submit"
+        disabled={loading || cartItems.length === 0}
+        className="f6 link dim br3 ph3 pv2 mb2 dib white bg-black pointer bn"
+      >
+        {loading ? 'Processing...' : 'Place Order'}
+      </button>
     </form>
-  )
-}
+  );
+};
+
+export default PurchaseForm;

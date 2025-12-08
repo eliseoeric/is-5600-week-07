@@ -3,7 +3,7 @@ import React, { useReducer, useContext } from 'react'
 // Initialize the context
 const CartContext = React.createContext()
 
-// Definte the default state
+// Define the default state
 const initialState = {
   itemsById: {},
   allItems: [],
@@ -31,10 +31,10 @@ const cartReducer = (state, action) => {
               : 1,
           },
         },
-        // Use `Set` to remove all duplicates
         allItems: Array.from(new Set([...state.allItems, action.payload._id])),
       };
       return newState
+    
     case REMOVE_ITEM:
       const updatedState = {
         ...state,
@@ -49,6 +49,19 @@ const cartReducer = (state, action) => {
         ),
       }
       return updatedState
+    
+    case UPDATE_ITEM_QUANTITY:
+      // This sets the quantity directly (not adding to it)
+      return {
+        ...state,
+        itemsById: {
+          ...state.itemsById,
+          [payload.id]: {
+            ...state.itemsById[payload.id],
+            quantity: payload.quantity,
+          },
+        },
+      }
     
     default:
       return state
@@ -69,14 +82,20 @@ const CartProvider = ({ children }) => {
     dispatch({ type: ADD_ITEM, payload: product })
   }
 
-  // todo Update the quantity of an item in the cart
+  // Update the quantity of an item in the cart
   const updateItemQuantity = (productId, quantity) => {
-    // todo
+    dispatch({ 
+      type: UPDATE_ITEM_QUANTITY, 
+      payload: { id: productId, quantity: Number(quantity) } 
+    })
   }
 
-  // todo Get the total price of all items in the cart
+  // Get the total price of all items in the cart
   const getCartTotal = () => {
-    // todo
+    return state.allItems.reduce((total, itemId) => {
+      const item = state.itemsById[itemId]
+      return total + (item.likes * item.quantity) // Using 'likes' as price
+    }, 0)
   }
 
   const getCartItems = () => {

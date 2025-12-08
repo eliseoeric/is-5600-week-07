@@ -4,15 +4,11 @@ import { BASE_URL } from '../config';
 
 export default function PurchaseForm({filter}) {
   const { cartItems  } = useCart();
-
-  const [ buyerEmail, setBuyerEmail ] = React.useState('')
-
-  const handleSubmit = (e) => {
+const [ buyerEmail, setBuyerEmail ] = React.useState('')
+const handleSubmit = (e) => {
     e.preventDefault()
-
-    const products = cartItems.map((item) => item._id);
-
-    const order = {
+const products = cartItems.map((item) => item._id);
+const order = {
       buyerEmail,
       products,
       status: "PENDING",
@@ -33,9 +29,8 @@ export default function PurchaseForm({filter}) {
       .catch((error) => {
         console.error('Error creating order:', error);
       });
-    
-  }
 
+  }
   return (
     <form className="pt4 pb4 pl2 black-80 w-50" onSubmit={handleSubmit}>
       <fieldset className="cf bn ma0 pa0">
@@ -47,4 +42,6 @@ export default function PurchaseForm({filter}) {
     </fieldset>
     </form>
   )
+
+
 }

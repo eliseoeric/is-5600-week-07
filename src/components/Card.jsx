@@ -1,27 +1,19 @@
-import React from "react";
 import { Link } from "react-router-dom";
 
-const Card = ({description, alt_description, id, _id, user, urls, likes}) => {
+export default function Card(product) {
+  const { _id, urls, alt_description, tags = [], user = {} } = product;
+  const title = tags.slice(0, 3).map((t) => t.title).join(", ") || "Untitled";
+  const author = [user.first_name, user.last_name].filter(Boolean).join(" ") || user.username || "—";
 
-  const style = {
-    backgroundImage: `url(${urls.small})`
-  }
-  
   return (
-    <div className="fl w-50 w-25-m w-20-l pa2">
-      <Link to={`/product/${_id}`} className="db link dim tc"> 
-        <div style={style} alt="" class="w-100 db outline black-10 h4 cover"></div>
-        <dl className="mt2 f6 lh-copy">
-          <dt className="clip">Title</dt>
-          <dd className="ml0 black truncate w-100">{description ?? alt_description}</dd>
-          <dt className="clip">Artist</dt>
-          <dd className="ml0 gray truncate w-100">{user.first_name} {user.last_name}</dd>
-          <dt className="clip">Likes</dt>
-          <dd className="ml0 gray truncate w-100">{likes} Likes</dd>
-        </dl>
+    <article className="card">
+      <Link to={`/product/${_id}`} className="db">
+        <img className="thumb" src={urls?.small || urls?.thumb} alt={alt_description || title} />
+        <div className="pa2">
+          <div className="black-80 f6 fw6">{title}</div>
+          <div className="gray f7 mt1">{author}</div>
+        </div>
       </Link>
-    </div>
-  )
+    </article>
+  );
 }
-
-export default Card;

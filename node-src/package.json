@@ -1,31 +1,27 @@
 {
-  "name": "nodejs",
+  "name": "node-api",
   "version": "1.0.0",
-  "description": "",
+  "private": true,
   "main": "dist/app.js",
+  "type": "commonjs",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc",
+    "build": "tsc -p tsconfig.json",
     "start": "npm run build && node dist/app.js",
-    "dev": "ts-node-dev --respawn --transpile-only src/app.ts"
+    "seed": "npm run build && node dist/script/seed.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "dependencies": {
-    "@types/node": "^18.0.6",
-    "body-parser": "^1.20.1",
+    "cors": "^2.8.5",
     "cuid": "^2.1.8",
-    "express": "^4.18.2",
-    "mongoose": "^6.8.4",
-    "node-fetch": "^3.2.6"
+    "express": "^4.19.2",
+    "mongoose": "^8.5.0",
+    "morgan": "^1.10.0",
+    "mongodb-memory-server": "^10.1.4"
   },
   "devDependencies": {
-    "@types/express": "^4.17.17",
-    "@types/body-parser": "^1.19.2",
-    "@types/cuid": "^2.0.1",
-    "typescript": "^5.0.4",
-    "ts-node": "^10.9.1",
-    "ts-node-dev": "^2.0.0"
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/morgan": "^1.9.6",
+    "@types/node": "^22.7.5",
+    "typescript": "^5.6.3"
   }
 }

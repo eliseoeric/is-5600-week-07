@@ -1,103 +1,64 @@
-import React, { useReducer, useContext } from 'react'
+import React, { createContext, useContext, useMemo, useReducer } from "react";
 
-// Initialize the context
-const CartContext = React.createContext()
+const CartContext = createContext(null);
 
-// Definte the default state
-const initialState = {
-  itemsById: {},
-  allItems: [],
-}
+const ADD_ITEM = "ADD_ITEM";
+const UPDATE_ITEM_QUANTITY = "UPDATE_ITEM_QUANTITY";
+const REMOVE_ITEM = "REMOVE_ITEM";
+const CLEAR = "CLEAR";
 
-// Define reducer actions
-const ADD_ITEM = 'ADD_ITEM'
-const REMOVE_ITEM = 'REMOVE_ITEM'
-const UPDATE_ITEM_QUANTITY = 'UPDATE_ITEM_QUANTITY'
-
-// Define the reducer
-const cartReducer = (state, action) => {
-  const { payload } = action;
+function cartReducer(state, action) {
   switch (action.type) {
-    case ADD_ITEM:
-      console.log({state, action})
-      const newState = {
-        ...state,
-        itemsById: {
-          ...state.itemsById,
-          [payload._id]: {
-            ...payload,
-            quantity: state.itemsById[payload._id]
-              ? state.itemsById[payload._id].quantity + 1
-              : 1,
-          },
-        },
-        // Use `Set` to remove all duplicates
-        allItems: Array.from(new Set([...state.allItems, action.payload._id])),
-      };
-      return newState
-    case REMOVE_ITEM:
-      const updatedState = {
-        ...state,
-        itemsById: Object.entries(state.itemsById)
-          .filter(([key, value]) => key !== action.payload._id)
-          .reduce((obj, [key, value]) => {
-            obj[key] = value
-            return obj
-          }, {}),
-        allItems: state.allItems.filter(
-          (itemId) => itemId !== action.payload._id
-        ),
+    case ADD_ITEM: {
+      const item = action.payload;
+      const idx = state.findIndex((i) => i._id === item._id);
+      if (idx >= 0) {
+        const clone = [...state];
+        clone[idx] = { ...clone[idx], quantity: clone[idx].quantity + 1 };
+        return clone;
       }
-      return updatedState
-    
-    default:
+      return [...state, { ...item, quantity: 1 }];
+    }
+    case UPDATE_ITEM_QUANTITY: {
+      const { id, quantity } = action.payload;
       return state
+        .map((i) => (i._id === id ? { ...i, quantity: Math.max(0, quantity) } : i))
+        .filter((i) => i.quantity > 0);
+    }
+    case REMOVE_ITEM:
+      return state.filter((i) => i._id !== action.payload);
+    case CLEAR:
+      return [];
+    default:
+      return state;
   }
 }
 
-// Define the provider
-const CartProvider = ({ children }) => {
-  const [state, dispatch] = useReducer(cartReducer, initialState)
+export function CartProvider({ children }) {
+  const [cartItems, dispatch] = useReducer(cartReducer, []);
 
-  // Remove an item from the cart
-  const removeFromCart = (product) => {
-    dispatch({ type: REMOVE_ITEM, payload: product })
-  }
+  const addToCart = (product) => dispatch({ type: ADD_ITEM, payload: product });
+  const updateItemQuantity = (id, quantity) =>
+    dispatch({ type: UPDATE_ITEM_QUANTITY, payload: { id, quantity } });
+  const removeFromCart = (id) => dispatch({ type: REMOVE_ITEM, payload: id });
+  const clearCart = () => dispatch({ type: CLEAR });
 
-  // Add an item to the cart
-  const addToCart = (product) => {
-    dispatch({ type: ADD_ITEM, payload: product })
-  }
+  const getCartTotal = () =>
+    cartItems.reduce((sum, i) => {
+      const price = i.likes || 0; // using "likes" as demo price per lab data
+      return sum + price * i.quantity;
+    }, 0);
 
-  // todo Update the quantity of an item in the cart
-  const updateItemQuantity = (productId, quantity) => {
-    // todo
-  }
+  const value = useMemo(
+    () => ({ cartItems, addToCart, updateItemQuantity, removeFromCart, clearCart, getCartTotal }),
+    [cartItems]
+  );
 
-  // todo Get the total price of all items in the cart
-  const getCartTotal = () => {
-    // todo
-  }
-
-  const getCartItems = () => {
-    return state.allItems.map((itemId) => state.itemsById[itemId]) ?? [];
-  }
-
-  return (
-    <CartContext.Provider
-      value={{
-        cartItems: getCartItems(),
-        addToCart,
-        updateItemQuantity,
-        removeFromCart,
-        getCartTotal,
-      }}
-    >
-      {children}
-    </CartContext.Provider>
-  )
+  return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }
 
-const useCart = () => useContext(CartContext)
-
-export { CartProvider, useCart }
+export const useCart = () => {
+  const ctx = useContext(CartContext);
+  if (!ctx) throw new Error("useCart must be used within CartProvider");
+  return ctx;
+};

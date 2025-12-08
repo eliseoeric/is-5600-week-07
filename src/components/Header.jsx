@@ -1,23 +1,22 @@
-import React, {useContext} from 'react';
-import { Link } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
+import { useCart } from "../state/CartProvider.jsx";
 
-const Header = () => {
-  
-  const totalItems = 0;
+export default function Header() {
+  const { cartItems } = useCart();
+  const total = cartItems.reduce((a, b) => a + b.quantity, 0);
 
   return (
-    <nav className="dt w-100 border-box pa3 ph5-ns">
-      <a className="dtc v-mid mid-gray link dim w-25" href="/" title="Home">
-        <img src="https://img.logoipsum.com/280.svg" className="dib w2 h2 br-100" alt="Site Name" />
-      </a>
-      <div className="dtc v-mid w-75 tr">
-        <Link className="link dim dark-gray f6 f5-ns dib mr3 mr4-ns" to="/" title="Products">Products</Link>
-        <Link className="link dim dark-gray f6 f5-ns dib mr3 mr4-ns" to="/orders" title="/orders">Orders</Link>
-        <Link className="link dim dark-gray f6 f5-ns dib" to="/cart" title="Cart">Cart <span class="ba b--black-20 br-pill pa2">{totalItems}</span></Link>
+    <header className="w-100 bg-white bb b--black-10">
+      <div className="container pv3 flex items-center justify-between">
+        <Link to="/" className="fw6 link black">
+          Fullstack Prints
+        </Link>
+        <nav className="flex items-center gap3">
+          <NavLink className="link dim mr3" to="/">Products</NavLink>
+          <NavLink className="link dim mr3" to="/cart">Cart ({total})</NavLink>
+          <NavLink className="link dim" to="/orders">Orders</NavLink>
+        </nav>
       </div>
-    </nav>
-
+    </header>
   );
 }
-
-export default Header;

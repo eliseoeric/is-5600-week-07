@@ -1,50 +1,61 @@
-import React, { useState, useEffect } from 'react'
-import Card from './Card'
-import Button from './Button'
-import Search from './Search'
+import React, { useEffect, useState } from 'react';
+import Card from './Card';
+import Button from './Button';
+import Search from './Search';
+import { BASE_URL } from '../config';
 
-const CardList = ({ data }) => {
-  // define the limit state variable and set it to 10
-  const limit = 10;
+const limit = 10;
 
-  // Define the offset state variable and set it to 0
+const CardList = () => {
   const [offset, setOffset] = useState(0);
-  // Define the products state variable and set it to the default dataset
-  const [products, setProducts] = useState(data);
+  const [products, setProducts] = useState([]);
+  const [searchTag, setSearchTag] = useState('');
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    setProducts(data.slice(offset, offset + limit));
-  }, [offset, limit, data])
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
+        const query = searchTag ? `&tag=${encodeURIComponent(searchTag)}` : '';
+        const data = await fetch(
+          `${BASE_URL}/products?offset=${offset}&limit=${limit}${query}`
+        ).then((res) => res.json());
+        setProducts(data);
+      } catch (error) {
+        console.error('Error fetching products', error);
+        setProducts([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, [offset, searchTag]);
 
   const filterTags = (tagQuery) => {
-    const filtered = data.filter(product => {
-      if (!tagQuery) {
-        return product
-      }
-
-      return product.tags.find(({title}) => title === tagQuery)
-    })
-
-    setOffset(0)
-    setProducts(filtered)
-  }
-
+    setSearchTag(tagQuery);
+    setOffset(0);
+  };
 
   return (
     <div className="cf pa2">
-      <Search handleSearch={filterTags}/>
+      <Search filter={filterTags} />
       <div className="mt2 mb2">
-      {products && products.map((product) => (
-          <Card key={product._id} {...product} />
-        ))}
+        {loading && <div className="tc pv3">Loading products...</div>}
+        {!loading &&
+          products &&
+          products.map((product) => <Card key={product._id} {...product} />)}
       </div>
 
       <div className="flex items-center justify-center pa4">
-        <Button text="Previous" handleClick={() => setOffset(offset - limit)} />
+        <Button
+          text="Previous"
+          handleClick={() => setOffset(Math.max(0, offset - limit))}
+        />
         <Button text="Next" handleClick={() => setOffset(offset + limit)} />
       </div>
     </div>
-  )
-}
+  );
+};
 
 export default CardList;

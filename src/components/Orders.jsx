@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { BASE_URL } from '../config';
 
 const Orders = () => {
@@ -9,6 +9,19 @@ const Orders = () => {
    * 1. Create a `fetchOrders` function that retrieves all orders from the database
    * 2. Using the `useEffect` hook, update the existing `orders` state object when `fetchOrders` is complete
    **/ 
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const data = await fetch(`${BASE_URL}/orders`).then((res) => res.json());
+        setOrders(data);
+      } catch (error) {
+        console.error('Error fetching orders', error);
+        setOrders([]);
+      }
+    };
+
+    fetchOrders();
+  }, []);
 
 
   return (

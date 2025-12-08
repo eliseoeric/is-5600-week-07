@@ -1,5 +1,5 @@
 import React, {useContext} from 'react'
-import { useCart } from '../state/CartProvider'
+import { useCart } from '../state/cartprovider'
 import { BASE_URL } from '../config';
 
 export default function PurchaseForm({filter}) {

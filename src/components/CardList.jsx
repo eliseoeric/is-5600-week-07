@@ -2,6 +2,10 @@ import React, { useState, useEffect } from 'react'
 import Card from './Card'
 import Button from './Button'
 import Search from './Search'
+// src/components/CardList.jsx
+import React, { useContext } from "react";
+import { Link } from "react-router-dom";
+import { CartContext } from "../state/CartProvider";
 
 const CardList = ({ data }) => {
   // define the limit state variable and set it to 10
@@ -28,7 +32,13 @@ const CardList = ({ data }) => {
     setOffset(0)
     setProducts(filtered)
   }
+export default function CardList() {
+  const { addToCart } = useContext(CartContext);
 
+  const products = [
+    { id: 1, name: "Product A" },
+    { id: 2, name: "Product B" },
+  ];
 
   return (
     <div className="cf pa2">
@@ -43,8 +53,17 @@ const CardList = ({ data }) => {
         <Button text="Previous" handleClick={() => setOffset(offset - limit)} />
         <Button text="Next" handleClick={() => setOffset(offset + limit)} />
       </div>
+    <div>
+      <h2>Products</h2>
+      {products.map((product) => (
+        <div key={product.id}>
+          <Link to={`/product/${product.id}`}>{product.name}</Link>
+          <button onClick={() => addToCart(product)}>Add to Cart</button>
+        </div>
+      ))}
     </div>
   )
+  );
 }
 
 export default CardList;

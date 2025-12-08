@@ -1,18 +1,13 @@
 import React from 'react'
-
 export default function Search({filter}) {
-
   const [search, setSearch] = React.useState('')
-
   const handleChange = (e) => {
     setSearch(e.target.value)
   }
-
   const handleSubmit = (e) => {
     e.preventDefault()
     filter(search)
   }
-
   return (
     <form class="pt4 pb4 pl2 black-80" onSubmit={handleSubmit}>
       <fieldset class="cf bn ma0 pa0">

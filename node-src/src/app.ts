@@ -57,7 +57,7 @@ Products.list().then((products) => {
                             status: 'CREATED'
                         };
                         console.log('Creating order', order);
-                        Orders.create(order);
+                        Order.create(order);
                     }
                 }
             });

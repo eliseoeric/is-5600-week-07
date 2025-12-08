@@ -1,23 +1,40 @@
-import React, {useContext} from 'react';
+// src/components/Header.jsx
+import React from "react";
 import { Link } from "react-router-dom";
+import { useCart } from "../state/CartProvider";
 
-const Header = () => {
-  
-  const totalItems = 0;
+export default function Header() {
+  const { cartItems } = useCart();
+  const totalItems = cartItems.reduce((s, i) => s + Number(i.quantity || 0), 0);
+
+  const headerStyle = {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: "10px 14px",
+    borderBottom: "1px solid #eee",
+    marginBottom: 12,
+    background: "#fff",
+  };
 
   return (
-    <nav className="dt w-100 border-box pa3 ph5-ns">
-      <a className="dtc v-mid mid-gray link dim w-25" href="/" title="Home">
-        <img src="https://img.logoipsum.com/280.svg" className="dib w2 h2 br-100" alt="Site Name" />
-      </a>
-      <div className="dtc v-mid w-75 tr">
-        <Link className="link dim dark-gray f6 f5-ns dib mr3 mr4-ns" to="/" title="Products">Products</Link>
-        <Link className="link dim dark-gray f6 f5-ns dib mr3 mr4-ns" to="/orders" title="/orders">Orders</Link>
-        <Link className="link dim dark-gray f6 f5-ns dib" to="/cart" title="Cart">Cart <span class="ba b--black-20 br-pill pa2">{totalItems}</span></Link>
+    <header style={headerStyle}>
+      <div>
+        <Link to="/" style={{ textDecoration: "none", color: "#333", fontWeight: 700 }}>
+          My Shop
+        </Link>
       </div>
-    </nav>
-
+      <nav>
+        <Link to="/" style={{ margin: "0 10px" }}>
+          Products
+        </Link>
+        <Link to="/orders" style={{ margin: "0 10px" }}>
+          Orders
+        </Link>
+        <Link to="/cart" style={{ margin: "0 10px" }}>
+          Cart <span style={{ marginLeft: 6, padding: "3px 7px", border: "1px solid #ccc", borderRadius: 12 }}>{totalItems}</span>
+        </Link>
+      </nav>
+    </header>
   );
 }
-
-export default Header;

@@ -1,9 +1,10 @@
-import React from 'react'
+// src/components/Button.jsx
+import React from "react";
 
-export default function Button({text, handleClick}) {
+export default function Button({ text = "Button", handleClick = () => {} }) {
   return (
-    <a href="#" className="f5 no-underline black bg-animate hover-bg-black hover-white inline-flex items-center pa3 ba border-box mr4" onClick={handleClick}>
-      <span className="pl1">{text}</span>
-    </a>
-  )
+    <button onClick={handleClick} style={{ padding: "8px 12px", borderRadius: 6, border: "1px solid #ccc", background: "#f6f6f6" }}>
+      {text}
+    </button>
+  );
 }

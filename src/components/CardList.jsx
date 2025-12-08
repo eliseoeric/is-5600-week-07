@@ -1,50 +1,36 @@
-import React, { useState, useEffect } from 'react'
-import Card from './Card'
-import Button from './Button'
-import Search from './Search'
+import React from "react";
+import Card from "./Card";
 
-const CardList = ({ data }) => {
-  // define the limit state variable and set it to 10
-  const limit = 10;
-
-  // Define the offset state variable and set it to 0
-  const [offset, setOffset] = useState(0);
-  // Define the products state variable and set it to the default dataset
-  const [products, setProducts] = useState(data);
-
-  useEffect(() => {
-    setProducts(data.slice(offset, offset + limit));
-  }, [offset, limit, data])
-
-  const filterTags = (tagQuery) => {
-    const filtered = data.filter(product => {
-      if (!tagQuery) {
-        return product
-      }
-
-      return product.tags.find(({title}) => title === tagQuery)
-    })
-
-    setOffset(0)
-    setProducts(filtered)
+const CardList = ({ data = [] }) => {
+  if (!Array.isArray(data) || data.length === 0) {
+    return <div style={{ padding: 20 }}>No products available</div>;
   }
 
-
   return (
-    <div className="cf pa2">
-      <Search handleSearch={filterTags}/>
-      <div className="mt2 mb2">
-      {products && products.map((product) => (
-          <Card key={product._id} {...product} />
-        ))}
-      </div>
+    <div className="center mw9 pa3">
+      <div className="cf">
+        {data.map((item, idx) => {
+          // Normalized props passed to Card
+          const props = {
+            id: item.id,               // unsplash style
+            _id: item._id,             // local products.json style
+            description: item.description ?? item.alt_description ?? item.title,
+            alt_description: item.alt_description,
+            urls: item.urls,
+            imgThumb: item.imgThumb || item.thumb,
+            user: item.user,
+            userName: item.userName || item.user?.name,
+            likes: item.likes || item.photo_likes || 0,
+            price: item.price // optional - may be undefined
+          };
 
-      <div className="flex items-center justify-center pa4">
-        <Button text="Previous" handleClick={() => setOffset(offset - limit)} />
-        <Button text="Next" handleClick={() => setOffset(offset + limit)} />
+          const key = item.id || item._id || item.link || item.img || `idx-${idx}`;
+
+          return <Card key={key} {...props} />;
+        })}
       </div>
     </div>
-  )
-}
+  );
+};
 
 export default CardList;

@@ -10,7 +10,7 @@ export interface Document extends MongooseDocument {
  * In a real-world application, you would want to use a cloud-based MongoDB service like MongoDB Atlas.
  */
 mongoose.connect(
-  process.env.MONGODB_URI || 'mongodb+srv://aishwarya:T2irUA1uiHyFbkQD@cluster0.b1ebqc2.mongodb.net/?appName=Cluster0',
+  process.env.MONGODB_URI || 'connectionstring',
   {
     useNewUrlParser: true,
     useUnifiedTopology: true

@@ -9,6 +9,19 @@ const initialState = {
   allItems: [],
 }
 
+    case UPDATE_ITEM_QUANTITY:
+      const currentItem = state.itemsById[payload._id]
+      const updateItemState = {
+        ...state,
+        itemsById: {
+          ...state.itemsById,
+          [payload._id]: {
+            ...currentItem,
+            quantity: currentItem.quantity + payload.quantity,
+          },
+        }
+      }
+      return updateItemState
 // Define reducer actions
 const ADD_ITEM = 'ADD_ITEM'
 const REMOVE_ITEM = 'REMOVE_ITEM'

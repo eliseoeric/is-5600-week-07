@@ -11,7 +11,27 @@ export default function SingleView({data}) {
   const product = data.find(product => product.id === id);
 
   const { user } = product;
+// Define the state object for product data
+  const [ product, setProduct ] = useState(null);
 
+  // Fetch the product by id from the server
+  const fetchProductById = async (id) => {
+    const product = await fetch(`${BASE_URL}/products/${id}`)
+      .then((res) => res.json());
+
+      return product;
+  };
+
+  useEffect(() => {
+    const getProduct = async () => {
+      const data = await fetchProductById(id);
+      setProduct(data);
+    }
+    getProduct();
+  }, [id, fetchProductById]);
+
+
+  if (!product) return (<div className="loading-spinner"></div>);
   const title = product.description ?? product.alt_description;
   const style = {
     backgroundImage: `url(${product.urls["regular"]})`

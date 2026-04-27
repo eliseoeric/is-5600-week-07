@@ -3,7 +3,7 @@ import React, { useReducer, useContext } from 'react'
 // Initialize the context
 const CartContext = React.createContext()
 
-// Definte the default state
+
 const initialState = {
   itemsById: {},
   allItems: [],
@@ -49,7 +49,31 @@ const cartReducer = (state, action) => {
         ),
       }
       return updatedState
-    
+    case UPDATE_ITEM_QUANTITY:
+      const newQuantity = state.itemsById[payload.id].quantity + payload.quantity;
+      // If quantity drops to 0 or below, remove the item entirely
+      if (newQuantity <= 0) {
+        return {
+          ...state,
+          itemsById: Object.entries(state.itemsById)
+            .filter(([key]) => key !== payload.id)
+            .reduce((obj, [key, value]) => {
+              obj[key] = value
+              return obj
+            }, {}),
+          allItems: state.allItems.filter((itemId) => itemId !== payload.id),
+        }
+      }
+      return {
+        ...state,
+        itemsById: {
+          ...state.itemsById,
+          [payload.id]: {
+            ...state.itemsById[payload.id],
+            quantity: newQuantity,
+          },
+        },
+      }
     default:
       return state
   }
@@ -69,14 +93,17 @@ const CartProvider = ({ children }) => {
     dispatch({ type: ADD_ITEM, payload: product })
   }
 
-  // todo Update the quantity of an item in the cart
+  // Update the quantity of an item in the cart (delta: +1 or -1)
   const updateItemQuantity = (productId, quantity) => {
-    // todo
+    dispatch({ type: UPDATE_ITEM_QUANTITY, payload: { id: productId, quantity } })
   }
 
-  // todo Get the total price of all items in the cart
+  // Get the total price of all items in the cart
   const getCartTotal = () => {
-    // todo
+    return state.allItems.reduce((total, itemId) => {
+      const item = state.itemsById[itemId]
+      return total + item.price * item.quantity
+    }, 0)
   }
 
   const getCartItems = () => {
@@ -100,4 +127,4 @@ const CartProvider = ({ children }) => {
 
 const useCart = () => useContext(CartContext)
 
-export { CartProvider, useCart }
+export { CartProvider, useCart, CartContext }

@@ -63,7 +63,7 @@ const Product = db.model<ProductDocument>('Product', {
   tags: [{
     title: { type: String, required: true },
   }],
-  price: { type: Number, required: true }, 
+  price: { type: Number, default: 9.99 }, 
 });
 
 interface ListOptions {

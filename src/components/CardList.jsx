@@ -4,47 +4,62 @@ import Button from './Button'
 import Search from './Search'
 
 const CardList = ({ data }) => {
-  // define the limit state variable and set it to 10
-  const limit = 10;
-
-  // Define the offset state variable and set it to 0
-  const [offset, setOffset] = useState(0);
-  // Define the products state variable and set it to the default dataset
-  const [products, setProducts] = useState(data);
+  const limit = 10
+  const [offset, setOffset] = useState(0)
+  const [products, setProducts] = useState(data)
 
   useEffect(() => {
-    setProducts(data.slice(offset, offset + limit));
-  }, [offset, limit, data])
+    setProducts(data.slice(offset, offset + limit))
+  }, [offset, data])
 
   const filterTags = (tagQuery) => {
-    const filtered = data.filter(product => {
-      if (!tagQuery) {
-        return product
-      }
+    const filtered = data.filter((product) => {
+      if (!tagQuery) return product
 
-      return product.tags.find(({title}) => title === tagQuery)
+      return product.tags?.some((tag) =>
+        tag.title.toLowerCase().includes(tagQuery.toLowerCase())
+      )
     })
 
-    setOffset(0)
     setProducts(filtered)
   }
 
-
   return (
-    <div className="cf pa2">
-      <Search handleSearch={filterTags}/>
-      <div className="mt2 mb2">
-      {products && products.map((product) => (
-          <Card key={product._id} {...product} />
+    <>
+      <Search filterTags={filterTags} />
+
+      <div className="flex flex-wrap justify-center">
+        {products.map((item) => (
+          <Card
+  key={item._id || item.id}
+  id={item.id}
+  _id={item._id}
+  description={item.description}
+  alt_description={item.alt_description}
+  urls={item.urls}
+  user={item.user}
+  likes={item.likes}
+/>
         ))}
       </div>
 
-      <div className="flex items-center justify-center pa4">
-        <Button text="Previous" handleClick={() => setOffset(offset - limit)} />
-        <Button text="Next" handleClick={() => setOffset(offset + limit)} />
+      <div className="tc pa3">
+        <Button
+          text="Previous"
+          clickHandler={() =>
+            setOffset(offset - limit < 0 ? 0 : offset - limit)
+          }
+        />
+
+        <Button
+          text="Next"
+          clickHandler={() =>
+            setOffset(offset + limit >= data.length ? offset : offset + limit)
+          }
+        />
       </div>
-    </div>
+    </>
   )
 }
 
-export default CardList;
+export default CardList

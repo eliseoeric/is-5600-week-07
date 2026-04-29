@@ -1,50 +1,51 @@
-import React, { useState, useEffect } from 'react'
-import Card from './Card'
-import Button from './Button'
-import Search from './Search'
+import React, { useEffect, useState } from "react";
+import Card from "./Card";
+import { BASE_URL } from "../config";
 
-const CardList = ({ data }) => {
-  // define the limit state variable and set it to 10
+const CardList = () => {
+  const [products, setProducts] = useState([]);
+  const [offset, setOffset] = useState(0);
+  const [error, setError] = useState("");
   const limit = 10;
 
-  // Define the offset state variable and set it to 0
-  const [offset, setOffset] = useState(0);
-  // Define the products state variable and set it to the default dataset
-  const [products, setProducts] = useState(data);
-
   useEffect(() => {
-    setProducts(data.slice(offset, offset + limit));
-  }, [offset, limit, data])
+    console.log("FETCHING FROM:", `${BASE_URL}/products?offset=${offset}&limit=${limit}`);
 
-  const filterTags = (tagQuery) => {
-    const filtered = data.filter(product => {
-      if (!tagQuery) {
-        return product
-      }
-
-      return product.tags.find(({title}) => title === tagQuery)
-    })
-
-    setOffset(0)
-    setProducts(filtered)
-  }
-
+    fetch(`${BASE_URL}/products?offset=${offset}&limit=${limit}`)
+      .then((res) => res.json())
+      .then((data) => {
+        console.log("PRODUCT DATA:", data);
+        setProducts(Array.isArray(data) ? data : []);
+      })
+      .catch((err) => {
+        console.error("FETCH ERROR:", err);
+        setError("Could not load products");
+      });
+  }, [offset]);
 
   return (
-    <div className="cf pa2">
-      <Search handleSearch={filterTags}/>
-      <div className="mt2 mb2">
-      {products && products.map((product) => (
-          <Card key={product._id} {...product} />
-        ))}
+    <div>
+      <div className="flex justify-between pa3">
+        <button onClick={() => setOffset(Math.max(offset - limit, 0))} className="pa2">
+          Previous
+        </button>
+
+        <button onClick={() => setOffset(offset + limit)} className="pa2">
+          Next
+        </button>
       </div>
 
-      <div className="flex items-center justify-center pa4">
-        <Button text="Previous" handleClick={() => setOffset(offset - limit)} />
-        <Button text="Next" handleClick={() => setOffset(offset + limit)} />
+      {error && <p className="red pa3">{error}</p>}
+
+      <p className="pa3">Products loaded: {products.length}</p>
+
+      <div className="cf pa2">
+        {products.map((product) => (
+          <Card key={product._id || product.id} {...product} />
+        ))}
       </div>
     </div>
-  )
-}
+  );
+};
 
 export default CardList;

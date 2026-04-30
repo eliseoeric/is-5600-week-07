@@ -1,15 +1,28 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BASE_URL } from '../config';
 
 const Orders = () => {
   const [orders, setOrders] = useState([]);
 
   /**
-   * TODO
-   * 1. Create a `fetchOrders` function that retrieves all orders from the database
-   * 2. Using the `useEffect` hook, update the existing `orders` state object when `fetchOrders` is complete
-   **/ 
+   * Create a `fetchOrders` function that retrieves all orders from the database
+   * Using the `useEffect` hook to update the existing `orders` state object when `fetchOrders` is complete
+   **/
+  
+  const fetchOrders = () => {
+    fetch(`${BASE_URL}/orders`)
+      .then((res) => res.json())
+      .then((data) => {
+        setOrders(data);
+      })
+      .catch((error) => {
+        console.error('Error fetching orders:', error);
+      });
+  };
 
+  useEffect(() => {
+    fetchOrders();
+  }, []);
 
   return (
     <div className="center mw7 ba mv4">
@@ -25,14 +38,24 @@ const Orders = () => {
             </tr>
           </thead>
           <tbody>
-            {orders && orders.map((order) => (
-              <tr key={order._id}>
-                <td className="tl pv2">{order._id}</td>
-                <td className="tl pv2">{order.buyerEmail}</td>
-                <td className="tl pv2">{order.products.join(', ')}</td>
-                <td className="tl pv2">{order.status}</td>
-              </tr>
-            ))}
+            {orders && orders.map((order) => {
+              const products = Array.isArray(order.products)
+                ? order.products.map((product) => {
+                    if (!product) return '';
+                    if (typeof product === 'string') return product;
+                    return product.description || product.alt_description || product._id;
+                  }).filter(Boolean)
+                : [];
+
+              return (
+                <tr key={order._id}>
+                  <td className="tl pv2">{order._id}</td>
+                  <td className="tl pv2">{order.buyerEmail}</td>
+                  <td className="tl pv2">{products.join(', ')}</td>
+                  <td className="tl pv2">{order.status}</td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

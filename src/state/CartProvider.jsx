@@ -13,6 +13,7 @@ const initialState = {
 const ADD_ITEM = 'ADD_ITEM'
 const REMOVE_ITEM = 'REMOVE_ITEM'
 const UPDATE_ITEM_QUANTITY = 'UPDATE_ITEM_QUANTITY'
+const CLEAR_CART = 'CLEAR_CART'
 
 // Define the reducer
 const cartReducer = (state, action) => {
@@ -50,6 +51,25 @@ const cartReducer = (state, action) => {
       }
       return updatedState
     
+    case UPDATE_ITEM_QUANTITY:
+      return {
+        ...state,
+        itemsById: {
+          ...state.itemsById,
+          [payload.id]: {
+            ...state.itemsById[payload.id],
+            quantity: payload.quantity,
+          },
+        },
+      }
+    
+    case CLEAR_CART:
+      return {
+        ...state,
+        itemsById: {},
+        allItems: [],
+      }
+    
     default:
       return state
   }
@@ -69,14 +89,19 @@ const CartProvider = ({ children }) => {
     dispatch({ type: ADD_ITEM, payload: product })
   }
 
-  // todo Update the quantity of an item in the cart
-  const updateItemQuantity = (productId, quantity) => {
-    // todo
+  const clearCart = () => {
+    dispatch({ type: CLEAR_CART })
   }
 
-  // todo Get the total price of all items in the cart
+  const updateItemQuantity = (productId, quantity) => {
+    dispatch({ type: UPDATE_ITEM_QUANTITY, payload: { id: productId, quantity } })
+  }
+
   const getCartTotal = () => {
-    // todo
+    return state.allItems.reduce((total, itemId) => {
+      const item = state.itemsById[itemId]
+      return total + (item.price * item.quantity)
+    }, 0)
   }
 
   const getCartItems = () => {
@@ -90,6 +115,7 @@ const CartProvider = ({ children }) => {
         addToCart,
         updateItemQuantity,
         removeFromCart,
+        clearCart,
         getCartTotal,
       }}
     >

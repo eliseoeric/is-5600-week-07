@@ -1,14 +1,24 @@
-import React, {useContext} from 'react'
+import React from 'react'
 import { useCart } from '../state/CartProvider'
 import { BASE_URL } from '../config';
 
 export default function PurchaseForm({filter}) {
-  const { cartItems  } = useCart();
+  const { cartItems, clearCart } = useCart();
 
   const [ buyerEmail, setBuyerEmail ] = React.useState('')
 
   const handleSubmit = (e) => {
     e.preventDefault()
+
+    if (!buyerEmail.trim()) {
+      alert('Please enter your email address.')
+      return
+    }
+
+    if (cartItems.length === 0) {
+      alert('Your cart is empty.')
+      return
+    }
 
     const products = cartItems.map((item) => item._id);
 
@@ -29,6 +39,8 @@ export default function PurchaseForm({filter}) {
       .then((res) => res.json())
       .then((data) => {
         console.log('Order created:', data);
+        setBuyerEmail('')
+        clearCart()
       })
       .catch((error) => {
         console.error('Error creating order:', error);

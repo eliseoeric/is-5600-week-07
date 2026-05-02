@@ -1,12 +1,9 @@
 import React, { useContext } from 'react';
+import { useCart } from '../state/CartProvider';
 import PurchaseForm from './PurchaseForm';
 
 const Cart = () => {
-  // TODO - get cart items from context
-  const cartItems = [];
-  const removeFromCart = () => {};
-  const updateItemQuantity = () => {};
-  const getCartTotal = () => {};
+  const { cartItems, removeFromCart, updateItemQuantity, getCartTotal } = useCart();
 
   return (
     <div className="center mw7 mv4">

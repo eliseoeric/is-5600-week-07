@@ -1,5 +1,6 @@
 const html = window.nanohtml
-
+const cors = require('cors');
+app.use(cors()); // Make sure this is added before your routes!
 const offset = 0
 const limit = 10
 const tag = 'texture'

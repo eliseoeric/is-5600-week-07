@@ -1,45 +1,60 @@
-import React from 'react'
+import React from 'react';
 import { useParams } from 'react-router-dom';
+import { useStore } from '../state/StoreContext';
 import '../App.css';
 
-
-export default function SingleView({data}) {
-  // get the id from the url using useParams
+export default function SingleView() {
   const { id } = useParams();
-  
-  // get the product from the data using the id
-  const product = data.find(product => product.id === id);
+  const { products, addToCart } = useStore();
+  const product = products.find((productItem) => productItem._id === id);
 
-  const { user } = product;
-
-  const title = product.description ?? product.alt_description;
-  const style = {
-    backgroundImage: `url(${product.urls["regular"]})`
+  if (!product) {
+    return (
+      <div className="center mw7 mv4 pa3 bg-white ba b--black-10">
+        <p>Product not found.</p>
+      </div>
+    );
   }
 
+  const title = product.description || product.alt_description || 'Untitled product';
+  const style = {
+    backgroundImage: `url(${product.urls?.regular || product.urls?.small || ''})`,
+  };
+
   return (
-    <article class="bg-white center mw7 ba b--black-10 mv4">
-      <div class="pv2 ph3">
-        <div class="flex items-center">
-          <img src={user?.profile_image?.medium} class="br-100 h3 w3 dib" alt={user.instagram_username} />
-          <h1 class="ml3 f4">{user.first_name} {user.last_name}</h1>
+    <article className="bg-white center mw7 ba b--black-10 mv4">
+      <div className="pv2 ph3">
+        <div className="flex items-center">
+          <img
+            src={product.user?.profile_image?.medium || 'https://via.placeholder.com/80'}
+            className="br-100 h3 w3 dib"
+            alt={product.user?.username || 'Product author'}
+          />
+          <h1 className="ml3 f4">{product.user?.first_name} {product.user?.last_name}</h1>
         </div>
       </div>
-      <div class="aspect-ratio aspect-ratio--4x3">
-        <div class="aspect-ratio--object cover" style={style}></div>
+      <div className="aspect-ratio aspect-ratio--4x3">
+        <div className="aspect-ratio--object cover" style={style}></div>
       </div>
-      <div class="pa3 flex justify-between">
-        <div class="mw6">
-          <h1 class="f6 ttu tracked">Product ID: {id}</h1>
-          <a href={`/products/${id}`} class="link dim lh-title">{title}</a>
+      <div className="pa3 flex flex-column">
+        <div className="mw6 mb3">
+          <h1 className="f6 ttu tracked">Product ID: {id}</h1>
+          <div className="lh-copy">
+            <p className="f4 mb2">{title}</p>
+            <p className="gray">{product.description || product.alt_description}</p>
+          </div>
         </div>
-        <div class="gray db pv2">&hearts;<span>{product.likes}</span></div>
-      </div>
-      <div className="pa3 flex justify-end">
-        <span className="ma2 f4">${product.price}</span>
-        {/* TODO Implement the AddToCart button */}
+        <div className="flex items-center justify-between">
+          <span className="ma2 f4">${product.price?.toFixed(2) ?? '0.00'}</span>
+          <button
+            className="pa3 bg-black white br2 pointer"
+            type="button"
+            onClick={() => addToCart(product)}
+          >
+            Add to cart
+          </button>
+        </div>
       </div>
     </article>
-
-  )
+  );
 }

@@ -1,9 +1,9 @@
-import React, {useContext} from 'react'
+import React from 'react'
 import { useCart } from '../state/CartProvider'
 import { BASE_URL } from '../config';
 
 export default function PurchaseForm({filter}) {
-  const { cartItems  } = useCart();
+  const { cartItems, removeFromCart } = useCart();
 
   const [ buyerEmail, setBuyerEmail ] = React.useState('')
 
@@ -29,6 +29,9 @@ export default function PurchaseForm({filter}) {
       .then((res) => res.json())
       .then((data) => {
         console.log('Order created:', data);
+        // Clear the cart after successful order
+        cartItems.forEach(item => removeFromCart(item));
+        setBuyerEmail('');
       })
       .catch((error) => {
         console.error('Error creating order:', error);

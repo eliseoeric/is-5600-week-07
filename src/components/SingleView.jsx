@@ -1,25 +1,62 @@
-import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
-import { BASE_URL } from "../config";
-import AddToCart from "./AddToCart";
+import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
+import '../App.css';
+
+import { BASE_URL } from '../config';
+import AddToCart from './AddToCart';
 
 export default function SingleView() {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
 
   useEffect(() => {
-    fetch(`${BASE_URL}/products/${id}`)
-      .then(res => res.json())
-      .then(data => setProduct(data));
+    const fetchProductById = async () => {
+      const res = await fetch(${BASE_URL}/products/${id});
+      const data = await res.json();
+      setProduct(data);
+    };
+
+    fetchProductById();
   }, [id]);
 
-  if (!product) return <div>Loading...</div>;
+  if (!product) {
+    return <div className="loading-spinner"></div>;
+  }
+
+  const user = product.user || {};
+  const profileImage = user.profile_image?.medium || '';
+  const title = product.description || product.alt_description || 'Product';
+  const imageUrl = product.urls?.regular || product.urls?.small || '';
+
+  const style = {
+    backgroundImage: url(${imageUrl})
+  };
 
   return (
-    <div>
-      <h2>{product.description}</h2>
-      <img src={product.urls?.regular} alt="" />
-      <AddToCart product={product} />
-    </div>
+    <article className="bg-white center mw7 ba b--black-10 mv4">
+      <div className="pv2 ph3">
+        <div className="flex items-center">
+          <img src={profileImage} className="br-100 h3 w3 dib" alt="user" />
+          <h1 className="ml3 f4">{user.first_name} {user.last_name}</h1>
+        </div>
+      </div>
+
+      <div className="aspect-ratio aspect-ratio--4x3">
+        <div className="aspect-ratio--object cover" style={style}></div>
+      </div>
+
+      <div className="pa3 flex justify-between">
+        <div className="mw6">
+          <h1 className="f6 ttu tracked">Product ID: {id}</h1>
+          <p className="link dim lh-title">{title}</p>
+          <div className="gray db pv2">&hearts; <span>{product.likes}</span></div>
+        </div>
+
+        <div className="pa3 flex justify-end">
+          <span className="ma2 f4">${product.price}</span>
+          <AddToCart product={product} />
+        </div>
+      </div>
+    </article>
   );
 }

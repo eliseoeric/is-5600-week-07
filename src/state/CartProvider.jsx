@@ -1,18 +1,18 @@
-import React, { useReducer, useContext } from 'react'
+import React, { useReducer, useContext } from 'react';
 
-// Create Context
-const CartContext = React.createContext()
+// Create context
+const CartContext = React.createContext();
 
 // Initial state
 const initialState = {
   itemsById: {},
   allItems: [],
-}
+};
 
-// Actions
-const ADD_ITEM = 'ADD_ITEM'
-const REMOVE_ITEM = 'REMOVE_ITEM'
-const UPDATE_ITEM_QUANTITY = 'UPDATE_ITEM_QUANTITY'
+// Action types
+const ADD_ITEM = 'ADD_ITEM';
+const REMOVE_ITEM = 'REMOVE_ITEM';
+const UPDATE_ITEM_QUANTITY = 'UPDATE_ITEM_QUANTITY';
 
 // Reducer
 const cartReducer = (state, action) => {
@@ -20,8 +20,8 @@ const cartReducer = (state, action) => {
 
   switch (action.type) {
 
-    case ADD_ITEM:
-      return {
+    case ADD_ITEM: {
+      const newState = {
         ...state,
         itemsById: {
           ...state.itemsById,
@@ -33,81 +33,106 @@ const cartReducer = (state, action) => {
           },
         },
         allItems: Array.from(new Set([...state.allItems, payload._id])),
-      }
+      };
+      return newState;
+    }
 
-    case REMOVE_ITEM:
+    case REMOVE_ITEM: {
+      const updatedItems = Object.entries(state.itemsById)
+        .filter(([key]) => key !== payload._id)
+        .reduce((obj, [key, value]) => {
+          obj[key] = value;
+          return obj;
+        }, {});
+
       return {
         ...state,
-        itemsById: Object.fromEntries(
-          Object.entries(state.itemsById).filter(
-            ([key]) => key !== payload._id
-          )
-        ),
-        allItems: state.allItems.filter(id => id !== payload._id),
+        itemsById: updatedItems,
+        allItems: state.allItems.filter((id) => id !== payload._id),
+      };
+    }
+
+    case UPDATE_ITEM_QUANTITY: {
+      const { id, quantity } = payload;
+      const item = state.itemsById[id];
+
+      if (!item) return state;
+
+      const newQuantity = item.quantity + quantity;
+
+      // remove if 0
+      if (newQuantity <= 0) {
+        const { [id]: removed, ...remaining } = state.itemsById;
+
+        return {
+          itemsById: remaining,
+          allItems: state.allItems.filter((itemId) => itemId !== id),
+        };
       }
 
-    case UPDATE_ITEM_QUANTITY:
       return {
         ...state,
         itemsById: {
           ...state.itemsById,
-          [payload.id]: {
-            ...state.itemsById[payload.id],
-            quantity: payload.quantity,
+          [id]: {
+            ...item,
+            quantity: newQuantity,
           },
         },
-      }
+      };
+    }
 
     default:
-      return state
+      return state;
   }
-}
+};
 
 // Provider
 const CartProvider = ({ children }) => {
-  const [state, dispatch] = useReducer(cartReducer, initialState)
+  const [state, dispatch] = useReducer(cartReducer, initialState);
 
   const addToCart = (product) => {
-    dispatch({ type: ADD_ITEM, payload: product })
-  }
+    dispatch({ type: ADD_ITEM, payload: product });
+  };
 
   const removeFromCart = (product) => {
-    dispatch({ type: REMOVE_ITEM, payload: product })
-  }
+    dispatch({ type: REMOVE_ITEM, payload: product });
+  };
 
-  const updateItemQuantity = (id, quantity) => {
+  const updateItemQuantity = (productId, quantity) => {
     dispatch({
       type: UPDATE_ITEM_QUANTITY,
-      payload: { id, quantity },
-    })
-  }
+      payload: { id: productId, quantity },
+    });
+  };
 
   const getCartTotal = () => {
-    return state.allItems.reduce((total, id) => {
-      const item = state.itemsById[id]
-      return total + (item.price || 0) * item.quantity
-    }, 0)
-  }
+    return state.allItems.reduce((total, itemId) => {
+      const item = state.itemsById[itemId];
+      return total + (item.price || 0) * item.quantity;
+    }, 0);
+  };
 
   const getCartItems = () => {
-    return state.allItems.map(id => state.itemsById[id])
-  }
+    return state.allItems.map((id) => state.itemsById[id]) || [];
+  };
 
   return (
     <CartContext.Provider
       value={{
         cartItems: getCartItems(),
         addToCart,
-        removeFromCart,
         updateItemQuantity,
+        removeFromCart,
         getCartTotal,
       }}
     >
       {children}
     </CartContext.Provider>
-  )
-}
+  );
+};
 
-const useCart = () => useContext(CartContext)
+// Hook
+const useCart = () => useContext(CartContext);
 
-export { CartProvider, useCart }
+export { CartProvider, useCart };

@@ -1,34 +1,68 @@
-import React, { useState, useEffect } from "react";
-import { BASE_URL } from "../config";
-import Card from "./Card";
-import Button from "./Button";
+import React, { useState, useEffect } from 'react';
+import Card from './Card';
+import Button from './Button';
+import Search from './Search';
+import { BASE_URL } from '../config';
 
-export default function CardList() {
-  const [products, setProducts] = useState([]);
-  const [offset, setOffset] = useState(0);
+const CardList = () => {
   const limit = 10;
 
+  const [offset, setOffset] = useState(0);
+  const [products, setProducts] = useState([]);
+
   const fetchProducts = () => {
-    fetch(`${BASE_URL}/products?offset=${offset}&limit=${limit}`)
-      .then(res => res.json())
-      .then(data => setProducts(data));
+    fetch(${BASE_URL}/products)
+      .then((res) => res.json())
+      .then((data) => {
+        console.log (data); ``
+        setProducts(data.slice(offset, offset + limit));
+      });
   };
 
   useEffect(() => {
     fetchProducts();
   }, [offset]);
 
-  const handleNext = () => setOffset(offset + limit);
-  const handlePrevious = () => setOffset(Math.max(0, offset - limit));
+  const filterTags = (tagQuery) => {
+    fetch(${BASE_URL}/products)
+      .then((res) => res.json())
+      .then((data) => {
+        const filtered = data.filter((product) => {
+          if (!tagQuery) {
+            return product;
+          }
+
+          return product.tags.find(({ title }) => title === tagQuery);
+        });
+
+        setOffset(0);
+        setProducts(filtered.slice(0, limit));
+      });
+  };
 
   return (
-    <div>
-      {products.map(product => (
-        <Card key={product._id} {...product} />
-      ))}
+    <div className="cf pa2">
+      <Search handleSearch={filterTags} />
 
-      <Button text="Previous" handleClick={handlePrevious} />
-      <Button text="Next" handleClick={handleNext} />
+      <div className="mt2 mb2">
+        {products &&
+          products.map((product) => (
+            <Card key={product.id} {...product} />
+          ))}
+      </div>
+
+      <div className="flex items-center justify-center pa4">
+        <Button
+          text="Previous"
+          handleClick={() => setOffset(offset - limit)}
+        />
+        <Button
+          text="Next"
+          handleClick={() => setOffset(offset + limit)}
+        />
+      </div>
     </div>
   );
-}
+};
+
+export default CardList;

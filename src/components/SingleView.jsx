@@ -1,45 +1,78 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom';
+import { BASE_URL } from '../config';
 import '../App.css';
 
-
-export default function SingleView({data}) {
-  // get the id from the url using useParams
+export default function SingleView({ onAddToCart }) {
   const { id } = useParams();
-  
-  // get the product from the data using the id
-  const product = data.find(product => product.id === id);
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  const { user } = product;
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        const response = await fetch(`${BASE_URL}/products/${id}`);
+        if (!response.ok) {
+          throw new Error(`Failed to load product: ${response.status}`);
+        }
+        const data = await response.json();
+        setProduct(data);
+      } catch (fetchError) {
+        console.error(fetchError);
+        setError('Unable to load product.');
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const title = product.description ?? product.alt_description;
-  const style = {
-    backgroundImage: `url(${product.urls["regular"]})`
+    fetchProduct();
+  }, [id]);
+
+  if (loading) {
+    return <p className="pa4">Loading product...</p>;
   }
 
+  if (error || !product) {
+    return <p className="pa4">{error || 'Product not found.'}</p>;
+  }
+
+  const user = product.user || {};
+  const title = product.description ?? product.alt_description;
+  const style = {
+    backgroundImage: `url(${product.urls?.regular})`
+  };
+
   return (
-    <article class="bg-white center mw7 ba b--black-10 mv4">
-      <div class="pv2 ph3">
-        <div class="flex items-center">
-          <img src={user?.profile_image?.medium} class="br-100 h3 w3 dib" alt={user.instagram_username} />
-          <h1 class="ml3 f4">{user.first_name} {user.last_name}</h1>
+    <article className="bg-white center mw7 ba b--black-10 mv4">
+      <div className="pv2 ph3">
+        <div className="flex items-center">
+          <img src={user?.profile_image?.medium} className="br-100 h3 w3 dib" alt={user?.instagram_username || 'Product user'} />
+          <h1 className="ml3 f4">{user.first_name} {user.last_name}</h1>
         </div>
       </div>
-      <div class="aspect-ratio aspect-ratio--4x3">
-        <div class="aspect-ratio--object cover" style={style}></div>
+      <div className="aspect-ratio aspect-ratio--4x3">
+        <div className="aspect-ratio--object cover" style={style}></div>
       </div>
-      <div class="pa3 flex justify-between">
-        <div class="mw6">
-          <h1 class="f6 ttu tracked">Product ID: {id}</h1>
-          <a href={`/products/${id}`} class="link dim lh-title">{title}</a>
+      <div className="pa3 flex justify-between">
+        <div className="mw6">
+          <h1 className="f6 ttu tracked">Product ID: {id}</h1>
+          <div className="link dim lh-title">{title}</div>
         </div>
-        <div class="gray db pv2">&hearts;<span>{product.likes}</span></div>
+        <div className="gray db pv2">&hearts;<span>{product.likes}</span></div>
       </div>
-      <div className="pa3 flex justify-end">
-        <span className="ma2 f4">${product.price}</span>
-        {/* TODO Implement the AddToCart button */}
+      <div className="pa3 flex justify-between items-center">
+        <span className="ma2 f4">{product.price != null ? `$${product.price}` : 'No price available'}</span>
+        {onAddToCart && (
+          <button
+            type="button"
+            className="f6 no-underline black bg-animate hover-bg-black hover-white inline-flex items-center pa2 ba border-box"
+            onClick={() => onAddToCart(product)}
+          >
+            Add to Cart
+          </button>
+        )}
       </div>
     </article>
-
-  )
+  );
 }

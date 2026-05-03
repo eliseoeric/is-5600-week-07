@@ -4,7 +4,7 @@ import { ProductDocument } from './products';
 
 type OrderStatus = 'CREATED' | 'PENDING' | 'COMPLETED';
 
-interface OrderDocument extends db.Document {
+export interface OrderDocument extends db.Document {
   _id: string;
   buyerEmail: string;
   products: string[] | ProductDocument[];
@@ -18,7 +18,7 @@ interface ListOptions {
   status?: OrderStatus;
 }
 
-const Order = db.model<OrderDocument>('Order', {
+const Order = db.model<OrderDocument>('Order', new db.Schema({
   _id: { type: String, default: cuid },
   buyerEmail: { type: String, required: true },
   products: [{
@@ -33,7 +33,7 @@ const Order = db.model<OrderDocument>('Order', {
     default: 'CREATED' as OrderStatus,
     enum: ['CREATED', 'PENDING', 'COMPLETED']
   }
-});
+}));
 
 async function list(options: ListOptions = {}): Promise<OrderDocument[]> {
   const { offset = 0, limit = 25, productId, status } = options;
@@ -78,6 +78,5 @@ export {
   create,
   get,
   list,
-  OrderDocument,
   OrderStatus
 };

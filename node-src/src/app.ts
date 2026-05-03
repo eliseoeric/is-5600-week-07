@@ -11,13 +11,14 @@ import cuid from 'cuid';
 const productsFile = path.join(__dirname, '../data/full-products.json');
 
 // Set the port
-const port: number = process.env.PORT ? parseInt(process.env.PORT) : 3080;
+const port: number = process.env.PORT ? parseInt(process.env.PORT) : 3001;
 
 // Boot the app
 const app: express.Application = express();
 
-// Register the public directory
-app.use(express.static(__dirname + '/public'));
+// Register the built frontend dist folder from repository root
+const frontendDist = path.resolve(__dirname, '../../dist');
+app.use(express.static(frontendDist));
 
 // register the routes
 app.use(bodyParser.json());
@@ -37,7 +38,7 @@ Products.list().then((products) => {
     if (products.length === 0) {
         console.log('No products found, loading from file');
         fs.readFile(productsFile, 'utf-8').then((data) => {
-            const products = JSON.parse(data);
+            const products = JSON.parse(data) as Array<Record<string, any>>;
             products.forEach((product) => {
                 if (!product.price) {
                     product.price = Math.floor(Math.random() * 100) + 1; // Set random price between 1 and 100
@@ -54,7 +55,7 @@ Products.list().then((products) => {
                             _id: cuid(),
                             buyerEmail: `buyer${i}@example.com`,
                             products: [products[Math.floor(Math.random() * products.length)]._id],
-                            status: 'CREATED'
+                            status: 'CREATED' as const
                         };
                         console.log('Creating order', order);
                         Orders.create(order);

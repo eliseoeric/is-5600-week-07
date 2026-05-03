@@ -14,7 +14,7 @@ interface QueryParams {
  * Handle the root route
  */
 function handleRoot(req: Request, res: Response): void {
-  res.sendFile(path.join(__dirname, '/index.html'));
+  res.sendFile(path.join(__dirname, '../../dist/index.html'));
 }
 
 /**
@@ -68,7 +68,7 @@ async function editProduct(req: Request, res: Response, next: NextFunction): Pro
  */
 async function deleteProduct(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
   const { id } = req.params;
-  const product = await Products.remove(id);
+  const product = await Products.destroy(id);
   if (!product) {
     return next();
   }

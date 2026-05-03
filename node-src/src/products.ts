@@ -26,7 +26,7 @@ interface ProductTag {
   title: string;
 }
 
-interface ProductDocument extends db.Document {
+export interface ProductDocument extends db.Document {
   _id: string;
   description?: string;
   alt_description?: string;
@@ -39,7 +39,7 @@ interface ProductDocument extends db.Document {
 }
 
 // Define our Product Model
-const Product = db.model<ProductDocument>('Product', {
+const Product = db.model<ProductDocument>('Product', new db.Schema({
   _id: { type: String, default: cuid },
   description: { type: String },
   alt_description: { type: String },
@@ -63,8 +63,8 @@ const Product = db.model<ProductDocument>('Product', {
   tags: [{
     title: { type: String, required: true },
   }],
-  price: { type: Number, required: true }, 
-});
+  price: { type: Number, required: true },
+}));
 
 interface ListOptions {
   offset?: number;

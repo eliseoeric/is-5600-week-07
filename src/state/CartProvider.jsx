@@ -49,6 +49,22 @@ const cartReducer = (state, action) => {
         ),
       }
       return updatedState
+    case UPDATE_ITEM_QUANTITY:
+      const { productId, quantity } = payload;
+      if (quantity <= 0) {
+        // If quantity is 0 or less, remove the item
+        return cartReducer(state, { type: REMOVE_ITEM, payload: { _id: productId } });
+      }
+      return {
+        ...state,
+        itemsById: {
+          ...state.itemsById,
+          [productId]: {
+            ...state.itemsById[productId],
+            quantity: quantity,
+          },
+        },
+      };
     
     default:
       return state
@@ -69,14 +85,17 @@ const CartProvider = ({ children }) => {
     dispatch({ type: ADD_ITEM, payload: product })
   }
 
-  // todo Update the quantity of an item in the cart
+  // Update the quantity of an item in the cart
   const updateItemQuantity = (productId, quantity) => {
-    // todo
+    dispatch({ type: UPDATE_ITEM_QUANTITY, payload: { productId, quantity } });
   }
 
-  // todo Get the total price of all items in the cart
+  // Get the total price of all items in the cart
   const getCartTotal = () => {
-    // todo
+    return state.allItems.reduce((total, itemId) => {
+      const item = state.itemsById[itemId];
+      return total + (item.price * item.quantity);
+    }, 0);
   }
 
   const getCartItems = () => {

@@ -1,12 +1,16 @@
 import React, { useContext } from 'react';
 import PurchaseForm from './PurchaseForm';
+// 1. Import the useCart hook (or CartContext)
+import { CartContext } from '../state/CartProvider';
 
 const Cart = () => {
-  // TODO - get cart items from context
-  const cartItems = [];
-  const removeFromCart = () => {};
-  const updateItemQuantity = () => {};
-  const getCartTotal = () => {};
+  // 2. Extract state and actions from Context
+  const { 
+    cartItems, 
+    removeFromCart, 
+    updateItemQuantity, 
+    getCartTotal 
+  } = useContext(CartContext);
 
   return (
     <div className="center mw7 mv4">
@@ -23,27 +27,30 @@ const Cart = () => {
           </thead>
           <tbody>
             {cartItems && cartItems.map((item) => (
-              <tr key={item._id}>
-                <td className="tl pv2">{item.description}</td>
+              <tr key={item._id || item.id}>
+                <td className="tl pv2">{item.description || item.alt_description}</td>
                 <td className="tr pv2">
-                  <a
-                    className="pointer ba b--black-10 pv1 ph2 mr2"
-                    onClick={() => updateItemQuantity(item._id, -1)}
+                  <button
+                    className="pointer ba b--black-10 pv1 ph2 mr2 bg-white"
+                    // 3. Logic for decreasing: item.quantity - 1
+                    onClick={() => updateItemQuantity(item._id, item.quantity - 1)}
                   >
                     -
-                  </a>
+                  </button>
                   {item.quantity}
-                  <a
-                    className="pointer ba b--black-10 pv1 ph2 ml2"
-                    onClick={() => updateItemQuantity(item._id, 1)}
+                  <button
+                    className="pointer ba b--black-10 pv1 ph2 ml2 bg-white"
+                    // 4. Logic for increasing: item.quantity + 1
+                    onClick={() => updateItemQuantity(item._id, item.quantity + 1)}
                   >
                     +
-                  </a>
+                  </button>
                 </td>
-                <td className="tr pv2">${item.price * item.quantity}</td>
+                <td className="tr pv2">${(item.price * item.quantity).toFixed(2)}</td>
                 <td className="tr pv2">
                   <a
                     className="pointer ba b--black-10 pv1 ph2"
+                    // 5. Pass the item to remove
                     onClick={() => removeFromCart(item)}
                   >
                     Remove
@@ -54,6 +61,7 @@ const Cart = () => {
           </tbody>
         </table>
         <div className="tr f4 mv3">
+          {/* 6. Call getCartTotal() to display the final price */}
           Total: ${getCartTotal().toFixed(2)}
         </div>
       </div>

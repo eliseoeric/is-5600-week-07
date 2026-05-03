@@ -18,7 +18,7 @@ interface ListOptions {
   status?: OrderStatus;
 }
 
-const Order = db.model<OrderDocument>('Order', {
+const Order = db.model<OrderDocument>('Order', new db.Schema({
   _id: { type: String, default: cuid },
   buyerEmail: { type: String, required: true },
   products: [{
@@ -33,7 +33,7 @@ const Order = db.model<OrderDocument>('Order', {
     default: 'CREATED' as OrderStatus,
     enum: ['CREATED', 'PENDING', 'COMPLETED']
   }
-});
+}, { timestamps: true }));
 
 async function list(options: ListOptions = {}): Promise<OrderDocument[]> {
   const { offset = 0, limit = 25, productId, status } = options;
@@ -54,7 +54,8 @@ async function list(options: ListOptions = {}): Promise<OrderDocument[]> {
   const orders = await Order.find(query)
     .sort({ _id: 1 })
     .skip(offset)
-    .limit(limit);
+    .limit(limit)
+    .populate('products');
 
   return orders;
 }

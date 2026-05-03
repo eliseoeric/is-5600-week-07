@@ -1,14 +1,12 @@
-import React, { useState } from 'react';
-import { BASE_URL } from '../config';
+import React, { useEffect } from 'react'
+import { useStore } from '../state/StoreProvider'
 
 const Orders = () => {
-  const [orders, setOrders] = useState([]);
+  const { orders, loading, error, fetchOrders } = useStore()
 
-  /**
-   * TODO
-   * 1. Create a `fetchOrders` function that retrieves all orders from the database
-   * 2. Using the `useEffect` hook, update the existing `orders` state object when `fetchOrders` is complete
-   **/ 
+  useEffect(() => {
+    fetchOrders()
+  }, [fetchOrders])
 
 
   return (
@@ -25,11 +23,19 @@ const Orders = () => {
             </tr>
           </thead>
           <tbody>
-            {orders && orders.map((order) => (
+            {orders.map((order) => (
               <tr key={order._id}>
                 <td className="tl pv2">{order._id}</td>
                 <td className="tl pv2">{order.buyerEmail}</td>
-                <td className="tl pv2">{order.products.join(', ')}</td>
+                <td className="tl pv2">
+                  {(order.products || [])
+                    .map((product) =>
+                      typeof product === 'string'
+                        ? product
+                        : product.description || product.alt_description || product._id
+                    )
+                    .join(', ')}
+                </td>
                 <td className="tl pv2">{order.status}</td>
               </tr>
             ))}

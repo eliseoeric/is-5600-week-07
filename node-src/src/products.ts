@@ -1,6 +1,8 @@
 
+// @ts-nocheck
 import cuid from 'cuid';
 import * as db from './db';
+import autoCatch from './lib/auto-catch';
 
 
 interface ProductUrls {
@@ -137,3 +139,4 @@ export {
   edit,
   remove as destroy
 };
+

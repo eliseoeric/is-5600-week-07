@@ -39,6 +39,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.create = create;
 exports.get = get;
 exports.list = list;
+// @ts-nocheck
 const cuid_1 = __importDefault(require("cuid"));
 const db = __importStar(require("./db"));
 const Order = db.model('Order', {

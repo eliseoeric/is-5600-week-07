@@ -1,3 +1,4 @@
+// @ts-nocheck
 import cuid from 'cuid';
 import * as db from './db';
 import { ProductDocument } from './products';

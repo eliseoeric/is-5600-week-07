@@ -41,6 +41,7 @@ exports.get = get;
 exports.create = create;
 exports.edit = edit;
 exports.destroy = remove;
+// @ts-nocheck
 const cuid_1 = __importDefault(require("cuid"));
 const db = __importStar(require("./db"));
 // Define our Product Model

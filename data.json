@@ -1,0 +1,47 @@
+{
+  "products": [
+    {
+      "id": 1,
+      "name": "Mountain Landscape",
+      "description": "Beautiful mountain scenery print",
+      "price": 29.99,
+      "image": "mountain.jpg"
+    },
+    {
+      "id": 2,
+      "name": "Ocean Waves",
+      "description": "Calming ocean waves art",
+      "price": 24.99,
+      "image": "ocean.jpg"
+    },
+    {
+      "id": 3,
+      "name": "City Skyline",
+      "description": "Modern city architecture print",
+      "price": 34.99,
+      "image": "city.jpg"
+    },
+    {
+      "id": 4,
+      "name": "Forest Path",
+      "description": "Serene forest pathway",
+      "price": 27.99,
+      "image": "forest.jpg"
+    },
+    {
+      "id": 5,
+      "name": "Abstract Colors",
+      "description": "Vibrant abstract art",
+      "price": 39.99,
+      "image": "abstract.jpg"
+    },
+    {
+      "id": 6,
+      "name": "Wildlife Portrait",
+      "description": "Detailed animal artwork",
+      "price": 32.99,
+      "image": "wildlife.jpg"
+    }
+  ],
+  "orders": []
+}

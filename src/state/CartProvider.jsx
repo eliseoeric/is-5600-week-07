@@ -3,6 +3,15 @@ import React, { useReducer, useContext } from 'react'
 // Initialize the context
 const CartContext = React.createContext()
 
+// Export a custom hook to use the cart context
+export const useCart = () => {
+  const context = useContext(CartContext);
+  if (!context) {
+    throw new Error('useCart must be used within a CartProvider');
+  }
+  return context;
+}
+
 // Definte the default state
 const initialState = {
   itemsById: {},
@@ -49,6 +58,34 @@ const cartReducer = (state, action) => {
         ),
       }
       return updatedState
+    case UPDATE_ITEM_QUANTITY:
+      const currentQuantity = state.itemsById[payload.productId]?.quantity ?? 0;
+      const newQuantity = currentQuantity + payload.quantity;
+      
+      if (newQuantity <= 0) {
+        // Remove item if quantity becomes 0 or less
+        return {
+          ...state,
+          itemsById: Object.entries(state.itemsById)
+            .filter(([key]) => key !== payload.productId)
+            .reduce((obj, [key, value]) => {
+              obj[key] = value
+              return obj
+            }, {}),
+          allItems: state.allItems.filter(id => id !== payload.productId),
+        }
+      }
+
+      return {
+        ...state,
+        itemsById: {
+          ...state.itemsById,
+          [payload.productId]: {
+            ...state.itemsById[payload.productId],
+            quantity: newQuantity,
+          },
+        },
+      }
     
     default:
       return state
@@ -69,14 +106,17 @@ const CartProvider = ({ children }) => {
     dispatch({ type: ADD_ITEM, payload: product })
   }
 
-  // todo Update the quantity of an item in the cart
+  // Update the quantity of an item in the cart
   const updateItemQuantity = (productId, quantity) => {
-    // todo
+    dispatch({ type: UPDATE_ITEM_QUANTITY, payload: { productId, quantity } })
   }
 
-  // todo Get the total price of all items in the cart
+  // Get the total price of all items in the cart
   const getCartTotal = () => {
-    // todo
+    return state.allItems.reduce((total, itemId) => {
+      const item = state.itemsById[itemId];
+      return total + (item.price * item.quantity);
+    }, 0);
   }
 
   const getCartItems = () => {
@@ -97,6 +137,8 @@ const CartProvider = ({ children }) => {
     </CartContext.Provider>
   )
 }
+
+export default CartProvider;
 
 const useCart = () => useContext(CartContext)
 

@@ -1,14 +1,36 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom';
+import { BASE_URL } from '../config'
+import AddToCart from './AddToCart'
 import '../App.css';
 
 
-export default function SingleView({data}) {
+export default function SingleView() {
   // get the id from the url using useParams
   const { id } = useParams();
-  
-  // get the product from the data using the id
-  const product = data.find(product => product.id === id);
+
+  // Define the state object for product data
+  const [product, setProduct] = useState(null)
+
+  // Fetch the product by id from the server
+  const fetchProductById = async (productId) => {
+    const data = await fetch(`${BASE_URL}/products/${productId}`)
+      .then((res) => res.json())
+      .catch((err) => console.error('Error fetching product:', err));
+    return data;
+  };
+
+  // Use the useEffect hook to fetch the product when the component boots or when id changes
+  useEffect(() => {
+    const getProduct = async () => {
+      const data = await fetchProductById(id);
+      setProduct(data)
+    }
+    getProduct();
+  }, [id]);
+
+  // show a spinner if there is no product loaded yet
+  if (!product) return (<div className="loading-spinner"></div>);
 
   const { user } = product;
 
@@ -37,7 +59,7 @@ export default function SingleView({data}) {
       </div>
       <div className="pa3 flex justify-end">
         <span className="ma2 f4">${product.price}</span>
-        {/* TODO Implement the AddToCart button */}
+        <AddToCart product={product} />
       </div>
     </article>
 

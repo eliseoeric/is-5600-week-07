@@ -1,50 +1,49 @@
-import React, { useState, useEffect } from 'react'
-import Card from './Card'
-import Button from './Button'
-import Search from './Search'
+import { useCart } from "../state/CartProvider";
 
-const CardList = ({ data }) => {
-  // define the limit state variable and set it to 10
-  const limit = 10;
+export default function Cart() {
+  const {
+    cartItems,
+    updateItemQuantity,
+    removeFromCart,
+    getCartTotal,
+  } = useCart();
 
-  // Define the offset state variable and set it to 0
-  const [offset, setOffset] = useState(0);
-  // Define the products state variable and set it to the default dataset
-  const [products, setProducts] = useState(data);
-
-  useEffect(() => {
-    setProducts(data.slice(offset, offset + limit));
-  }, [offset, limit, data])
-
-  const filterTags = (tagQuery) => {
-    const filtered = data.filter(product => {
-      if (!tagQuery) {
-        return product
-      }
-
-      return product.tags.find(({title}) => title === tagQuery)
-    })
-
-    setOffset(0)
-    setProducts(filtered)
+  if (cartItems.length === 0) {
+    return <div>Your cart is empty.</div>;
   }
 
-
   return (
-    <div className="cf pa2">
-      <Search handleSearch={filterTags}/>
-      <div className="mt2 mb2">
-      {products && products.map((product) => (
-          <Card key={product._id} {...product} />
-        ))}
-      </div>
+    <div>
+      <h2>Cart</h2>
 
-      <div className="flex items-center justify-center pa4">
-        <Button text="Previous" handleClick={() => setOffset(offset - limit)} />
-        <Button text="Next" handleClick={() => setOffset(offset + limit)} />
-      </div>
+      {cartItems.map((item) => (
+        <div
+          key={item.id || item._id}
+          style={{ border: "1px solid #ccc", margin: "10px", padding: "10px" }}
+        >
+          <h3>{item.name || item.description || item.alt_description}</h3>
+
+          <p>Price: ${item.price}</p>
+
+          <label>
+            Quantity:
+            <input
+              type="number"
+              min="1"
+              value={item.quantity}
+              onChange={(e) =>
+                updateItemQuantity(item.id || item._id, Number(e.target.value))
+              }
+            />
+          </label>
+
+          <button onClick={() => removeFromCart(item.id || item._id)}>
+            Remove
+          </button>
+        </div>
+      ))}
+
+      <h3>Total: ${getCartTotal().toFixed(2)}</h3>
     </div>
-  )
+  );
 }
-
-export default CardList;

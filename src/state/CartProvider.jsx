@@ -35,6 +35,15 @@ const cartReducer = (state, action) => {
         allItems: Array.from(new Set([...state.allItems, action.payload._id])),
       };
       return newState
+    case "UPDATE_ITEM_QUANTITY":
+  return {
+    ...state,
+    cartItems: state.cartItems.map(item =>
+      item.id === action.payload.id
+        ? { ...item, quantity: action.payload.quantity }
+        : item
+    )
+  };
     case REMOVE_ITEM:
       const updatedState = {
         ...state,
@@ -97,7 +106,12 @@ const CartProvider = ({ children }) => {
     </CartContext.Provider>
   )
 }
-
+const getCartTotal = () => {
+  return cartItems.reduce(
+    (total, item) => total + item.price * item.quantity,
+    0
+  );
+};
 const useCart = () => useContext(CartContext)
 
 export { CartProvider, useCart }

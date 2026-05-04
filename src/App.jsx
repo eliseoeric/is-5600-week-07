@@ -11,13 +11,15 @@ function App() {
   
   return (
     <div className="App">
-      <Header />
+      <CartProvider>
+        <Header />
       
         <Routes>
-          <Route path="/" element={<CardList data={productData} />} />
-          <Route path="/product/:id" element={<SingleView data={productData} />} />
+          <Route path="/" element={<CardList />} />
+          <Route path="/product/:id" element={<SingleView />} />
+          <Route path="/cart" element={<Cart />} />
         </Routes>
-      
+      </CartProvider>
     </div>
   );
 }

@@ -1,3 +1,5 @@
+// src/state/CartProvider.jsx
+
 import React, { useReducer, useContext } from 'react'
 
 // Initialize the context
@@ -35,17 +37,49 @@ const cartReducer = (state, action) => {
         allItems: Array.from(new Set([...state.allItems, action.payload._id])),
       };
       return newState
+      
+    case UPDATE_ITEM_QUANTITY:
+      // NEW: Update quantity directly - if quantity <= 0, remove the item
+      if (payload.quantity <= 0) {
+        // Remove item if quantity becomes 0 or negative
+        const updatedState = {
+          ...state,
+          itemsById: Object.entries(state.itemsById)
+            .filter(([key, value]) => key !== payload._id)
+            .reduce((obj, [key, value]) => {
+              obj[key] = value
+              return obj
+            }, {}),
+          allItems: state.allItems.filter(
+            (itemId) => itemId !== payload._id
+          ),
+        }
+        return updatedState
+      }
+      
+      // Otherwise, update the quantity directly (not add to it)
+      return {
+        ...state,
+        itemsById: {
+          ...state.itemsById,
+          [payload._id]: {
+            ...state.itemsById[payload._id],
+            quantity: payload.quantity, // Set directly, not increment
+          },
+        },
+      }
+      
     case REMOVE_ITEM:
       const updatedState = {
         ...state,
         itemsById: Object.entries(state.itemsById)
-          .filter(([key, value]) => key !== action.payload._id)
+          .filter(([key, value]) => key !== payload._id)
           .reduce((obj, [key, value]) => {
             obj[key] = value
             return obj
           }, {}),
         allItems: state.allItems.filter(
-          (itemId) => itemId !== action.payload._id
+          (itemId) => itemId !== payload._id
         ),
       }
       return updatedState
@@ -69,14 +103,22 @@ const CartProvider = ({ children }) => {
     dispatch({ type: ADD_ITEM, payload: product })
   }
 
-  // todo Update the quantity of an item in the cart
+  // Update the quantity of an item in the cart
   const updateItemQuantity = (productId, quantity) => {
-    // todo
+    // Dispatch the UPDATE_ITEM_QUANTITY action with the productId and new quantity
+    dispatch({ 
+      type: UPDATE_ITEM_QUANTITY, 
+      payload: { _id: productId, quantity: quantity } 
+    })
   }
 
-  // todo Get the total price of all items in the cart
+  // Get the total price of all items in the cart
   const getCartTotal = () => {
-    // todo
+    // Use reduce to sum up price * quantity for all items
+    const items = getCartItems();
+    return items.reduce((total, item) => {
+      return total + (item.price * item.quantity);
+    }, 0);
   }
 
   const getCartItems = () => {

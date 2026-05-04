@@ -1,13 +1,17 @@
 import React, { useReducer, useContext } from 'react'
+import { createContext, useState } from "react";
 
 // Initialize the context
 const CartContext = React.createContext()
+export const CartContext = createContext();
 
 // Definte the default state
 const initialState = {
   itemsById: {},
   allItems: [],
 }
+export const CartProvider = ({ children }) => {
+  const [cart, setCart] = useState([]);
 
 // Define reducer actions
 const ADD_ITEM = 'ADD_ITEM'
@@ -68,6 +72,8 @@ const CartProvider = ({ children }) => {
   const addToCart = (product) => {
     dispatch({ type: ADD_ITEM, payload: product })
   }
+    setCart(prev => [...prev, product]);
+  };
 
   // todo Update the quantity of an item in the cart
   const updateItemQuantity = (productId, quantity) => {
@@ -82,6 +88,7 @@ const CartProvider = ({ children }) => {
   const getCartItems = () => {
     return state.allItems.map((itemId) => state.itemsById[itemId]) ?? [];
   }
+  const clearCart = () => setCart([]);
 
   return (
     <CartContext.Provider
@@ -93,6 +100,7 @@ const CartProvider = ({ children }) => {
         getCartTotal,
       }}
     >
+    <CartContext.Provider value={{ cart, addToCart, clearCart }}>
       {children}
     </CartContext.Provider>
   )
@@ -101,3 +109,5 @@ const CartProvider = ({ children }) => {
 const useCart = () => useContext(CartContext)
 
 export { CartProvider, useCart }
+  );
+};

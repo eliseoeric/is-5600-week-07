@@ -1,5 +1,7 @@
 import React, { useContext } from 'react';
 import PurchaseForm from './PurchaseForm';
+import { useContext } from "react";
+import { CartContext } from "../state/CartProvider";
 
 const Cart = () => {
   // TODO - get cart items from context
@@ -7,6 +9,20 @@ const Cart = () => {
   const removeFromCart = () => {};
   const updateItemQuantity = () => {};
   const getCartTotal = () => {};
+function Cart() {
+  const { cart, clearCart } = useContext(CartContext);
+
+  const handleCheckout = async () => {
+    await fetch("http://localhost:3001/orders", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ items: cart })
+    });
+
+    clearCart();
+  };
 
   return (
     <div className="center mw7 mv4">
@@ -60,8 +76,22 @@ const Cart = () => {
       <div className="flex justify-end pa3 mb3">
         <PurchaseForm />
       </div>
+    <div>
+      <h2>Cart</h2>
+
+      {cart.map((item, i) => (
+        <p key={i}>{item.name}</p>
+      ))}
+
+      {cart.length > 0 && (
+        <button onClick={handleCheckout}>
+          Checkout
+        </button>
+      )}
     </div>
   );
 };
+}
 
+export default Cart;
 export default Cart;

@@ -6,6 +6,9 @@ import CardList from './components/CardList';
 import SingleView from './components/SingleView';
 import productData from './data/full-products';
 
+import { CartProvider } from "./state/CartProvider";
+import CardList from "./components/CardList";
+import Cart from "./components/Cart";
 
 function App() {
   
@@ -19,7 +22,13 @@ function App() {
         </Routes>
       
     </div>
+    <CartProvider>
+      <h1>Store</h1>
+      <CardList />
+      <Cart />
+    </CartProvider>
   );
 }
 
+export default App;
 export default App;

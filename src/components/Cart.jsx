@@ -1,67 +1,113 @@
-import React, { useContext } from 'react';
-import PurchaseForm from './PurchaseForm';
+import React, { useReducer, useContext } from 'react'
+import { createContext, useState } from "react";
 
-const Cart = () => {
-  // TODO - get cart items from context
-  const cartItems = [];
-  const removeFromCart = () => {};
-  const updateItemQuantity = () => {};
-  const getCartTotal = () => {};
+// Initialize the context
+const CartContext = React.createContext()
+export const CartContext = createContext();
+
+// Definte the default state
+const initialState = {
+  itemsById: {},
+  allItems: [],
+}
+export const CartProvider = ({ children }) => {
+  const [cart, setCart] = useState([]);
+
+// Define reducer actions
+const ADD_ITEM = 'ADD_ITEM'
+const REMOVE_ITEM = 'REMOVE_ITEM'
+const UPDATE_ITEM_QUANTITY = 'UPDATE_ITEM_QUANTITY'
+
+// Define the reducer
+const cartReducer = (state, action) => {
+  const { payload } = action;
+  switch (action.type) {
+    case ADD_ITEM:
+      console.log({state, action})
+      const newState = {
+        ...state,
+        itemsById: {
+          ...state.itemsById,
+          [payload._id]: {
+            ...payload,
+            quantity: state.itemsById[payload._id]
+              ? state.itemsById[payload._id].quantity + 1
+              : 1,
+          },
+        },
+        // Use `Set` to remove all duplicates
+        allItems: Array.from(new Set([...state.allItems, action.payload._id])),
+      };
+      return newState
+    case REMOVE_ITEM:
+      const updatedState = {
+        ...state,
+        itemsById: Object.entries(state.itemsById)
+          .filter(([key, value]) => key !== action.payload._id)
+          .reduce((obj, [key, value]) => {
+            obj[key] = value
+            return obj
+          }, {}),
+        allItems: state.allItems.filter(
+          (itemId) => itemId !== action.payload._id
+        ),
+      }
+      return updatedState
+    
+    default:
+      return state
+  }
+}
+
+// Define the provider
+const CartProvider = ({ children }) => {
+  const [state, dispatch] = useReducer(cartReducer, initialState)
+
+  // Remove an item from the cart
+  const removeFromCart = (product) => {
+    dispatch({ type: REMOVE_ITEM, payload: product })
+  }
+
+  // Add an item to the cart
+  const addToCart = (product) => {
+    dispatch({ type: ADD_ITEM, payload: product })
+  }
+    setCart(prev => [...prev, product]);
+  };
+
+  // todo Update the quantity of an item in the cart
+  const updateItemQuantity = (productId, quantity) => {
+    // todo
+  }
+
+  // todo Get the total price of all items in the cart
+  const getCartTotal = () => {
+    // todo
+  }
+
+  const getCartItems = () => {
+    return state.allItems.map((itemId) => state.itemsById[itemId]) ?? [];
+  }
+  const clearCart = () => setCart([]);
 
   return (
-    <div className="center mw7 mv4">
-      <div className="bg-white pa3 mb3">
-        <h2 className="f2 mb2">Cart</h2>
-        <table className="w-100 ba pa2">
-          <thead>
-            <tr>
-              <th className="tl pv2">Product</th>
-              <th className="tr pv2">Quantity</th>
-              <th className="tr pv2">Price</th>
-              <th className="tr pv2">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {cartItems && cartItems.map((item) => (
-              <tr key={item._id}>
-                <td className="tl pv2">{item.description}</td>
-                <td className="tr pv2">
-                  <a
-                    className="pointer ba b--black-10 pv1 ph2 mr2"
-                    onClick={() => updateItemQuantity(item._id, -1)}
-                  >
-                    -
-                  </a>
-                  {item.quantity}
-                  <a
-                    className="pointer ba b--black-10 pv1 ph2 ml2"
-                    onClick={() => updateItemQuantity(item._id, 1)}
-                  >
-                    +
-                  </a>
-                </td>
-                <td className="tr pv2">${item.price * item.quantity}</td>
-                <td className="tr pv2">
-                  <a
-                    className="pointer ba b--black-10 pv1 ph2"
-                    onClick={() => removeFromCart(item)}
-                  >
-                    Remove
-                  </a>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        <div className="tr f4 mv3">
-          Total: ${getCartTotal().toFixed(2)}
-        </div>
-      </div>
-      <div className="flex justify-end pa3 mb3">
-        <PurchaseForm />
-      </div>
-    </div>
+    <CartContext.Provider
+      value={{
+        cartItems: getCartItems(),
+        addToCart,
+        updateItemQuantity,
+        removeFromCart,
+        getCartTotal,
+      }}
+    >
+    <CartContext.Provider value={{ cart, addToCart, clearCart }}>
+      {children}
+    </CartContext.Provider>
+  )
+}
+
+const useCart = () => useContext(CartContext)
+
+export { CartProvider, useCart }
   );
 };
-
-export default Cart;

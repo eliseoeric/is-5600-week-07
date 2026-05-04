@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react'
 import Card from './Card'
 import Button from './Button'
 import Search from './Search'
+import { useEffect, useState, useContext } from "react";
+import { CartContext } from "../state/CartProvider";
 
 const CardList = ({ data }) => {
   // define the limit state variable and set it to 10
@@ -11,6 +13,9 @@ const CardList = ({ data }) => {
   const [offset, setOffset] = useState(0);
   // Define the products state variable and set it to the default dataset
   const [products, setProducts] = useState(data);
+function CardList() {
+  const [products, setProducts] = useState([]);
+  const { addToCart } = useContext(CartContext);
 
   useEffect(() => {
     setProducts(data.slice(offset, offset + limit));
@@ -29,6 +34,10 @@ const CardList = ({ data }) => {
     setProducts(filtered)
   }
 
+    fetch("http://localhost:3001/products")
+      .then(res => res.json())
+      .then(data => setProducts(data));
+  }, []);
 
   return (
     <div className="cf pa2">
@@ -43,8 +52,20 @@ const CardList = ({ data }) => {
         <Button text="Previous" handleClick={() => setOffset(offset - limit)} />
         <Button text="Next" handleClick={() => setOffset(offset + limit)} />
       </div>
+    <div>
+      <h2>Products</h2>
+
+      {products.map((p) => (
+        <div key={p.id}>
+          <h3>{p.name}</h3>
+          <button onClick={() => addToCart(p)}>
+            Add to Cart
+          </button>
+        </div>
+      ))}
     </div>
   )
+  );
 }
 
 export default CardList;

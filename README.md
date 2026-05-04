@@ -1,5 +1,19 @@
 # Lab 07 | Fullstack Prints React Part 2
 
+## Table of Contents
+
+1. [Lab 07 | Fullstack Prints React Part 2](#lab-07--fullstack-prints-react-part-2)
+   - [Overview](#overview)
+   - [Instructions](#instructions)
+2. [Guidance and Testing](#guidance-and-testing)
+3. [Submission](#submission)
+4. [Getting Started with GitHub and Codespaces](#getting-started-with-github-and-codespaces)
+   - [Step 1: Fork the Repository](#step-1-fork-the-repository)
+   - [Step 2: Open the Repository in Codespaces](#step-2-open-the-repository-in-codespaces)
+   - [Step 3: Complete the Lab Assignment](#step-3-complete-the-lab-assignment)
+   - [Step 4: Submit Your Work via Pull Request](#step-4-submit-your-work-via-pull-request)
+
+
 ## Overview
 
 For this lab, we are going to take the existing React application that you created in the previous lab and add some additional functionality. Specifically, we are going to connect the React application to an existing Node application. The React application will fetch and store products data in the React state. The React application will also allow the user to add products to the cart. The React application will then send the cart data to the Node application to create new orders, will also be displayed in the React application.
@@ -8,7 +22,9 @@ The goal of this lab is to become familiar with how we can use state and React C
 
 ## Instructions
 
-1. Take a moment to review your file structure. The state of the code base should be close or mirror to where you left off in your last project.
+1. Take a moment to review your file structure. The state of the code base should be close or mirror to where you left off in your last project. 
+
+2. Let's begin by reviewing that our React application's `config.js` file is correctly configured to point to the Node API server. The `BASE_URL` should be set to the URL of the Node API server. This is the URL that we will use to fetch data from the server. The URL should found in your Ports tab in the GitHub codespace.
 
 2. Let's begin by connecting our React application to the Node API server, so we can render the product data. If you examine the `App.js` file, you'll see we are importing the `productData` from disk. This is a JSON file that contains an array of products. We could replace this with a `fetch` call to the Node API server at this component level, but then we would need to pass the data down to the `CardList` component. Instead, we are going to move the `fetch` call to the `CardList` component.
 3. Let's refactor the `CardList` so that we are handing the fetching of product data in the `CardList` component - we are going to update the `SingleView` component later so that we do not need to pass an entire array of products to the component. We will use the `useEffect` hook to fetch data from the server and replace the file import in the `App.js`. The `useEffect` hook is similar to a life cycle function, and will be ran when the component boots. This will allow us to fetch the data when the app starts up.
@@ -16,7 +32,7 @@ The goal of this lab is to become familiar with how we can use state and React C
 ```jsx
 // CardList.js
 import React, { useState, useEffect } from "react";
-import { BASE_URL } from './config';
+import { BASE_URL } from '../config';
 
 // Remove the `data` prop - we won't use that anymore
 const CardList = ({}) => {
@@ -161,17 +177,17 @@ In order to use the cart context, we need to wrap the entire application in the 
   );
 ```
 
-This will make the cart state available to any component in the application. Now, let's add the cart to the `Header` component. We will use the `useContext` hook to access the cart state from the `Header` component.
+This will make the cart state available to any component in the application. Now, let's add the cart to the `Header` component. We will use the `useCart` hook to access the cart state from the `Header` component.
 
 ```jsx
 // Header.js
 
 // ...
-import { CartContext } from '../state/CartProvider';
+import { useCart } from '../state/CartProvider';
 
 const Header = () => {
   // Import the cart state from the CartContext
-  const { cartItems } = useContext(CartContext);
+  const { cartItems } = useCart();
   // Use the reduce function to calculate the total number of items in the cart
   const totalItems = cartItems.reduce((acc, item) => acc + item.quantity, 0);
 
@@ -179,7 +195,7 @@ const Header = () => {
 }
 ```
 
-7. Great, now we need to create a component to for the "Add To Cart" button. Create a new file, `src/components/AddToCart.js`. This component will need to accept a `product` prop. It will have an `onClick` handler that will add the product to the cart.
+7. Great, now we need to create a component to for the "Add To Cart" button. Create a new file, `src/components/AddToCart.jsx`. This component will need to accept a `product` prop. It will have an `onClick` handler that will add the product to the cart.
 
 ```jsx  
 
@@ -229,28 +245,115 @@ You will complete the final 3 steps independently, you can read the instructions
 
 ## Your Task
 
-1. Implement the `updateItemQuantity` in the cart context provider. The function stub already exists, you just need to implement the logic.
+You will need to implement three key features to complete this lab:
 
-- The `CartProvider.updateItemQuantity` function should call dispatch with the `UPDATE_ITEM_QUANTITY` action type and the `id` and `quantity` as the payload.
-- Add a new switch case to the `cartReducer` function that handles the `UPDATE_ITEM_QUANTITY` action type. The function should return a new array of cart items with the updated quantity. Use the `ADD_ITEM` case as a reference or template. Note that you will note need to modify the `allItems` array at all.
-- The `ADD_ITEM` case is almost identical to the `UPDATE_ITEM_QUANTITY` case, the key difference is how the quantity is calculated. In the `ADD_ITEM` case, the quantity is calculated by adding the `quantity` prop to the existing quantity. In the `UPDATE_ITEM_QUANTITY` case, the quantity is calculated by using the `quantity` prop as the new quantity.
+1. Implement the Cart Quantity Update Feature:
+   - Implement the `updateItemQuantity` function in the cart context provider
+   - In the `CartProvider`, add the `UPDATE_ITEM_QUANTITY` action that takes `id` and `quantity` as payload
+   - Add a new case to `cartReducer` that handles `UPDATE_ITEM_QUANTITY`
+   - The key difference from `ADD_ITEM` is that this directly sets the new quantity instead of adding to it
+   - Example: If current quantity is 2 and new quantity is 5, it should become 5 (not 7)
 
-2. Implement the `getCartTotal` function in the cart context provider. The function stub already exists, you just need to implement the logic.
+2. Implement the Cart Total Calculation:
+   - Complete the `getCartTotal` function in the cart context provider
+   - Use the `reduce` array method to sum up the total price of all items
+   - Make sure to multiply each item's price by its quantity
+   - The total should update automatically when cart items change
 
-- The `CartProvider.getCartTotal` function should return the total price of all items in the cart. You can use the `reduce` function to calculate the total.
+3. Implement the Orders Display:
+   - Add the `/orders` route in `App.js` using the `Orders` component
+   - Create a `fetchOrders` function that gets orders from the Node API
+   - Use `useEffect` to fetch orders when the component mounts
+   - Store the orders in component state using `useState`
+   - Display the orders in a list format using the existing component structure
 
-3. Implement the `Orders` component. This component already exists, and simply needs to be connected to the Node API.
+## Testing Your Implementation
 
-- Register the `/orders` route in the `App.js` file. The `element` prop should be the `Orders` component. Follow the same pattern as the `/cart` route.
-- Similar to the `CardList` component, the `Orders` component should fetch the orders from the Node API. You can use the `fetch` function to make the request. The URL is: <https://plankton-app-9p6gs.ondigitalocean.app/orders>
-- Again, similar to the `CardList` component, the `Orders` component will need to use `useEffect` to fetch the orders from the API. The hook should call your `fetchOrders` function and then update the `orders` state with the response using the `setOrders` function.
+To verify your implementation works correctly:
+
+1. Cart Updates:
+   - Add items to cart and try updating their quantities
+   - Verify the new quantity replaces the old one
+   - Check that the cart total updates correctly
+
+2. Orders Display:
+   - Create a few test orders through the cart
+   - Visit the `/orders` route
+   - Verify that your orders appear and display correctly
 
 ## Guidance and Testing
 
-- Steps 1 and 2 in the *Your Task* section are isolated to the `CartProvider` file, you should be able to test your code by visiting the `/cart` route, but all changes will be applied to the `CartProvider` file.
-- Note that we will not be directly defining imports in the code snippets anymore. You will need to import the necessary modules in your code.
-- For this lab, we will be using the Node API that you created in the previous labs. However, instead of using the instance deployed to your Replit, you will use an instance that has been provisioned by the instructor. The URL is: <https://plankton-app-9p6gs.ondigitalocean.app/>
+1. This lab will require Postman to test endpoints. You can download Postman [here](https://www.postman.com/downloads/). Refer to the previous labs for guidance on how to use Postman.
 
 ## Submission
 
-Once you have completed the lab, please submit your code to the Replit classroom. You can do this by clicking the "Share" button in the top right corner of the Replit editor. Then, click the "Share to Classroom" button. You should see a list of classes that you are enrolled in. Select the class that you are enrolled in and click the "Share" button. You should see a message that your code has been shared with the class. You can now close the share window.
+Once you have completed the lab, please submit your lab by committing the code and creating a pull request against the `main` branch of your forked repository.
+
+Once you have a URL for your Pull Request, submit that URL with a brief message in Canvas against the Assignment.
+
+# Getting Started with GitHub and Codespaces
+
+Welcome to the course! In this guide, you’ll learn how to set up your coding environment using GitHub and Codespaces. By following these steps, you’ll be able to work on your lab assignments, write and test your code, and submit your work for review. Let's get started!
+
+## Step 1: Fork the Repository
+
+Forking a repository means making a copy of it under your GitHub account. This allows you to make changes without affecting the original project.
+
+1. **Open the Repository**: Start by navigating to the GitHub repository link provided by your instructor.
+2. **Click "Fork"**: In the top-right corner, find the “Fork” button and click it.
+3. **Select Your Account**: Choose your GitHub account as the destination for the fork. Once done, you’ll be redirected to your forked copy of the repository.
+
+   > **Tip**: Make sure you’re logged into your GitHub account, or you won’t see the option to fork!
+
+## Step 2: Open the Repository in Codespaces
+
+With your forked repository ready, you can now set up a development environment using Codespaces. This setup provides a pre-configured environment for you to code in, with everything you need to complete the lab.
+
+1. **Open the Codespaces Menu**:
+   - In your forked repository, click the green "Code" button, then switch to the "Codespaces" tab.
+2. **Create a Codespace**:
+   - Click on "Create codespace on main" to start the setup.
+3. **Wait for Codespaces to Load**:
+   - It may take a few minutes for Codespaces to create and configure your environment. Be patient, as it’s setting up all the tools you’ll need.
+4. **Start Coding**:
+   - Once the setup is complete, Codespaces will automatically open a new browser tab where your code will be ready to run. You’ll be able to see the code and any outputs as you go through the lab assignment.
+
+## Step 3: Complete the Lab Assignment
+
+Inside the Codespaces environment, you’ll find all the files and instructions you need. Follow the steps outlined in the README file to complete your assignment.
+
+1. **Read the Instructions**: Carefully go through the README file to understand the tasks you need to complete.
+2. **Edit the Code**: Make the necessary changes to the code files as instructed.
+3. **Run and Test Your Code**: Use the terminal and editor within Codespaces to run your code and make sure everything works as expected.
+
+   > **Hint**: If you’re stuck, try reviewing the README file again or refer to any resources provided by your instructor.
+
+## Step 4: Submit Your Work via Pull Request
+
+Once you’ve completed the assignment, it’s time to submit your work. You’ll do this by creating a pull request, which is a way to propose your changes to the original repository.
+
+1. **Commit Your Changes**:
+   - Save your work by committing your changes. In Codespaces, go to the Source Control panel, write a commit message, and click "Commit" to save your changes.
+2. **Push to Your Fork**:
+   - After committing, click "Push" to upload your changes to your forked repository on GitHub.
+3. **Create a Pull Request**:
+   - Go back to your GitHub repository, and you’ll see an option to “Compare & pull request.” Click it to start your pull request.
+   - Include your name in the pull request description so your instructor knows who submitted it.
+4. **Submit the Pull Request**:
+   - Click "Create pull request" to submit your work for review. Your instructor will be notified and can review your work.
+
+And that’s it! You’ve now completed your first lab assignment using GitHub and Codespaces. Well done!
+
+### Additional Steps
+
+1. Open the terminal in Codespaces.
+2. Run the following commands to install dependencies and start the development server:
+
+    ```sh
+    npm install
+    npm run dev
+    ```
+
+3. You can now view the project in the browser by clicking the "Application" port in the Ports panel.
+
+Follow the instructions in the previous sections to complete the lab.

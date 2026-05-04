@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Card from './Card'
 import Button from './Button'
 import Search from './Search'
@@ -12,48 +12,36 @@ const CardList = ({ data }) => {
   // Define the products state variable and set it to the default dataset
   const [products, setProducts] = useState(data);
 
-  // Define the handlePrevious function
-  const handlePrevious = () => {
-    // set the offset to the previous 10 products
-    setOffset(offset - limit);
-  }
+  useEffect(() => {
+    setProducts(data.slice(offset, offset + limit));
+  }, [offset, limit, data])
 
-  // Define the handleNext function
-  const handleNext = () => {
-    // set the offset to the next 10 products
-    setOffset(offset + limit);
-  }
-
-  const filterTags = (tag) => {
+  const filterTags = (tagQuery) => {
     const filtered = data.filter(product => {
-      if (!tag) {
+      if (!tagQuery) {
         return product
       }
 
-      return product.tags.find(({ title }) => title === tag)
+      return product.tags.find(({title}) => title === tagQuery)
     })
 
     setOffset(0)
     setProducts(filtered)
   }
 
-  const getPaginatedProducts = () => {
-    return products.slice(offset, offset + limit);
-  }
 
   return (
     <div className="cf pa2">
-      {/* The Search component is commented out, implement this with the API for extra credit */}
-      {/* <Search handleSearch={filterTags} /> */}
+      <Search handleSearch={filterTags}/>
       <div className="mt2 mb2">
-        {getPaginatedProducts().map((product) => (
-          <Card key={product.id} {...product} />
+      {products && products.map((product) => (
+          <Card key={product._id} {...product} />
         ))}
       </div>
 
       <div className="flex items-center justify-center pa4">
-        <Button text="Previous" handleClick={handlePrevious} />
-        <Button text="Next" handleClick={handleNext} />
+        <Button text="Previous" handleClick={() => setOffset(offset - limit)} />
+        <Button text="Next" handleClick={() => setOffset(offset + limit)} />
       </div>
     </div>
   )

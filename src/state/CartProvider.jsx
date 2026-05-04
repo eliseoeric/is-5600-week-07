@@ -16,21 +16,24 @@ const UPDATE_ITEM_QUANTITY = 'UPDATE_ITEM_QUANTITY'
 
 // Define the reducer
 const cartReducer = (state, action) => {
+  const { payload } = action;
   switch (action.type) {
     case ADD_ITEM:
+      console.log({state, action})
       const newState = {
         ...state,
         itemsById: {
           ...state.itemsById,
-          [action.payload._id]: {
-            ...action.payload,
-            quantity: state.itemsById[action.payload._id]
-              ? state.itemsById[action.payload._id].quantity + 1
+          [payload._id]: {
+            ...payload,
+            quantity: state.itemsById[payload._id]
+              ? state.itemsById[payload._id].quantity + 1
               : 1,
           },
         },
-        allItems: [...state.allItems, action.payload._id],
-      }
+        // Use `Set` to remove all duplicates
+        allItems: Array.from(new Set([...state.allItems, action.payload._id])),
+      };
       return newState
     case REMOVE_ITEM:
       const updatedState = {
@@ -67,7 +70,7 @@ const CartProvider = ({ children }) => {
   }
 
   // todo Update the quantity of an item in the cart
-  const updateItemQuantity = (product, quantity) => {
+  const updateItemQuantity = (productId, quantity) => {
     // todo
   }
 
@@ -76,10 +79,14 @@ const CartProvider = ({ children }) => {
     // todo
   }
 
+  const getCartItems = () => {
+    return state.allItems.map((itemId) => state.itemsById[itemId]) ?? [];
+  }
+
   return (
     <CartContext.Provider
       value={{
-        cartItems: state.allItems.map((itemId) => state.itemsById[itemId]),
+        cartItems: getCartItems(),
         addToCart,
         updateItemQuantity,
         removeFromCart,

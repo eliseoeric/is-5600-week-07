@@ -1,9 +1,7 @@
-import { promises as fs } from 'fs';
-import * as path from 'path';
+
 import cuid from 'cuid';
 import * as db from './db';
 
-const productsFile = path.join(__dirname, 'data/full-products.json');
 
 interface ProductUrls {
   regular: string;
@@ -37,6 +35,7 @@ interface ProductDocument extends db.Document {
   links: ProductLinks;
   user: ProductUser;
   tags: ProductTag[];
+  price?: number;
 }
 
 // Define our Product Model
@@ -64,6 +63,7 @@ const Product = db.model<ProductDocument>('Product', {
   tags: [{
     title: { type: String, required: true },
   }],
+  price: { type: Number, required: true }, 
 });
 
 interface ListOptions {

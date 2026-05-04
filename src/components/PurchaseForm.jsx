@@ -1,16 +1,16 @@
 import React, {useContext} from 'react'
-import { CartContext } from '../state/CartProvider'
+import { useCart } from '../state/CartProvider'
 import { BASE_URL } from '../config';
 
 export default function PurchaseForm({filter}) {
-  const { cart  } = useContext(CartContext);
+  const { cartItems  } = useCart();
 
   const [ buyerEmail, setBuyerEmail ] = React.useState('')
 
   const handleSubmit = (e) => {
     e.preventDefault()
 
-    const products = cart.map((item) => item._id);
+    const products = cartItems.map((item) => item._id);
 
     const order = {
       buyerEmail,

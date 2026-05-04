@@ -1,7 +1,5 @@
-
-import cuid from 'cuid';
-import * as db from './db';
-
+import cuid from "cuid";
+import * as db from "./db";
 
 interface ProductUrls {
   regular: string;
@@ -26,7 +24,7 @@ interface ProductTag {
   title: string;
 }
 
-interface ProductDocument extends db.Document {
+export interface ProductDocument extends db.Document {
   _id: string;
   description?: string;
   alt_description?: string;
@@ -38,8 +36,7 @@ interface ProductDocument extends db.Document {
   price?: number;
 }
 
-// Define our Product Model
-const Product = db.model<ProductDocument>('Product', {
+const ProductSchema = new db.Schema<ProductDocument>({
   _id: { type: String, default: cuid },
   description: { type: String },
   alt_description: { type: String },
@@ -60,11 +57,15 @@ const Product = db.model<ProductDocument>('Product', {
     portfolio_url: { type: String },
     username: { type: String, required: true },
   },
-  tags: [{
-    title: { type: String, required: true },
-  }],
-  price: { type: Number, required: true }, 
+  tags: [
+    {
+      title: { type: String, required: true },
+    },
+  ],
+  price: { type: Number, required: true },
 });
+
+const Product = db.model<ProductDocument>("Product", ProductSchema);
 
 interface ListOptions {
   offset?: number;
@@ -72,68 +73,41 @@ interface ListOptions {
   tag?: string;
 }
 
-/**
- * List products
- */
-async function list(options: ListOptions = {}): Promise<ProductDocument[]> {
+async function list(options: ListOptions = {}): Promise<any[]> {
   const { offset = 0, limit = 25, tag } = options;
 
-  const query = tag ? {
-    tags: {
-      $elemMatch: {
-        title: tag
-      }
-    }
-  } : {};
+  const query = tag ? { tags: { $elemMatch: { title: tag } } } : {};
 
-  return Product.find(query)
-    .skip(offset)
-    .limit(limit);
+  return Product.find(query).skip(offset).limit(limit);
 }
 
-/**
- * Get a single product
- */
-async function get(_id: string): Promise<ProductDocument | null> {
+async function get(_id: string): Promise<any> {
   return Product.findById(_id);
 }
 
-/**
- * Create a product
- */
-async function create(fields: Partial<ProductDocument>): Promise<ProductDocument> {
+async function create(fields: Partial<ProductDocument>): Promise<any> {
   return Product.create(fields);
 }
 
-/**
- * Edit a product
- */
-async function edit(_id: string, change: Partial<ProductDocument>): Promise<ProductDocument | null> {
-  const product = await get(_id);
+async function edit(_id: string, change: Partial<ProductDocument>): Promise<any> {
+  const product: any = await get(_id);
+
   if (!product) return null;
-  
-  Object.keys(change).forEach(key => {
-    product[key] = change[key];
+
+  Object.keys(change).forEach((key) => {
+    product[key] = (change as any)[key];
   });
-  
+
   return product.save();
 }
 
-/**
- * Delete a product
- */
-async function remove(_id: string): Promise<ProductDocument | null> {
-  const product = await get(_id);
+async function remove(_id: string): Promise<any> {
+  const product: any = await get(_id);
+
   if (!product) return null;
-  
-  await product.remove();
+
+  await product.deleteOne();
   return product;
 }
 
-export {
-  list,
-  get,
-  create,
-  edit,
-  remove as destroy
-};
+export { list, get, create, edit, remove };

@@ -1,10 +1,10 @@
-import cuid from 'cuid';
-import * as db from './db';
-import { ProductDocument } from './products';
+import cuid from "cuid";
+import * as db from "./db";
+import { ProductDocument } from "./products";
 
-type OrderStatus = 'CREATED' | 'PENDING' | 'COMPLETED';
+export type OrderStatus = "CREATED" | "PENDING" | "COMPLETED";
 
-interface OrderDocument extends db.Document {
+export interface OrderDocument extends db.Document {
   _id: string;
   buyerEmail: string;
   products: string[] | ProductDocument[];
@@ -18,66 +18,44 @@ interface ListOptions {
   status?: OrderStatus;
 }
 
-const Order = db.model<OrderDocument>('Order', {
+const OrderSchema = new db.Schema<OrderDocument>({
   _id: { type: String, default: cuid },
   buyerEmail: { type: String, required: true },
-  products: [{
-    type: String,
-    ref: 'Product', // ref will automatically fetch associated products for us
-    index: true,
-    required: true
-  }],
+  products: [
+    {
+      type: String,
+      ref: "Product",
+      index: true,
+      required: true,
+    },
+  ],
   status: {
     type: String,
     index: true,
-    default: 'CREATED' as OrderStatus,
-    enum: ['CREATED', 'PENDING', 'COMPLETED']
-  }
+    default: "CREATED",
+    enum: ["CREATED", "PENDING", "COMPLETED"],
+  },
 });
 
-async function list(options: ListOptions = {}): Promise<OrderDocument[]> {
+const Order = db.model<OrderDocument>("Order", OrderSchema);
+
+async function list(options: ListOptions = {}): Promise<any[]> {
   const { offset = 0, limit = 25, productId, status } = options;
 
-  const productQuery = productId ? {
-    products: productId
-  } : {};
+  const productQuery = productId ? { products: productId } : {};
+  const statusQuery = status ? { status } : {};
+  const query = { ...productQuery, ...statusQuery };
 
-  const statusQuery = status ? {
-    status: status,
-  } : {};
-
-  const query = {
-    ...productQuery,
-    ...statusQuery
-  };
-
-  const orders = await Order.find(query)
-    .sort({ _id: 1 })
-    .skip(offset)
-    .limit(limit);
-
-  return orders;
+  return Order.find(query).sort({ _id: 1 }).skip(offset).limit(limit);
 }
 
-/**
- * Get an order
- */
-async function get(_id: string): Promise<OrderDocument | null> {
-  return Order.findById(_id).populate('products');
+async function get(_id: string): Promise<any> {
+  return Order.findById(_id).populate("products");
 }
 
-/**
- * Create an order
- */
-async function create(fields: Partial<OrderDocument>): Promise<OrderDocument> {
+async function create(fields: Partial<OrderDocument>): Promise<any> {
   const order = await Order.create(fields);
-  return order.populate('products');
+  return order.populate("products");
 }
 
-export {
-  create,
-  get,
-  list,
-  OrderDocument,
-  OrderStatus
-};
+export { create, get, list };

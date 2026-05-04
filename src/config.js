@@ -1,2 +1,3 @@
-// TODO: Replace this with your own Server URL for your codespace
-export const BASE_URL = "https://glowing-space-memory-q7p4jvr9g4p424rj7-3080.app.github.dev";
+// In GitHub Codespaces: replace this with your Codespace server URL from the Ports tab (port 3080)
+// For local development: http://localhost:3080
+export const BASE_URL = "http://localhost:3080";

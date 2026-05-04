@@ -1,106 +1,63 @@
-import { Request, Response, NextFunction } from 'express';
-import * as path from 'path';
-import * as Products from './products';
-import * as Orders from './orders';
-import autoCatch from './lib/auto-catch';
+import { Request, Response, NextFunction } from "express";
+import * as path from "path";
+import * as Products from "./products";
+import * as Orders from "./orders";
 
-interface QueryParams {
-  offset?: number;
-  limit?: number;
-  tag?: string;
-}
+// =====================
+// ROOT
+// =====================
+export const handleRoot = (req: Request, res: Response): void => {
+  res.json({ message: "API running" });
+};
 
-/**
- * Handle the root route
- */
-function handleRoot(req: Request, res: Response): void {
-  res.sendFile(path.join(__dirname, '/index.html'));
-}
+// =====================
+// PRODUCTS
+// =====================
 
-/**
- * List all products
- */
-async function listProducts(req: Request, res: Response): Promise<void> {
-  const { offset = 0, limit = 25, tag } = req.query as unknown as QueryParams;
-  res.json(await Products.list({
-    offset: Number(offset),
-    limit: Number(limit),
-    tag
-  }));
-}
+export const listProducts = async (req: Request, res: Response): Promise<void> => {
+  const products = await Products.list({});
+  res.json(products);
+};
 
-/**
- * Get a single product
- */
-async function getProduct(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
-  const { id } = req.params;
+export const getProduct = async (req: Request, res: Response, next: NextFunction) => {
+  const product = await Products.get(req.params.id);
 
-  const product = await Products.get(id);
-  if (!product) {
-    return next();
-  }
+  if (!product) return next();
 
-  return res.json(product);
-}
+  res.json(product);
+};
 
-/**
- * Create a product
- */
-async function createProduct(req: Request, res: Response): Promise<void> {
+export const createProduct = async (req: Request, res: Response) => {
   const product = await Products.create(req.body);
   res.json(product);
-}
+};
 
-/**
- * Edit a product
- */
-async function editProduct(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
-  const { id } = req.params;
-  const product = await Products.edit(id, req.body);
-  if (!product) {
-    return next();
-  }
-  return res.json(product);
-}
+export const editProduct = async (req: Request, res: Response, next: NextFunction) => {
+  const product = await Products.edit(req.params.id, req.body);
 
-/**
- * Delete a product
- */
-async function deleteProduct(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
-  const { id } = req.params;
-  const product = await Products.remove(id);
-  if (!product) {
-    return next();
-  }
-  return res.json(product);
-}
+  if (!product) return next();
 
-/**
- * Create an order
- */
-async function createOrder(req: Request, res: Response): Promise<void> {
+  res.json(product);
+};
+
+export const deleteProduct = async (req: Request, res: Response, next: NextFunction) => {
+  const product = await Products.remove(req.params.id);
+
+  if (!product) return next();
+
+  res.json(product);
+};
+
+// =====================
+// ORDERS
+// =====================
+
+export const createOrder = async (req: Request, res: Response) => {
   const order = await Orders.create(req.body);
   res.json(order);
-}
+};
 
-/**
- * List all orders
- */
-async function listOrders(req: Request, res: Response): Promise<void> {
-  const { offset = 0, limit = 25 } = req.query as unknown as QueryParams;
-  res.json(await Orders.list({
-    offset: Number(offset),
-    limit: Number(limit)
-  }));
-}
-
-export default autoCatch({
-  handleRoot,
-  listProducts,
-  getProduct,
-  createProduct,
-  editProduct,
-  deleteProduct,
-  createOrder,
-  listOrders
-});
+export const listOrders = async (req: Request, res: Response) => {
+  const orders = await Orders.list({});
+  res.json(orders);
+};
